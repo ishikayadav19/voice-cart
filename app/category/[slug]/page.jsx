@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
-import { Filter, ChevronDown, SlidersHorizontal } from "lucide-react"
+import { Filter, ChevronDown, SlidersHorizontal, Heart, ShoppingCart } from "lucide-react"
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
 import ProductCard from "../../components/product-card"
@@ -206,7 +206,6 @@ const allProducts = [
 const CategoryPage = () => {
   const params = useParams()
   const { slug } = params
-
   const [products, setProducts] = useState([])
   const [cartItems, setCartItems] = useState([])
   const [wishlistItems, setWishlistItems] = useState([])
@@ -229,30 +228,6 @@ const CategoryPage = () => {
     const filteredProducts = allProducts.filter((product) => product.category === slug)
     setProducts(filteredProducts)
   }, [slug])
-
-  // Add to cart function
-  const addToCart = (product) => {
-    setCartItems((prev) => {
-      const existingItem = prev.find((item) => item.id === product.id)
-      if (existingItem) {
-        return prev.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item))
-      } else {
-        return [...prev, { ...product, quantity: 1 }]
-      }
-    })
-  }
-
-  // Add to wishlist function
-  const addToWishlist = (product) => {
-    setWishlistItems((prev) => {
-      const existingItem = prev.find((item) => item.id === product.id)
-      if (existingItem) {
-        return prev.filter((item) => item.id !== product.id)
-      } else {
-        return [...prev, product]
-      }
-    })
-  }
 
   // Get unique brands for filter
   const getBrands = () => {
@@ -335,6 +310,16 @@ const CategoryPage = () => {
   }
 
   const filteredProducts = getFilteredProducts()
+
+  // Handle adding to cart
+  const handleAddToCart = (product) => {
+    setCartItems((prev) => [...prev, product])
+  }
+
+  // Handle adding to wishlist
+  const handleAddToWishlist = (product) => {
+    setWishlistItems((prev) => [...prev, product])
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -499,8 +484,8 @@ const CategoryPage = () => {
                     <ProductCard
                       key={product.id}
                       product={product}
-                      onAddToCart={addToCart}
-                      onAddToWishlist={addToWishlist}
+                      onAddToCart={() => handleAddToCart(product)}
+                      onAddToWishlist={() => handleAddToWishlist(product)}
                       isInWishlist={wishlistItems.some((item) => item.id === product.id)}
                     />
                   ))}

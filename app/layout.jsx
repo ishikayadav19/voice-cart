@@ -1,17 +1,22 @@
-import './globals.css'
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { ShopProvider } from "../context/ShopContext"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: "Voice Cart",
+  description: "Your voice-controlled shopping assistant",
 }
 
-export default function RootLayout({
-  children,
-}) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>
+        <ShopProvider>
+          {children}
+        </ShopProvider>
+      </body>
     </html>
   )
 } 

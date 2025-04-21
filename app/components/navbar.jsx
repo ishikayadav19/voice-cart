@@ -107,7 +107,6 @@ const Navbar = ({ cartItems = [], wishlistItems = [] }) => {
               >
                 <Search className="h-5 w-5" />
               </button>
-
               {isSearchOpen && (
                 <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-lg shadow-lg p-2 flex items-center">
                   <input

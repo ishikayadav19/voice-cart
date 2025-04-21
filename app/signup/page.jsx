@@ -1,85 +1,85 @@
-"use client"
-
+'use client';
+import { useFormik } from 'formik'
 import { useState } from "react"
+import { Infinity } from 'ldrs/react'
 import Link from "next/link"
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
 import Navbar from "../components/navbar"
 import Footer from "../components/footer"
+import * as Yup from 'yup';
+import React from 'react'
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import 'ldrs/react/Infinity.css'
+
+const SignupSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(2, 'Too Short!')
+    .max(50, 'Too Long!')
+    .required('Required'),
+  email: Yup.string().email('Invalid email').required('Required'),
+  password: Yup.string().required('Password is required')
+    .matches(/[a-z]/, 'lowercase letter is required')
+    .matches(/[A-Z]/, 'uppercase letter is required')
+    .matches(/[0-9]/, 'number is required')
+    .matches(/\W/, 'special character is required')
+    .min(8, 'Password must be at least 8 characters long'),
+  confirmPassword: Yup.string().required('Confirm Password is required')
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+});
 
 const SignupPage = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const router = useRouter()
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-
-    if (name === "password") {
-      // Calculate password strength
-      let strength = 0
-      if (value.length >= 8) strength += 1
-      if (/[A-Z]/.test(value)) strength += 1
-      if (/[0-9]/.test(value)) strength += 1
-      if (/[^A-Za-z0-9]/.test(value)) strength += 1
-      setPasswordStrength(strength)
-    }
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-
-    // Validate form
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
-      return
-    }
-
-    if (!agreeTerms) {
-      setError("You must agree to the Terms and Conditions")
-      return
-    }
-
-    setIsLoading(true)
-
-    // Simulate API call
-    try {
-      // This would be replaced with actual backend registration
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // For demo purposes, validate email format and password strength
-      if (!formData.email.includes("@")) {
-        throw new Error("Please enter a valid email address")
+  const signForm = useFormik({
+      initialValues: {
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      },
+    validationSchema: SignupSchema,
+      onSubmit: async (values, { resetForm, setSubmitting }) => {
+      if (!agreeTerms) {
+        toast.error('Please agree to the Terms and Conditions');
+        return;
       }
 
-      if (passwordStrength < 2) {
-        throw new Error("Please use a stronger password")
+        try {
+          const res = await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL}/user/add`,
+              values
+          );
+          
+          toast.success('User Registered Successfully!');
+          router.push('/login');
+          resetForm();
+      } catch (error) {
+        toast.error(error?.response?.data?.message || 'Registration failed');
+        setSubmitting(false);
       }
-
-      // Redirect to login page on success
-      window.location.href = "/login"
-    } catch (error) {
-      setError(error.message || "Registration failed. Please try again.")
-    } finally {
-      setIsLoading(false)
     }
-  }
+  });
+
+  const handlePasswordChange = (e) => {
+    signForm.handleChange(e);
+    const value = e.target.value;
+    let strength = 0;
+    if (value.length >= 8) strength += 1;
+    if (/[A-Z]/.test(value)) strength += 1;
+    if (/[0-9]/.test(value)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(value)) strength += 1;
+    setPasswordStrength(strength);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-
       <main className="flex-1 flex items-center justify-center px-4 py-16 bg-gray-50">
         <div className="w-full max-w-lg">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -89,51 +89,29 @@ const SignupPage = () => {
                 <p className="text-gray-600">Join VoiceCart for a better shopping experience</p>
               </div>
 
-              {error && <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-md text-sm">{error}</div>}
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={signForm.handleSubmit} className="space-y-6">
                   <div className="space-y-1">
-                    <label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                      First Name
+                  <label htmlFor="name" className="text-sm font-medium text-gray-700">
+                    Full Name
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <User className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
-                        id="firstName"
-                        name="firstName"
+                      id="name"
+                      name="name"
                         type="text"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        required
+                      value={signForm.values.name}
+                        onChange={signForm.handleChange}
+                      onBlur={signForm.handleBlur}
                         className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-                        placeholder="John"
+                      placeholder="John Doe"
                       />
-                    </div>
                   </div>
-
-                  <div className="space-y-1">
-                    <label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                      Last Name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        id="lastName"
-                        name="lastName"
-                        type="text"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        required
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-                        placeholder="Doe"
-                      />
-                    </div>
-                  </div>
+                  {signForm.touched.name && signForm.errors.name && (
+                    <p className="text-xs text-red-600 mt-2">{signForm.errors.name}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1">
@@ -148,13 +126,16 @@ const SignupPage = () => {
                       id="email"
                       name="email"
                       type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
+                      onChange={signForm.handleChange}
+                      value={signForm.values.email}
+                      onBlur={signForm.handleBlur}
                       className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
                       placeholder="you@example.com"
                     />
                   </div>
+                  {signForm.touched.email && signForm.errors.email && (
+                    <p className="text-xs text-red-600 mt-2">{signForm.errors.email}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1">
@@ -169,9 +150,9 @@ const SignupPage = () => {
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
+                      onChange={handlePasswordChange}
+                      value={signForm.values.password}
+                      onBlur={signForm.handleBlur}
                       className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
                       placeholder="••••••••"
                     />
@@ -185,8 +166,10 @@ const SignupPage = () => {
                       </button>
                     </div>
                   </div>
+                  {signForm.touched.password && signForm.errors.password && (
+                    <p className="text-xs text-red-600 mt-2">{signForm.errors.password}</p>
+                  )}
 
-                  {/* Password strength indicator */}
                   <div className="mt-2">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-gray-500">Password strength:</span>
@@ -228,9 +211,9 @@ const SignupPage = () => {
                       id="confirmPassword"
                       name="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      required
+                      onChange={signForm.handleChange}
+                      value={signForm.values.confirmPassword}
+                      onBlur={signForm.handleBlur}
                       className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
                       placeholder="••••••••"
                     />
@@ -244,6 +227,9 @@ const SignupPage = () => {
                       </button>
                     </div>
                   </div>
+                  {signForm.touched.confirmPassword && signForm.errors.confirmPassword && (
+                    <p className="text-xs text-red-600 mt-2">{signForm.errors.confirmPassword}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center">
@@ -269,20 +255,21 @@ const SignupPage = () => {
                 <div>
                   <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={signForm.isSubmitting}
                     className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 ${
-                      isLoading ? "opacity-70 cursor-not-allowed" : ""
+                      signForm.isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                     }`}
                   >
-                    {isLoading ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    ) : null}
-                    {isLoading ? "Creating account..." : "Create Account"}
+                    {signForm.isSubmitting ? (
+                      <Infinity size="30" speed="2.5" color="white" />
+                    ) : (
+                      'Create Account'
+                    )}
                   </button>
                 </div>
               </form>
 
-              <div className="mt-6">
+              {/* <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-300"></div>
@@ -303,7 +290,7 @@ const SignupPage = () => {
                     <img src="/placeholder.svg?height=20&width=20" alt="Apple" className="h-5 w-5" />
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
@@ -317,10 +304,9 @@ const SignupPage = () => {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default SignupPage
+export default SignupPage;
