@@ -13,6 +13,7 @@ import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import 'ldrs/react/Infinity.css'
 
+
 const SignupSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, 'Too Short!')

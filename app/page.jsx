@@ -8,6 +8,9 @@ import ProductCard from "./components/product-card"
 import Footer from "./components/footer"
 import OfferBanner from "./components/offer-banner"
 import VoiceAssistant from "./components/voice-assistant"
+import axios from "axios"
+import { Infinity } from "ldrs/react"
+import "ldrs/react/Infinity.css"
 
 // Sample product data
 const products = [
@@ -158,6 +161,8 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
   const [cartItems, setCartItems] = useState([])
   const [wishlistItems, setWishlistItems] = useState([])
+  const [featuredProducts, setFeaturedProducts] = useState([])
+  const [loading, setLoading] = useState(true)
 
   // Handle banner slider
   useEffect(() => {
@@ -227,6 +232,22 @@ export default function Home() {
       }
     }
   }
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/all`)
+        // Get the first 4 products as featured products
+        setFeaturedProducts(response.data.slice(0, 4))
+        setLoading(false)
+      } catch (error) {
+        console.error("Error fetching featured products:", error)
+        setLoading(false)
+      }
+    }
+
+    fetchFeaturedProducts()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -454,6 +475,34 @@ export default function Home() {
                 Subscribe
               </button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">Featured Products</h2>
+          
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <Infinity size="30" speed="2.5" color="#E11D48" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          )}
+
+          <div className="text-center mt-12">
+            <a
+              href="/products"
+              className="inline-block bg-rose-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-rose-700 transition-colors"
+            >
+              View All Products
+            </a>
           </div>
         </div>
       </section>
