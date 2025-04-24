@@ -68,7 +68,7 @@ const AddProductPage = () => {
         );
         
         toast.success('Product Added Successfully!');
-        router.push('/addproduct');
+        router.push('/products');
         resetForm();
       } catch (error) {
         toast.error(error?.response?.data?.message || 'Failed to add product');

@@ -9,22 +9,43 @@ import 'ldrs/react/Infinity.css';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/all`);
-        setProducts(response.data);
+  const [loading, setLoading] = useState(true);        //  to read data
+        const fetchProducts = async () => {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`)
+            setProducts(res.data);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setLoading(false);
-      }
-    };
+        }
 
-    fetchProducts();
-  }, []);
+        useEffect(() => {
+          fetchProducts();
+        }, []);
+      
+
+//         const deleteUser = async (id) => {
+//             const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/user/delete/${id}`)
+//             console.log(res.data);
+//             fetchUsers();
+//             toast.success('User Deleted Successfully!');
+//         };
+
+// const ProductsPage = () => {
+//   const [products, setProducts] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchProducts = async () => {
+//       try {
+//         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/all`);
+//         setProducts(response.data);
+//         setLoading(false);
+//       } catch (error) {
+//         console.error('Error fetching products:', error);
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchProducts();
+//   }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -39,7 +60,7 @@ const ProductsPage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
+              {products.map((product,index) => (
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
