@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ShoppingCart, Heart, Mic, ChevronLeft, ChevronRight } from "lucide-react"
+// import { ShoppingCart, Heart, Mic, ChevronLeft, ChevronRight } from "lucide-react"
 import Navbar from "./components/navbar"
 import ProductCard from "./components/product-card"
-import Footer from "./components/footer"
+import Footer from "./components/footer";
+
 import OfferBanner from "./components/offer-banner"
 import VoiceAssistant from "./components/voice-assistant"
 import axios from "axios"
 import { Infinity } from "ldrs/react"
 import "ldrs/react/Infinity.css"
+import { ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart } from "lucide-react"
 
 // Sample product data
 const products = [

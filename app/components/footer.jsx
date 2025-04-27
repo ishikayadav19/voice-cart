@@ -1,10 +1,7 @@
 import Link from "next/link"
+
 import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Youtube,
-  Linkedin,
+  
   Mail,
   Phone,
   MapPin,
@@ -12,6 +9,11 @@ import {
   Truck,
   ShieldCheck,
   Clock,
+  Facebook,
+  Twitter,
+  Instagram,
+  Youtube,
+  Linkedin,
 } from "lucide-react"
 
 const Footer = () => {
