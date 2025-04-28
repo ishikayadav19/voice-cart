@@ -251,6 +251,49 @@ export default function Home() {
     fetchFeaturedProducts()
   }, [])
 
+  const ProductsPage = () => {
+    const [productList, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [wishlist, setWishlist] = useState([]);
+  
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`);
+        setProducts(res.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setLoading(false);
+      }
+    };
+
+  
+    useEffect(() => {
+      fetchProducts();
+    }, []);
+  }
+
+ 
+
+  const handleAddToCart = (product) => {  
+    setCartItems(prev => {
+      const existingItem = prev.find(item => item._id === product._id);
+      if (existingItem) {
+        return prev.map(item => item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item);
+      } else {
+        return [...prev, { ...product, quantity: 1 }];
+      }
+    });
+  }
+  const handleAddToWishlist = (product) => {
+    setWishlist(prev => {
+      const isInWishlist = prev.some(item => item._id === product._id);
+      if (isInWishlist) {
+        return prev.filter(item => item._id !== product._id);
+      }
+      return [...prev, product];
+    });
+  };
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Navbar cartItems={cartItems} wishlistItems={wishlistItems} />
@@ -485,18 +528,26 @@ export default function Home() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-800 mb-8">Featured Products</h2>
-          
+          <div className="grid grid-cols-12 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-4 gap-6">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Infinity size="30" speed="2.5" color="#E11D48" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product._id} product={product} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <ProductCard 
+                  key={product._id} 
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  onAddToWishlist={handleAddToWishlist}
+                  // isInWishlist={wishlist.some(item => item._id === product._id)}
+                />
               ))}
             </div>
           )}
+        </div>
+     
 
           <div className="text-center mt-12">
             <a
