@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 // import { ShoppingCart, Heart, Mic, ChevronLeft, ChevronRight } from "lucide-react"
 import Navbar from "./components/navbar"
-import ProductCard from "./components/product-card"
+import ProductCard from "./components/ProductCard"
 import Footer from "./components/footer";
 
 import OfferBanner from "./components/offer-banner"
@@ -13,121 +13,10 @@ import axios from "axios"
 import { Infinity } from "ldrs/react"
 import "ldrs/react/Infinity.css"
 import { ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart } from "lucide-react"
+import CountdownTimer from "./components/CountdownTimer"
 
-// Sample product data
-const products = [
-  {
-    id: 1,
-    name: "Wireless Noise Cancelling Headphones",
-    price: 199.99,
-    discountPrice: 149.99,
-    category: "electronics",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.5,
-    reviews: 128,
-  },
-  {
-    id: 2,
-    name: "Smart 4K Ultra HD TV - 55 inch",
-    price: 699.99,
-    discountPrice: 549.99,
-    category: "electronics",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.7,
-    reviews: 245,
-  },
-  {
-    id: 3,
-    name: "Premium Cotton T-Shirt",
-    price: 29.99,
-    discountPrice: 19.99,
-    category: "fashion",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.3,
-    reviews: 89,
-  },
-  {
-    id: 4,
-    name: "Designer Denim Jeans",
-    price: 79.99,
-    discountPrice: 59.99,
-    category: "fashion",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.6,
-    reviews: 112,
-  },
-  {
-    id: 5,
-    name: "Modern Coffee Table",
-    price: 249.99,
-    discountPrice: 199.99,
-    category: "home",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.4,
-    reviews: 67,
-  },
-  {
-    id: 6,
-    name: "Luxury Scented Candle Set",
-    price: 39.99,
-    discountPrice: 29.99,
-    category: "home",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.8,
-    reviews: 156,
-  },
-  {
-    id: 7,
-    name: "Anti-Aging Face Serum",
-    price: 59.99,
-    discountPrice: 44.99,
-    category: "beauty",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.7,
-    reviews: 203,
-  },
-  {
-    id: 8,
-    name: "Professional Makeup Brush Set",
-    price: 49.99,
-    discountPrice: 34.99,
-    category: "beauty",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.5,
-    reviews: 178,
-  },
-]
 
-// Featured deals
-const featuredDeals = [
-  {
-    id: 101,
-    name: "Limited Edition Smartwatch",
-    price: 299.99,
-    discountPrice: 199.99,
-    discount: "33%",
-    image: "/placeholder.svg?height=300&width=300",
-    endTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
-  },
-  {
-    id: 102,
-    name: "Premium Bluetooth Speaker",
-    price: 149.99,
-    discountPrice: 89.99,
-    discount: "40%",
-    image: "/placeholder.svg?height=300&width=300",
-    endTime: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
-  },
-  {
-    id: 103,
-    name: "Ergonomic Office Chair",
-    price: 249.99,
-    discountPrice: 179.99,
-    discount: "28%",
-    image: "/placeholder.svg?height=300&width=300",
-    endTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
-  },
-]
+
 
 // Banner slides
 const bannerSlides = [
@@ -165,6 +54,11 @@ export default function Home() {
   const [wishlistItems, setWishlistItems] = useState([])
   const [featuredProducts, setFeaturedProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [deals, setDeals] = useState([]);
+  const [dealEndTime] = useState(new Date().getTime() + 48 * 60 * 60 * 1000); // 48 hours from now
+  const [popularProducts, setPopularProducts] = useState([]);
 
   // Handle banner slider
   useEffect(() => {
@@ -184,27 +78,36 @@ export default function Home() {
 
   // Add to cart function
   const addToCart = (product) => {
-    setCartItems((prev) => {
-      const existingItem = prev.find((item) => item.id === product.id)
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item._id === product._id);
       if (existingItem) {
-        return prev.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item))
+        return prevItems.map(item => 
+          item._id === product._id 
+            ? { ...item, quantity: item.quantity + 1 } 
+            : item
+        );
       } else {
-        return [...prev, { ...product, quantity: 1 }]
+        return [...prevItems, { ...product, quantity: 1 }];
       }
-    })
-  }
+    });
+  };
 
   // Add to wishlist function
   const addToWishlist = (product) => {
-    setWishlistItems((prev) => {
-      const existingItem = prev.find((item) => item.id === product.id)
-      if (existingItem) {
-        return prev.filter((item) => item.id !== product.id)
+    setWishlistItems(prevItems => {
+      const isInWishlist = prevItems.some(item => item._id === product._id);
+      if (isInWishlist) {
+        return prevItems.filter(item => item._id !== product._id);
       } else {
-        return [...prev, product]
+        return [...prevItems, product];
       }
-    })
-  }
+    });
+  };
+
+  // Calculate total items in cart
+  const getTotalCartItems = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
 
   // Handle voice commands
   const handleVoiceCommand = (command) => {
@@ -251,40 +154,22 @@ export default function Home() {
     fetchFeaturedProducts()
   }, [])
 
-  const ProductsPage = () => {
-    const [productList, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [wishlist, setWishlist] = useState([]);
-  
-    const fetchProducts = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`);
-        setProducts(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setLoading(false);
-      }
-    };
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`);
+      setProducts(res.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setLoading(false);
+    }
+  };
 
-  
-    useEffect(() => {
-      fetchProducts();
-    }, []);
-  }
+  const handleAddToCart = (product) => {
+    // Implement cart functionality
+    console.log('Adding to cart:', product);
+  };
 
- 
-
-  const handleAddToCart = (product) => {  
-    setCartItems(prev => {
-      const existingItem = prev.find(item => item._id === product._id);
-      if (existingItem) {
-        return prev.map(item => item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item);
-      } else {
-        return [...prev, { ...product, quantity: 1 }];
-      }
-    });
-  }
   const handleAddToWishlist = (product) => {
     setWishlist(prev => {
       const isInWishlist = prev.some(item => item._id === product._id);
@@ -294,9 +179,34 @@ export default function Home() {
       return [...prev, product];
     });
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    // Filter products with 40-50% discount
+    const filteredDeals = products.filter((product) => {
+      const discountPercentage = product.discountPrice ? Math.round((1 - product.discountPrice / product.price) * 100) : 0;
+      return discountPercentage >= 40 && discountPercentage <= 50;
+    });
+    setDeals(filteredDeals);
+
+    // Filter products with rating between 4 and 5
+    const filteredPopularProducts = products.filter(
+      (product) => product.rating >= 4 && product.rating <= 5
+    );
+    setPopularProducts(filteredPopularProducts);
+  }, [products]);
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <Navbar cartItems={cartItems} wishlistItems={wishlistItems} />
+      <Navbar 
+        cartItems={cartItems} 
+        wishlistItems={wishlistItems} 
+        totalCartItems={getTotalCartItems()}
+      />
 
       {/* Voice Assistant Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">
@@ -363,19 +273,23 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredDeals.map((deal) => (
+          {deals.map((deal) => (
             <div
-              key={deal.id}
+              key={deal._id}
               className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
             >
-              <div className="relative">
-                <img src={deal.image || "/placeholder.svg"} alt={deal.name} className="w-full h-64 object-cover" />
-                <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md font-bold">
-                  {deal.discount} OFF
+              <Link href={`/product/${deal._id}`}>
+                <div className="relative">
+                  <img src={deal.image || "/placeholder.svg"} alt={deal.name} className="w-full h-64 object-cover" />
+                  <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md font-bold">
+                    {Math.round((1 - deal.discountPrice / deal.price) * 100)}% OFF
+                  </div>
                 </div>
-              </div>
+              </Link>
               <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">{deal.name}</h3>
+                <Link href={`/product/${deal._id}`}>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-800 hover:text-rose-600 transition-colors">{deal.name}</h3>
+                </Link>
                 <div className="flex items-center mb-3">
                   <span className="text-xl font-bold text-rose-600">${deal.discountPrice.toFixed(2)}</span>
                   <span className="ml-2 text-sm line-through text-gray-500">${deal.price.toFixed(2)}</span>
@@ -384,20 +298,7 @@ export default function Home() {
                 {/* Countdown Timer */}
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-1">Offer ends in:</p>
-                  <div className="flex space-x-2">
-                    <div className="bg-gray-200 px-2 py-1 rounded text-center">
-                      <span className="font-mono font-bold">48</span>
-                      <p className="text-xs">Hours</p>
-                    </div>
-                    <div className="bg-gray-200 px-2 py-1 rounded text-center">
-                      <span className="font-mono font-bold">23</span>
-                      <p className="text-xs">Mins</p>
-                    </div>
-                    <div className="bg-gray-200 px-2 py-1 rounded text-center">
-                      <span className="font-mono font-bold">59</span>
-                      <p className="text-xs">Secs</p>
-                    </div>
-                  </div>
+                  <CountdownTimer endTime={dealEndTime} />
                 </div>
 
                 <div className="flex space-x-2">
@@ -419,7 +320,7 @@ export default function Home() {
                   >
                     <Heart
                       size={20}
-                      className={wishlistItems.some((item) => item.id === deal.id) ? "fill-rose-600 text-rose-600" : ""}
+                      className={wishlistItems.some((item) => item._id === deal._id) ? "fill-rose-600 text-rose-600" : ""}
                     />
                   </button>
                 </div>
@@ -462,7 +363,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.slice(0, 8).map((product) => (
+          {popularProducts.slice(0, 4).map((product) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -525,40 +426,39 @@ export default function Home() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">Featured Products</h2>
-          <div className="grid grid-cols-12 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-4 gap-6">
+      <main className="flex-1 px-4 py-16">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">Featured Products</h1>
+          
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Infinity size="30" speed="2.5" color="#E11D48" />
             </div>
           ) : (
+            <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
+              {products.slice(0,4).map((product) => (
                 <ProductCard 
                   key={product._id} 
                   product={product}
                   onAddToCart={handleAddToCart}
                   onAddToWishlist={handleAddToWishlist}
-                  // isInWishlist={wishlist.some(item => item._id === product._id)}
+                  isInWishlist={wishlist.some(item => item._id === product._id)}
                 />
               ))}
             </div>
-          )}
-        </div>
-     
-
-          <div className="text-center mt-12">
-            <a
+             <div className="text-center mt-12">
+            <Link
               href="/products"
               className="inline-block bg-rose-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-rose-700 transition-colors"
             >
               View All Products
-            </a>
+            </Link>
           </div>
+            </>
+          )}
         </div>
-      </section>
+      </main>
 
       <Footer />
     </div>

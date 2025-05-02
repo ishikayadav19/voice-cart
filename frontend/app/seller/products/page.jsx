@@ -6,16 +6,19 @@ import Footer from '../../components/footer';
 
 import { Infinity } from 'ldrs/react';
 import 'ldrs/react/Infinity.css';
-import SellerProductCard from '@/app/components/SellerProductCard';
+// import SellerProductCard from '@/app/components/SellerProductCard';
+import SellerCard from '@/app/components/SellerCard';
+import { useRouter } from 'next/navigation';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const router = useRouter();
 
   const fetchProducts = async () => {
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`);
+      console.table(res.data);
       setProducts(res.data);
       setLoading(false);
     } catch (error) {
@@ -24,13 +27,10 @@ const ProductsPage = () => {
     }
   };
 
- 
-
-  
-
   useEffect(() => {
     fetchProducts();
   }, []);
+
   const handleEdit = (id) => {
     console.log('Edit product with ID:', id);
     // Navigate to the edit page or open a modal
@@ -40,15 +40,13 @@ const ProductsPage = () => {
     const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/product/delete/${id}`)
     console.log(res.data);
     fetchProducts();
-    toast.success('Product Deleted Successfully!');
+    toast.success('User Deleted Successfully!');
 };
-
 
   const handleUpdateStock = (id) => {
     console.log('Update stock for product with ID:', id);
     // Implement stock update logic
   };
-
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -56,7 +54,7 @@ const ProductsPage = () => {
       <main className="flex-1 px-4 py-16">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">All Products</h1>
-          
+
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Infinity size="30" speed="2.5" color="#E11D48" />
@@ -64,13 +62,12 @@ const ProductsPage = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product) => (
-                <SellerProductCard
-                  key={product._id} 
+                <SellerCard
+                  key={product._id}
                   product={product}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onUpdateStock={handleUpdateStock}
-                 
                 />
               ))}
             </div>
@@ -82,4 +79,4 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage; 
+export default ProductsPage;

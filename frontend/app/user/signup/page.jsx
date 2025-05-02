@@ -4,14 +4,16 @@ import { useState } from "react"
 import { Infinity } from 'ldrs/react'
 import Link from "next/link"
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
-import Navbar from "../components/navbar"
-import Footer from "../components/footer"
+// import Navbar from "../components/navbar"
+// import Footer from "../components/footer"
 import * as Yup from 'yup';
 import React from 'react'
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import 'ldrs/react/Infinity.css'
+import Navbar from '@/app/components/navbar';
+import Footer from '@/app/components/footer';
 
 
 const SignupSchema = Yup.object().shape({
@@ -58,7 +60,7 @@ const SignupPage = () => {
           );
           
           toast.success('User Registered Successfully!');
-          router.push('/login');
+          router.push('/user/login');
           resetForm();
       } catch (error) {
         toast.error(error?.response?.data?.message || 'Registration failed');

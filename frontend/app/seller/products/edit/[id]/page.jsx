@@ -7,95 +7,45 @@ import Navbar from "../../../../components/navbar"
 import Footer from "../../../../components/footer"
 import axios from "axios"
 import toast from "react-hot-toast"
+import { useParams } from 'next/navigation';
+import { Formik } from 'formik';
 
-const EditProductPage = ({ params }) => {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
-  const [product, setProduct] = useState({
-    name: "",
-    description: "",
-    price: "",
-    stock: "",
-    category: "",
-    image: "",
-  })
+
+
+import React from 'react'
+// import { useEffect } from 'react';
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const EditProductPage = () => {
+  const {id} = useParams();
+  const [productData, setProductData] = React.useState(null);
+  const fetchProductData = async () => {
+    const res = await axios.get(`${BASE_URL}/product/getbyid/${id}`);
+    console.log(res.data);
+    setProductData(res.data);
+  };
 
   useEffect(() => {
-    fetchProduct()
-  }, [params.id])
+    fetchProductData()
+  }, [])
 
-  const fetchProduct = async () => {
-    try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
-      if (!token) {
-        router.push("/seller/login")
-        return
-      }
-
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/products/${params.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
-      setProduct(response.data)
-    } catch (error) {
-      console.error("Error fetching product:", error)
-      toast.error("Failed to load product")
-    } finally {
-      setIsLoading(false)
-    }
+  const handleUpdate =  (values) => {
+    console.log(values);
+    axios.put(`${BASE_URL}/product/update/${id}`, values)
+    .then((res) => {
+      console.log(res.data);
+      toast.success('Product updated successfully');
+    })
+    .catch((err) => {
+      console.log(err);
+      toast.error('Error updating product');
+    });
+  }
+  if(productData === null){
+    return <p className='text-center text-2xl font-bold'>Loading...</p>
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsSaving(true)
 
-    try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/products/${params.id}`,
-        product,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
-      toast.success("Product updated successfully")
-      router.push("/seller/products")
-    } catch (error) {
-      console.error("Error updating product:", error)
-      toast.error("Failed to update product")
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setProduct((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
-        </main>
-        <Footer />
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -114,8 +64,11 @@ const EditProductPage = ({ params }) => {
               <p className="text-sm text-gray-500 mt-1">Update your product information</p>
             </div>
           </div>
+          <Formik initialValues={productData}
+          onSubmit={handleUpdate}>
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-8">
+            {(productForm)=>(
+          <form onSubmit={productForm.handleSubmit} className="bg-white rounded-xl shadow-sm p-8">
             <div className="space-y-8">
               {/* Product Image */}
               <div>
@@ -124,10 +77,10 @@ const EditProductPage = ({ params }) => {
                 </label>
                 <div className="flex items-center gap-6">
                   <div className="relative h-40 w-40 rounded-xl overflow-hidden bg-gray-100 shadow-sm border border-gray-200">
-                    {product.image ? (
+                    {productForm.image ? (
                       <img
-                        src={product.image}
-                        alt={product.name}
+                        src={productForm.values.image}
+                        alt={productForm.name}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -140,8 +93,8 @@ const EditProductPage = ({ params }) => {
                     <input
                       type="text"
                       name="image"
-                      value={product.image}
-                      onChange={handleChange}
+                      value={productForm.values.image}
+                      onChange={productForm.handleChange}
                       placeholder="Enter image URL"
                       className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
                     />
@@ -164,8 +117,8 @@ const EditProductPage = ({ params }) => {
                   <input
                     type="text"
                     name="name"
-                    value={product.name}
-                    onChange={handleChange}
+                    value={productForm.values.name}
+                    onChange={productForm.handleChange}
                     required
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
                     placeholder="Enter product name"
@@ -180,8 +133,8 @@ const EditProductPage = ({ params }) => {
                 </label>
                 <textarea
                   name="description"
-                  value={product.description}
-                  onChange={handleChange}
+                  value={productForm.values.description}
+                  onChange={productForm.handleChange}
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
                   placeholder="Enter product description"
@@ -201,8 +154,8 @@ const EditProductPage = ({ params }) => {
                     <input
                       type="number"
                       name="price"
-                      value={product.price}
-                      onChange={handleChange}
+                      value={productForm.values.price}
+                      onChange={productForm.handleChange}
                       required
                       min="0"
                       step="0.01"
@@ -222,8 +175,8 @@ const EditProductPage = ({ params }) => {
                     <input
                       type="number"
                       name="stock"
-                      value={product.stock}
-                      onChange={handleChange}
+                      value={productForm.values.stock}
+                      onChange={productForm.handleChange}
                       required
                       min="0"
                       className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
@@ -245,8 +198,8 @@ const EditProductPage = ({ params }) => {
                   <input
                     type="text"
                     name="category"
-                    value={product.category}
-                    onChange={handleChange}
+                    value={productForm.values.category}
+                    onChange={productForm.handleChange}
                     required
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
                     placeholder="Enter product category"
@@ -256,21 +209,26 @@ const EditProductPage = ({ params }) => {
 
               {/* Submit Button */}
               <div className="flex justify-end pt-4">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex items-center px-6 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                >
-                  {isSaving ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <Save className="h-4 w-4 mr-2" />
-                  )}
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </button>
+              <button disabled={productForm.isSubmitting}
+                type="submit"
+                className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {
+                  productForm.isSubmitting ? (
+                    <Infinity
+                      size="30"
+                      speed="2.5"
+                      color="white"
+                    />
+                  ): 'Submit'
+                }
+               
+              </button>
               </div>
             </div>
           </form>
+            )}
+          </Formik>
         </div>
       </main>
       <Footer />

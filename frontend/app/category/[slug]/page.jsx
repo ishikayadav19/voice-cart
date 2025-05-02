@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { Filter, ChevronDown, SlidersHorizontal, Heart, ShoppingCart } from "lucide-react"
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
-import ProductCard from "../../components/product-card"
+import ProductCard from "../../components/ProductCard"
 
 // Sample product data
 const allProducts = [

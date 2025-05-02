@@ -26,27 +26,27 @@ router.post('/add' , (req, res) => {
 router.post('/login', async (req, res) => {
     try{
         const {email , password} = req.body;
-        const seller = await Model.findOne({email});
-        if(!seller){
+        const user = await Model.findOne({email});
+        if(!user){
             return res.status(401).json({message: "Invalid Email or password"});
     }
-    if(seller.password !== password){
+    if(user.password !== password){
         return res.status(401).json({message: "Invalid Email or password"});
     }
 
-    const token = jwt.sign({id: seller._id, email: seller.email}, process.env.JWT_SECRET, {expiresIn: '24h'});
+    const token = jwt.sign({id: user._id, email: user.email}, process.env.JWT_SECRET, {expiresIn: '24h'});
     res.status(200).json({
         message: "Login successful",
         token,
         user: {
-            id: seller._id,
-            name: seller.name,
-            email: seller.email,
+            id: user._id,
+            name: user.name,
+            email: user.email,
         }
     });
 }
 catch(error){
-    console.log(error);
+    console.log('Login error:',error);
     res.status(500).json({message: "Some error occured"});
 }
 });
@@ -165,5 +165,6 @@ router.post('/authenticate', (req, res)=>{
 
 }
 )
+
 
 module.exports = router;

@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ShoppingCart, Heart, Search, Mic, Menu, X, User } from "lucide-react"
+import { useRouter } from "next/navigation"
 
-const Navbar = ({ cartItems = [], wishlistItems = [] }) => {
+const Navbar = ({ cartItems = [], wishlistItems = [], totalCartItems = 0 }) => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isVoiceListening, setIsVoiceListening] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const router = useRouter()
 
   // Handle scroll effect
   useEffect(() => {
@@ -55,6 +57,13 @@ const Navbar = ({ cartItems = [], wishlistItems = [] }) => {
       recognition.start()
     } else {
       alert("Voice recognition is not supported in your browser.")
+    }
+  }
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
     }
   }
 
@@ -109,21 +118,26 @@ const Navbar = ({ cartItems = [], wishlistItems = [] }) => {
               </button>
               {isSearchOpen && (
                 <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-lg shadow-lg p-2 flex items-center">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search products..."
-                    className="flex-1 p-2 border-none outline-none"
-                  />
+                  <form onSubmit={handleSearch} className="flex">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search products..."
+                      className="flex-1 p-2 border-none outline-none"
+                    />
+                    <button
+                      type="submit"
+                      className="p-2 text-gray-500 hover:text-rose-600"
+                    >
+                      <Search className="h-5 w-5" />
+                    </button>
+                  </form>
                   <button
                     onClick={startVoiceSearch}
                     className={`p-2 ${isVoiceListening ? "text-rose-600 animate-pulse" : "text-gray-500 hover:text-rose-600"}`}
                   >
                     <Mic className="h-5 w-5" />
-                  </button>
-                  <button className="p-2 text-gray-500 hover:text-rose-600">
-                    <Search className="h-5 w-5" />
                   </button>
                 </div>
               )}
@@ -145,9 +159,9 @@ const Navbar = ({ cartItems = [], wishlistItems = [] }) => {
             <Link href="/cart">
               <div className="relative p-2 text-gray-700 hover:text-rose-600 transition-colors">
                 <ShoppingCart className="h-5 w-5" />
-                {cartItems.length > 0 && (
+                {totalCartItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                    {cartItems.length}
+                    {totalCartItems}
                   </span>
                 )}
               </div>

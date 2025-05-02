@@ -7,7 +7,7 @@ import Link from "next/link"
 // import Footer from "../components/footer"
 import React from 'react'
 
-const LoginOptionsPage = () => {
+const SignupOptionsPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -21,18 +21,18 @@ const LoginOptionsPage = () => {
                   Join VoiceCart
                 </h1>
                 <p className="text-gray-600">
-                  Choose how you want to Login 
+                  Choose how you want to sign up
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* User Signup Card */}
                 <Link
-                  href="/user/login"
+                  href="/user/signup"
                   className="block rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
                   <div className="p-6 bg-gradient-to-br from-rose-400 to-rose-500 text-white">
-                    <h2 className="text-2xl font-semibold mb-2">Login as User</h2>
+                    <h2 className="text-2xl font-semibold mb-2">Sign up as User</h2>
                     <p className="text-gray-100">
                       Shop, explore, and enjoy the best deals on VoiceCart.
                     </p>
@@ -44,12 +44,12 @@ const LoginOptionsPage = () => {
 
                 {/* Seller Signup Card */}
                 <Link
-                  href="/seller/login"
+                  href="/seller/signup"
                   className="block rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
                   <div className="p-6 bg-gradient-to-br from-purple-400 to-purple-500 text-white">
                     <h2 className="text-2xl font-semibold mb-2">
-                        Login as Seller
+                      Sign up as Seller
                     </h2>
                     <p className="text-gray-100">
                       Start selling your products and reach millions of
@@ -71,4 +71,4 @@ const LoginOptionsPage = () => {
   );
 };
 
-export default LoginOptionsPage;
+export default SignupOptionsPage;
