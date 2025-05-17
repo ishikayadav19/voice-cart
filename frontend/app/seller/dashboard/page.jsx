@@ -15,6 +15,7 @@ import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
 import axios from "axios"
 import toast from "react-hot-toast"
+import SectionHeading from "../../components/section-heading"
 
 const SellerDashboard = () => {
   const router = useRouter()
@@ -91,8 +92,14 @@ const SellerDashboard = () => {
       <main className="flex-1 p-6 mt-5 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">Seller Dashboard</h1>
-            <p className="text-gray-600 mt-2">Welcome back! Here's your store overview</p>
+            <SectionHeading
+              title="Seller Dashboard"
+              subtitle="Welcome back! Here's your store overview"
+              colors={["#E11D48", "#7C3AED", "#E11D48"]}
+              animationSpeed={3}
+              className="text-3xl font-bold"
+              align="left"
+            />
           </div>
 
           {isLoading ? (

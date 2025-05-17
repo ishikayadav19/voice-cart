@@ -8,42 +8,55 @@ import Footer from "../../components/footer"
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from "framer-motion"
+import SectionHeading from "@/app/components/SectionHeading"
 
 const SellerLoginPage = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
   const router = useRouter()
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     setError("")
-    setIsLoading(true)
 
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/seller/login`,
-        { email, password }
+        formData
       )
 
-      // Store the token in localStorage if remember me is checked
-      if (rememberMe) {
-        localStorage.setItem('sellerToken', response.data.token)
-      } else {
-        sessionStorage.setItem('sellerToken', response.data.token)
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token)
+        setSuccess(true)
+        toast.success("Login successful!")
+        setTimeout(() => {
+          router.push("/seller/dashboard")
+        }, 1000)
       }
-
-      toast.success('Login successful!')
-      router.push('/seller/dashboard') // Redirect to seller dashboard
-    } catch (error) {
-      console.error('Login error:', error)
-      setError(error.response?.data?.message || "Login failed. Please check your credentials.")
-      toast.error(error.response?.data?.message || "Login failed. Please try again.")
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Failed to login. Please check your credentials and try again."
+      )
+      toast.error("Login failed. Please try again.")
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
@@ -51,114 +64,154 @@ const SellerLoginPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-24 bg-gray-50">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="p-8">
+      <main className="flex-1 flex items-center justify-center px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden relative">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-purple-600 transform rotate-45 scale-150"></div>
+            </div>
+
+            <div className="p-8 relative">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back, Seller!</h1>
-                <p className="text-gray-600">Sign in to your VoiceCart seller account</p>
+                <SectionHeading
+                  title="Seller Login"
+                  subtitle="Welcome back! Please login to your account"
+                  colors={["#E11D48", "#7C3AED", "#E11D48"]}
+                  animationSpeed={3}
+                  className="text-3xl font-bold mb-2"
+                />
               </div>
 
-              {error && <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-md text-sm">{error}</div>}
+              <AnimatePresence>
+                {success && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-6 p-3 bg-green-50 text-green-700 rounded-md text-sm"
+                  >
+                    Login successful! Redirecting to dashboard...
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-1">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-1"
+                >
                   <label htmlFor="email" className="text-sm font-medium text-gray-700">
                     Email Address
                   </label>
-                  <div className="relative">
+                  <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
+                      <Mail className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
                     </div>
                     <input
                       id="email"
+                      name="email"
                       type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={formData.email}
+                      onChange={handleChange}
                       required
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-                      placeholder="you@example.com"
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all duration-300"
+                      placeholder="Enter your email"
                     />
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="password" className="text-sm font-medium text-gray-700">
-                      Password
-                    </label>
-                    <Link href="/seller/forgot-password" className="text-sm text-rose-600 hover:text-rose-500">
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="relative">
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-1"
+                >
+                  <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
+                      <Lock className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
                     </div>
                     <input
                       id="password"
+                      name="password"
                       type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      value={formData.password}
+                      onChange={handleChange}
                       required
-                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-                      placeholder="••••••••"
+                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all duration-300"
+                      placeholder="Enter your password"
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                        className="text-gray-400 hover:text-rose-500 focus:outline-none transition-colors"
                       >
                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={() => setRememberMe(!rememberMe)}
-                      className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300 rounded"
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="p-3 bg-red-50 text-red-700 rounded-md text-sm"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
                     />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                      Remember me
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 ${
-                      isLoading ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    {isLoading ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    ) : null}
-                    {isLoading ? "Signing in..." : "Sign in"}
-                  </button>
-                </div>
+                  ) : (
+                    "Sign In"
+                  )}
+                </motion.button>
               </form>
 
-              <div className="mt-6 text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-6 text-center"
+              >
                 <p className="text-sm text-gray-600">
                   Don't have a seller account?{" "}
-                  <Link href="/seller/signup" className="font-medium text-rose-600 hover:text-rose-500">
+                  <Link href="/seller/signup" className="font-medium text-rose-600 hover:text-rose-500 transition-colors">
                     Sign up
                   </Link>
                 </p>
-              </div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </main>
 
       <Footer />

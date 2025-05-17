@@ -12,9 +12,10 @@ import VoiceAssistant from "./components/voice-assistant"
 import axios from "axios"
 import { Infinity } from "ldrs/react"
 import "ldrs/react/Infinity.css"
-import { ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart } from "lucide-react"
+import { ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart, ArrowUp } from "lucide-react"
 import CountdownTimer from "./components/CountdownTimer"
 import { useShop } from '@/context/ShopContext';
+import SectionHeading from './components/SectionHeading';
 
 
 
@@ -58,6 +59,7 @@ export default function Home() {
   const [deals, setDeals] = useState([])
   const [dealEndTime] = useState(new Date().getTime() + 48 * 60 * 60 * 1000); // 48 hours from now
   const [popularProducts, setPopularProducts] = useState([])
+  const [showBackToTop, setShowBackToTop] = useState(false)
 
   // Handle banner slider
   useEffect(() => {
@@ -150,14 +152,37 @@ export default function Home() {
     setPopularProducts(filteredPopularProducts);
   }, [products]);
 
+  // Add scroll event listener for back-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 500)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen flex flex-col">
       <Navbar 
         cartItems={cart} 
         wishlistItems={wishlist} 
         totalCartItems={cart.length}
       />
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 bg-rose-600 text-white p-3 rounded-full shadow-lg hover:bg-rose-700 transition-all duration-300 transform hover:scale-110 z-50"
+          aria-label="Back to top"
+        >
+          <ArrowUp size={24} />
+        </button>
+      )}
 
       {/* Voice Assistant Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">
@@ -167,19 +192,22 @@ export default function Home() {
       {/* Hero Banner Slider */}
       <div className="relative overflow-hidden h-[500px] mb-8">
         <div
-          className="flex transition-transform duration-500 ease-in-out h-full"
+          className="flex transition-transform duration-700 ease-in-out h-full"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
           {bannerSlides.map((slide) => (
             <div key={slide.id} className="min-w-full h-full relative">
-              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${slide.image})` }}>
+              <div 
+                className="absolute inset-0 bg-cover bg-center transform transition-transform duration-1000 hover:scale-105" 
+                style={{ backgroundImage: `url(${slide.image})` }}
+              >
                 <div className="absolute inset-0 bg-black bg-opacity-40"></div>
               </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
-                <h1 className="text-4xl md:text-6xl font-bold mb-4 text-center animate-fadeIn">{slide.title}</h1>
-                <p className="text-xl md:text-2xl mb-8 text-center max-w-2xl animate-slideUp">{slide.subtitle}</p>
+                <h1 className="text-4xl md:text-6xl font-bold mb-4 text-center transform transition-all duration-500 hover:scale-105">{slide.title}</h1>
+                <p className="text-xl md:text-2xl mb-8 text-center max-w-2xl transform transition-all duration-500 hover:scale-105">{slide.subtitle}</p>
                 <Link href={slide.link}>
-                  <span className="px-8 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 animate-pulse">
+                  <span className="px-8 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                     {slide.buttonText}
                   </span>
                 </Link>
@@ -188,26 +216,28 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Slider Controls */}
+        {/* Enhanced Slider Controls */}
         <button
-          className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
+          className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all duration-300 transform hover:scale-110"
           onClick={prevSlide}
         >
           <ChevronLeft size={24} />
         </button>
         <button
-          className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
+          className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all duration-300 transform hover:scale-110"
           onClick={nextSlide}
         >
           <ChevronRight size={24} />
         </button>
 
-        {/* Slider Indicators */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+        {/* Enhanced Slider Indicators */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-3">
           {bannerSlides.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full ${index === currentSlide ? "bg-white" : "bg-white bg-opacity-50"}`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
+                index === currentSlide ? "bg-white scale-125" : "bg-white bg-opacity-50"
+              }`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
@@ -215,69 +245,70 @@ export default function Home() {
       </div>
 
       {/* Featured Deals Section */}
-      <section className="container mx-auto px-4 mb-12">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Flash Deals</h2>
-          <Link href="/deals">
-            <span className="text-rose-600 hover:text-rose-700 font-medium">View All</span>
-          </Link>
-        </div>
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <SectionHeading
+            title="Flash Deals"
+            subtitle="Limited time offers with amazing discounts"
+            colors={["#E11D48", "#7C3AED", "#E11D48"]}
+            animationSpeed={3}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {deals.map((deal) => (
+              <div
+                key={deal._id}
+                className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                <Link href={`/product/${deal._id}`}>
+                  <div className="relative">
+                    <img src={deal.image || "/placeholder.svg"} alt={deal.name} className="w-full h-64 object-cover" />
+                    <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md font-bold">
+                      {Math.round((1 - deal.discountPrice / deal.price) * 100)}% OFF
+                    </div>
+                  </div>
+                </Link>
+                <div className="p-4">
+                  <Link href={`/product/${deal._id}`}>
+                    <h3 className="text-lg font-semibold mb-2 text-gray-800 hover:text-rose-600 transition-colors">{deal.name}</h3>
+                  </Link>
+                  <div className="flex items-center mb-3">
+                    <span className="text-xl font-bold text-rose-600">&#8377;{deal.discountPrice.toFixed(2)}</span>
+                    <span className="ml-2 text-sm line-through text-gray-500">&#8377;{deal.price.toFixed(2)}</span>
+                  </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {deals.map((deal) => (
-            <div
-              key={deal._id}
-              className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-            >
-              <Link href={`/product/${deal._id}`}>
-                <div className="relative">
-                  <img src={deal.image || "/placeholder.svg"} alt={deal.name} className="w-full h-64 object-cover" />
-                  <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md font-bold">
-                    {Math.round((1 - deal.discountPrice / deal.price) * 100)}% OFF
+                  {/* Countdown Timer */}
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 mb-1">Offer ends in:</p>
+                    <CountdownTimer endTime={dealEndTime} />
+                  </div>
+
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => addToCart(deal)}
+                      className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-md font-medium transition-colors"
+                    >
+                      Buy Now
+                    </button>
+                    <button
+                      onClick={() => addToCart(deal)}
+                      className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+                    >
+                      <ShoppingCart size={20} />
+                    </button>
+                    <button
+                      onClick={() => addToWishlist(deal)}
+                      className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+                    >
+                      <Heart
+                        size={20}
+                        className={wishlist.some((item) => item._id === deal._id) ? "fill-rose-600 text-rose-600" : ""}
+                      />
+                    </button>
                   </div>
                 </div>
-              </Link>
-              <div className="p-4">
-                <Link href={`/product/${deal._id}`}>
-                  <h3 className="text-lg font-semibold mb-2 text-gray-800 hover:text-rose-600 transition-colors">{deal.name}</h3>
-                </Link>
-                <div className="flex items-center mb-3">
-                  <span className="text-xl font-bold text-rose-600">&#8377;{deal.discountPrice.toFixed(2)}</span>
-                  <span className="ml-2 text-sm line-through text-gray-500">&#8377;{deal.price.toFixed(2)}</span>
-                </div>
-
-                {/* Countdown Timer */}
-                <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-1">Offer ends in:</p>
-                  <CountdownTimer endTime={dealEndTime} />
-                </div>
-
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => addToCart(deal)}
-                    className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-md font-medium transition-colors"
-                  >
-                    Buy Now
-                  </button>
-                  <button
-                    onClick={() => addToCart(deal)}
-                    className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
-                  >
-                    <ShoppingCart size={20} />
-                  </button>
-                  <button
-                    onClick={() => addToWishlist(deal)}
-                    className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
-                  >
-                    <Heart
-                      size={20}
-                      className={wishlist.some((item) => item._id === deal._id) ? "fill-rose-600 text-rose-600" : ""}
-                    />
-                  </button>
-                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
@@ -285,59 +316,66 @@ export default function Home() {
       <OfferBanner />
 
       {/* Categories Section */}
-      <section className="container mx-auto px-4 mb-12">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Shop by Category</h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {["Electronics", "Fashion", "Home", "Beauty", "Sports", "Books"].map((category) => (
-            <Link href={`/category/${category.toLowerCase()}`} key={category}>
-              <div className="bg-white rounded-lg shadow-md overflow-hidden text-center transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <div className="p-4">
-                  <div className="w-16 h-16 mx-auto mb-3 bg-rose-100 rounded-full flex items-center justify-center">
-                    <img src={`/placeholder.svg?height=40&width=40`} alt={category} className="w-8 h-8" />
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <SectionHeading
+            title="Shop by Category"
+            subtitle="Browse through our wide range of categories"
+            colors={["#059669", "#2563EB", "#059669"]}
+            animationSpeed={3.5}
+          />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {["Electronics", "Fashion", "Home", "Beauty", "Sports", "Books"].map((category) => (
+              <Link href={`/category/${category.toLowerCase()}`} key={category}>
+                <div className="bg-white rounded-lg shadow-md overflow-hidden text-center transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+                  <div className="p-4">
+                    <div className="w-16 h-16 mx-auto mb-3 bg-rose-100 rounded-full flex items-center justify-center transform transition-all duration-300 hover:scale-110">
+                      <img src={`/placeholder.svg?height=40&width=40`} alt={category} className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-medium text-gray-800 transform transition-all duration-300 hover:scale-105">{category}</h3>
                   </div>
-                  <h3 className="font-medium text-gray-800">{category}</h3>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Popular Products Section */}
-      <section className="container mx-auto px-4 mb-12">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Popular Products</h2>
-          <Link href="/products">
-            <span className="text-rose-600 hover:text-rose-700 font-medium">View All</span>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {popularProducts.slice(0, 4).map((product) => (
-            <ProductCard
-              key={product._id}
-              product={product}
-              onAddToCart={addToCart}
-              onAddToWishlist={addToWishlist}
-              isInWishlist={wishlist.some((item) => item._id === product._id)}
-            />
-          ))}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <SectionHeading
+            title="Popular Products"
+            subtitle="Most loved items by our customers"
+            colors={["#2563EB", "#7C3AED", "#2563EB"]}
+            animationSpeed={4}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {popularProducts.slice(0, 4).map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                onAddToCart={addToCart}
+                onAddToWishlist={addToWishlist}
+                isInWishlist={wishlist.some((item) => item._id === product._id)}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Voice Shopping Feature */}
-      <section className="container mx-auto px-4 mb-12 bg-gradient-to-r from-rose-500 to-purple-600 rounded-xl overflow-hidden">
+      <section className="container mx-auto px-4 mb-12 bg-gradient-to-r from-rose-500 to-purple-600 rounded-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
         <div className="py-12 px-6 md:px-12 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-8 md:mb-0">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Shop with Your Voice</h2>
-            <p className="text-white text-lg mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 transform transition-all duration-300 hover:scale-105">Shop with Your Voice</h2>
+            <p className="text-white text-lg mb-6 transform transition-all duration-300 hover:scale-105">
               Experience the future of shopping with our voice-enabled assistant. Just say what you're looking for, and
               we'll find it for you.
             </p>
             <button
               onClick={() => setIsVoiceActive(true)}
-              className="px-6 py-3 bg-white text-rose-600 font-semibold rounded-full flex items-center space-x-2 hover:bg-gray-100 transition-colors"
+              className="px-6 py-3 bg-white text-rose-600 font-semibold rounded-full flex items-center space-x-2 hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
             >
               <Mic size={20} />
               <span>Try Voice Shopping</span>
@@ -349,7 +387,7 @@ export default function Home() {
               <div className="absolute inset-4 bg-white bg-opacity-30 rounded-full animate-ping-slow animation-delay-300"></div>
               <div className="absolute inset-8 bg-white bg-opacity-40 rounded-full animate-ping-slow animation-delay-600"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Mic size={64} className="text-white" />
+                <Mic size={64} className="text-white transform transition-all duration-300 hover:scale-110" />
               </div>
             </div>
           </div>
@@ -358,17 +396,17 @@ export default function Home() {
 
       {/* Newsletter Section */}
       <section className="container mx-auto px-4 mb-12">
-        <div className="bg-gray-100 rounded-xl p-8 md:p-12">
+        <div className="bg-gray-100 rounded-xl p-8 md:p-12 transform transition-all duration-300 hover:shadow-xl">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Subscribe to Our Newsletter</h2>
-            <p className="text-gray-600 mb-6">Stay updated with our latest offers, products, and deals.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 transform transition-all duration-300 hover:scale-105">Subscribe to Our Newsletter</h2>
+            <p className="text-gray-600 mb-6 transform transition-all duration-300 hover:scale-105">Stay updated with our latest offers, products, and deals.</p>
             <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="Your email address"
-                className="flex-1 px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="flex-1 px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all duration-300"
               />
-              <button className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-md transition-colors">
+              <button className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                 Subscribe
               </button>
             </div>
@@ -379,7 +417,7 @@ export default function Home() {
       {/* Featured Products Section */}
       <main className="flex-1 px-4 py-16">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">Featured Products</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-8 transform transition-all duration-300 hover:scale-105">Featured Products</h1>
           
           {loading ? (
             <div className="flex justify-center items-center h-64">
@@ -389,19 +427,20 @@ export default function Home() {
             <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.slice(0,4).map((product) => (
-                <ProductCard 
-                  key={product._id} 
-                  product={product}
-                  onAddToCart={addToCart}
-                  onAddToWishlist={addToWishlist}
-                  isInWishlist={wishlist.some(item => item._id === product._id)}
-                />
+                <div key={product._id} className="transform transition-all duration-300 hover:scale-105">
+                  <ProductCard 
+                    product={product}
+                    onAddToCart={addToCart}
+                    onAddToWishlist={addToWishlist}
+                    isInWishlist={wishlist.some(item => item._id === product._id)}
+                  />
+                </div>
               ))}
             </div>
              <div className="text-center mt-12">
             <Link
               href="/products"
-              className="inline-block bg-rose-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-rose-700 transition-colors"
+              className="inline-block bg-rose-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-rose-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
             >
               View All Products
             </Link>

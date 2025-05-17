@@ -6,6 +6,16 @@ const router= express.Router();
 router.post('/add' , (req, res) => {
     console.log('Adding product:', req.body);
     
+    // Validate images array
+    if (!req.body.images || !Array.isArray(req.body.images) || req.body.images.length === 0) {
+        return res.status(400).json({ message: "At least one image is required" });
+    }
+
+    // Set main image as the first image if not specified
+    if (!req.body.mainImage) {
+        req.body.mainImage = req.body.images[0];
+    }
+    
     // Set default values for required fields if not provided
     const productData = {
         ...req.body,

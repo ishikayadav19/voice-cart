@@ -6,6 +6,7 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, Truck } from 
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
 import { useShop } from '@/context/ShopContext'
+import SectionHeading from '@/app/components/SectionHeading'
 
 const CartPage = () => {
   const { cart, removeFromCart, updateCartQuantity } = useShop()
@@ -82,7 +83,12 @@ const CartPage = () => {
 
       <main className="flex-1 pt-24 pb-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
+          <SectionHeading
+            title="Shopping Cart"
+            subtitle="Review your items and proceed to checkout"
+            colors={["#E11D48", "#7C3AED", "#E11D48"]}
+            animationSpeed={3}
+          />
 
           {cart.length === 0 ? (
             <div className="text-center py-12">

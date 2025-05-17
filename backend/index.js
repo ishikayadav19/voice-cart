@@ -5,6 +5,8 @@ const UserRouter = require('./routers/UserRouter')
 const ProductRouter = require('./routers/ProductRouter')
 const SellerRouter = require('./routers/SellerRouter') //importing the router for the seller routes
 const reviewRouter = require('./routers/review');
+const AdminPublicRouter = require('./routers/AdminPublicRouter'); // Import the new public admin router
+
 // initialize express
 const app = express();
 const cors = require('cors'); //importing cors package
@@ -21,6 +23,7 @@ app.use('/user',UserRouter);
 app.use('/product',ProductRouter);
 app.use('/seller',SellerRouter); //use the router for the seller routes
 app.use('/api/reviews', reviewRouter);
+app.use('/api/admin', AdminPublicRouter); // Use the public admin router
 
 // endpoint or routes
 app.get('/', (req, res) => {

@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation';
 import 'ldrs/react/Infinity.css'
 import Navbar from '@/app/components/navbar';
 import Footer from '@/app/components/footer';
+import { motion, AnimatePresence } from "framer-motion"
+import SectionHeading from "@/app/components/SectionHeading";
 
 
 const SignupSchema = Yup.object().shape({
@@ -37,6 +39,7 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [success, setSuccess] = useState(false)
   const router = useRouter()
 
   const signForm = useFormik({
@@ -59,8 +62,11 @@ const SignupPage = () => {
               values
           );
           
+          setSuccess(true)
           toast.success('User Registered Successfully!');
-          router.push('/user/login');
+          setTimeout(() => {
+            router.push('/user/login');
+          }, 1000);
           resetForm();
       } catch (error) {
         toast.error(error?.response?.data?.message || 'Registration failed');
@@ -83,47 +89,92 @@ const SignupPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center px-4 py-16 bg-gray-50">
-        <div className="w-full max-w-lg">
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="p-8">
+      <main className="flex-1 flex items-center justify-center px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-lg"
+        >
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden relative">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-purple-600 transform rotate-45 scale-150"></div>
+            </div>
+
+            <div className="p-8 relative">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">Create an Account</h1>
-                <p className="text-gray-600">Join VoiceCart for a better shopping experience</p>
+                <SectionHeading
+                  title="Create an Account"
+                  subtitle="Join VoiceCart for a better shopping experience"
+                  colors={["#E11D48", "#7C3AED", "#E11D48"]}
+                  animationSpeed={3}
+                  className="text-3xl font-bold mb-2"
+                />
               </div>
 
+              <AnimatePresence>
+                {success && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-6 p-3 bg-green-50 text-green-700 rounded-md text-sm"
+                  >
+                    Registration successful! Redirecting to login...
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <form onSubmit={signForm.handleSubmit} className="space-y-6">
-                  <div className="space-y-1">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-1"
+                >
                   <label htmlFor="name" className="text-sm font-medium text-gray-700">
                     Full Name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <User className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                    </div>
+                    <input
                       id="name"
                       name="name"
-                        type="text"
+                      type="text"
                       value={signForm.values.name}
-                        onChange={signForm.handleChange}
+                      onChange={signForm.handleChange}
                       onBlur={signForm.handleBlur}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all duration-300"
                       placeholder="John Doe"
-                      />
+                    />
                   </div>
                   {signForm.touched.name && signForm.errors.name && (
-                    <p className="text-xs text-red-600 mt-2">{signForm.errors.name}</p>
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-xs text-red-600 mt-2"
+                    >
+                      {signForm.errors.name}
+                    </motion.p>
                   )}
-                </div>
+                </motion.div>
 
-                <div className="space-y-1">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-1"
+                >
                   <label htmlFor="email" className="text-sm font-medium text-gray-700">
                     Email Address
                   </label>
-                  <div className="relative">
+                  <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
+                      <Mail className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
                     </div>
                     <input
                       id="email"
@@ -132,22 +183,34 @@ const SignupPage = () => {
                       onChange={signForm.handleChange}
                       value={signForm.values.email}
                       onBlur={signForm.handleBlur}
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all duration-300"
                       placeholder="you@example.com"
                     />
                   </div>
                   {signForm.touched.email && signForm.errors.email && (
-                    <p className="text-xs text-red-600 mt-2">{signForm.errors.email}</p>
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-xs text-red-600 mt-2"
+                    >
+                      {signForm.errors.email}
+                    </motion.p>
                   )}
-                </div>
+                </motion.div>
 
-                <div className="space-y-1">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-1"
+                >
                   <label htmlFor="password" className="text-sm font-medium text-gray-700">
                     Password
                   </label>
-                  <div className="relative">
+                  <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
+                      <Lock className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
                     </div>
                     <input
                       id="password"
@@ -156,21 +219,27 @@ const SignupPage = () => {
                       onChange={handlePasswordChange}
                       value={signForm.values.password}
                       onBlur={signForm.handleBlur}
-                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
+                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all duration-300"
                       placeholder="••••••••"
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                        className="text-gray-400 hover:text-rose-500 focus:outline-none transition-colors"
                       >
                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
                     </div>
                   </div>
                   {signForm.touched.password && signForm.errors.password && (
-                    <p className="text-xs text-red-600 mt-2">{signForm.errors.password}</p>
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-xs text-red-600 mt-2"
+                    >
+                      {signForm.errors.password}
+                    </motion.p>
                   )}
 
                   <div className="mt-2">
@@ -185,30 +254,46 @@ const SignupPage = () => {
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <div
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{
+                          width:
+                            passwordStrength === 0
+                              ? "25%"
+                              : passwordStrength === 1
+                              ? "50%"
+                              : passwordStrength === 2
+                              ? "75%"
+                              : "100%",
+                        }}
+                        transition={{ duration: 0.3 }}
                         className={`h-1.5 rounded-full ${
                           passwordStrength === 0
-                            ? "bg-red-500 w-1/4"
+                            ? "bg-red-500"
                             : passwordStrength === 1
-                              ? "bg-orange-500 w-2/4"
-                              : passwordStrength === 2
-                                ? "bg-yellow-500 w-3/4"
-                                : passwordStrength >= 3
-                                  ? "bg-green-500 w-full"
-                                  : ""
+                            ? "bg-orange-500"
+                            : passwordStrength === 2
+                            ? "bg-yellow-500"
+                            : "bg-green-500"
                         }`}
-                      ></div>
+                      ></motion.div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="space-y-1">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="space-y-1"
+                >
                   <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
                     Confirm Password
                   </label>
-                  <div className="relative">
+                  <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
+                      <Lock className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
                     </div>
                     <input
                       id="confirmPassword"
@@ -217,95 +302,86 @@ const SignupPage = () => {
                       onChange={signForm.handleChange}
                       value={signForm.values.confirmPassword}
                       onBlur={signForm.handleBlur}
-                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
+                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all duration-300"
                       placeholder="••••••••"
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                        className="text-gray-400 hover:text-rose-500 focus:outline-none transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
                     </div>
                   </div>
                   {signForm.touched.confirmPassword && signForm.errors.confirmPassword && (
-                    <p className="text-xs text-red-600 mt-2">{signForm.errors.confirmPassword}</p>
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-xs text-red-600 mt-2"
+                    >
+                      {signForm.errors.confirmPassword}
+                    </motion.p>
                   )}
-                </div>
+                </motion.div>
 
-                <div className="flex items-center">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="flex items-center"
+                >
                   <input
-                    id="agree-terms"
+                    id="terms"
                     type="checkbox"
                     checked={agreeTerms}
-                    onChange={() => setAgreeTerms(!agreeTerms)}
-                    className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300 rounded"
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300 rounded transition-colors"
                   />
-                  <label htmlFor="agree-terms" className="ml-2 block text-sm text-gray-700">
+                  <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                     I agree to the{" "}
-                    <Link href="/terms" className="text-rose-600 hover:text-rose-500">
+                    <Link href="/terms" className="text-rose-600 hover:text-rose-500 transition-colors">
                       Terms and Conditions
-                    </Link>{" "}
-                    and{" "}
-                    <Link href="/privacy" className="text-rose-600 hover:text-rose-500">
-                      Privacy Policy
                     </Link>
                   </label>
-                </div>
+                </motion.div>
 
-                <div>
-                  <button
-                    type="submit"
-                    disabled={signForm.isSubmitting}
-                    className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 ${
-                      signForm.isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    {signForm.isSubmitting ? (
-                      <Infinity size="30" speed="2.5" color="white" />
-                    ) : (
-                      'Create Account'
-                    )}
-                  </button>
-                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={signForm.isSubmitting}
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {signForm.isSubmitting ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                    />
+                  ) : (
+                    "Create Account"
+                  )}
+                </motion.button>
               </form>
 
-              {/* <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Or sign up with</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 grid grid-cols-3 gap-3">
-                  <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <img src="/placeholder.svg?height=20&width=20" alt="Google" className="h-5 w-5" />
-                  </button>
-                  <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <img src="/placeholder.svg?height=20&width=20" alt="Facebook" className="h-5 w-5" />
-                  </button>
-                  <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    <img src="/placeholder.svg?height=20&width=20" alt="Apple" className="h-5 w-5" />
-                  </button>
-                </div>
-              </div> */}
-
-              <div className="mt-6 text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="mt-6 text-center"
+              >
                 <p className="text-sm text-gray-600">
                   Already have an account?{" "}
-                  <Link href="/login" className="font-medium text-rose-600 hover:text-rose-500">
+                  <Link href="/user/login" className="font-medium text-rose-600 hover:text-rose-500 transition-colors">
                     Sign in
                   </Link>
                 </p>
-              </div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </main>
       <Footer />
     </div>

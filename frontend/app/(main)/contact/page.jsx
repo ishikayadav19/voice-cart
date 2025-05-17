@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Mail, Phone, MapPin, Send, Check } from "lucide-react"
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
+import SectionHeading from "../../components/section-heading"
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -59,17 +60,26 @@ const ContactPage = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-gray-800 mb-4">Contact Us</h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Have questions or feedback? We'd love to hear from you. Our team is always here to help.
-              </p>
+              <SectionHeading
+                title="Contact Us"
+                subtitle="Have questions or feedback? We'd love to hear from you. Our team is always here to help."
+                colors={["#E11D48", "#7C3AED", "#E11D48"]}
+                animationSpeed={3}
+                className="text-4xl font-bold mb-4"
+              />
             </div>
 
             <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
               <div className="grid md:grid-cols-5">
                 {/* Contact Information */}
                 <div className="md:col-span-2 bg-gradient-to-br from-rose-600 to-purple-600 text-white p-8">
-                  <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
+                  <SectionHeading
+                    title="Get in Touch"
+                    colors={["#ffffff", "#f0f0f0", "#ffffff", "#f0f0f0"]}
+                    animationSpeed={4}
+                    className="text-2xl font-bold mb-6"
+                    showUnderline={false}
+                  />
 
                   <div className="space-y-6">
                     <div className="flex items-start">

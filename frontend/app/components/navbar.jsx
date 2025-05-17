@@ -88,7 +88,7 @@ const Navbar = () => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault()
         setIsSearchOpen(true)
-      }
+    }
       // Close search with Escape
       if (e.key === 'Escape' && isSearchOpen) {
         setIsSearchOpen(false)
@@ -141,44 +141,77 @@ const Navbar = () => {
           {/* Search, Cart, Wishlist, Account */}
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <div className="relative">
-              <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-black font-bold hover:text-rose-600 transition-colors"
-              >
-                <Search className="h-5 w-5" />
-              </button>
-              {isSearchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-lg p-2">
-                  <form onSubmit={handleSearch} className="flex items-center">
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products... (Press Ctrl/Cmd + K)"
-                      className="flex-1 p-2 border-none outline-none"
-                    />
-                    <button
-                      type="submit"
-                      className="p-2 text-gray-500 hover:text-rose-600"
-                    >
-                      <Search className="h-5 w-5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={startVoiceSearch}
-                      className={`p-2 ${isVoiceListening ? "text-rose-600 animate-pulse" : "text-gray-500 hover:text-rose-600"}`}
-                    >
-                      <Mic className="h-5 w-5" />
-                    </button>
-                  </form>
-                  <div className="text-xs text-gray-500 mt-1 px-2">
-                    Press <kbd className="px-1 py-0.5 bg-gray-100 rounded">Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-gray-100 rounded">K</kbd> to search
-                  </div>
-                </div>
-              )}
+            <div className="hidden lg:block relative">
+              <form onSubmit={handleSearch} className="flex items-center bg-gray-100 rounded-full px-4 py-2">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="bg-transparent border-none outline-none w-64 text-sm"
+                />
+                <button
+                  type="submit"
+                  className="p-1 text-gray-500 hover:text-rose-600"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={startVoiceSearch}
+                  className={`p-1 ${isVoiceListening ? "text-rose-600 animate-pulse" : "text-gray-500 hover:text-rose-600"}`}
+                >
+                  <Mic className="h-4 w-4" />
+                </button>
+              </form>
             </div>
+
+            {/* Mobile Search Button */}
+            <button
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="lg:hidden p-2 text-black font-bold hover:text-rose-600 transition-colors"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+
+            {/* Mobile Search Popup */}
+            {isSearchOpen && (
+              <div className="lg:hidden fixed inset-0 bg-white z-50 p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold">Search</h2>
+                  <button
+                    onClick={() => setIsSearchOpen(false)}
+                    className="p-2 text-gray-500 hover:text-rose-600"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <form onSubmit={handleSearch} className="flex items-center bg-gray-100 rounded-full px-4 py-2">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    className="flex-1 bg-transparent border-none outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="p-2 text-gray-500 hover:text-rose-600"
+                  >
+                    <Search className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={startVoiceSearch}
+                    className={`p-2 ${isVoiceListening ? "text-rose-600 animate-pulse" : "text-gray-500 hover:text-rose-600"}`}
+                  >
+                    <Mic className="h-5 w-5" />
+                  </button>
+                </form>
+              </div>
+            )}
 
             {/* Wishlist */}
             <Link href="/wishlist">
