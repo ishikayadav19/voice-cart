@@ -120,11 +120,11 @@ const CartPage = () => {
                         </Link>
                         <div className="flex items-center mt-2">
                           <span className="text-lg font-bold text-rose-600">
-                            ${(item.discountPrice || item.price).toFixed(2)}
+                          &#8377;{(item.discountPrice || item.price).toFixed(2)}
                           </span>
                           {item.discountPrice && (
                             <span className="ml-2 text-sm line-through text-gray-500">
-                              ${item.price.toFixed(2)}
+                               &#8377;{item.price.toFixed(2)}
                             </span>
                           )}
                         </div>
@@ -164,11 +164,11 @@ const CartPage = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal</span>
-                      <span className="font-semibold">${calculateSubtotal().toFixed(2)}</span>
+                      <span className="font-semibold"> &#8377;{calculateSubtotal().toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Tax (8%)</span>
-                      <span className="font-semibold">${calculateTax().toFixed(2)}</span>
+                      <span className="font-semibold"> &#8377;{calculateTax().toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Shipping</span>
@@ -180,14 +180,14 @@ const CartPage = () => {
                     {promoApplied && (
                       <div className="flex justify-between text-green-600">
                         <span>Promo Discount</span>
-                        <span>-${promoDiscount.toFixed(2)}</span>
+                        <span>- &#8377;{promoDiscount.toFixed(2)}</span>
                       </div>
                     )}
 
                     <div className="border-t border-gray-200 pt-4">
                       <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>${calculateTotal().toFixed(2)}</span>
+                        <span> &#8377;{calculateTotal().toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

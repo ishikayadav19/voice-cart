@@ -133,4 +133,137 @@ router.get('/category/:category', (req, res) => {
     });
 });
 
+// Search products
+router.get('/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q) {
+      return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    const searchRegex = new RegExp(q, 'i');
+    
+    const products = await Model.find({
+      $or: [
+        { name: searchRegex },
+        { description: searchRegex },
+        { category: searchRegex }
+      ]
+    });
+
+    console.log('Search query:', q);
+    console.log('Found products:', products);
+
+    res.json(products);
+  } catch (error) {
+    console.error('Error searching products:', error);
+    res.status(500).json({ message: 'Error searching products' });
+  }
+});
+
+// Wishlist routes
+// Add to wishlist
+router.post('/wishlist/add', async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+    
+    if (!userId || !productId) {
+      return res.status(400).json({ message: 'User ID and Product ID are required' });
+    }
+
+    // First check if the product exists
+    const product = await Model.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Check if product is already in wishlist
+    const existingWishlist = await Model.findOne({
+      _id: productId,
+      'wishlist': userId
+    });
+
+    if (existingWishlist) {
+      return res.status(400).json({ message: 'Product already in wishlist' });
+    }
+
+    // Add to wishlist
+    const updatedProduct = await Model.findByIdAndUpdate(
+      productId,
+      { $addToSet: { wishlist: userId } },
+      { new: true }
+    );
+
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    console.error('Error adding to wishlist:', error);
+    res.status(500).json({ message: 'Error adding to wishlist' });
+  }
+});
+
+// Remove from wishlist
+router.delete('/wishlist/remove', async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+    
+    if (!userId || !productId) {
+      return res.status(400).json({ message: 'User ID and Product ID are required' });
+    }
+
+    const updatedProduct = await Model.findByIdAndUpdate(
+      productId,
+      { $pull: { wishlist: userId } },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    console.error('Error removing from wishlist:', error);
+    res.status(500).json({ message: 'Error removing from wishlist' });
+  }
+});
+
+// Get user's wishlist
+router.get('/wishlist/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    const wishlistProducts = await Model.find({ wishlist: userId });
+    res.status(200).json(wishlistProducts);
+  } catch (error) {
+    console.error('Error fetching wishlist:', error);
+    res.status(500).json({ message: 'Error fetching wishlist' });
+  }
+});
+
+// Check if product is in wishlist
+router.get('/wishlist/check/:userId/:productId', async (req, res) => {
+  try {
+    const { userId, productId } = req.params;
+    
+    if (!userId || !productId) {
+      return res.status(400).json({ message: 'User ID and Product ID are required' });
+    }
+
+    const product = await Model.findOne({
+      _id: productId,
+      wishlist: userId
+    });
+
+    res.status(200).json({ isInWishlist: !!product });
+  } catch (error) {
+    console.error('Error checking wishlist:', error);
+    res.status(500).json({ message: 'Error checking wishlist' });
+  }
+});
+
 module.exports = router;

@@ -11,6 +11,7 @@ const mySchema = new Schema({
     rating: {type: Number, required: true},
     inStock: {type: Boolean, required: true},
     featured: {type: Boolean, required: true},
+    wishlist: [{ type: Schema.Types.ObjectId, ref: 'users' }], // Array of user IDs who wishlisted this product
     createdAt: {type:Date, default: Date.now},
     
     

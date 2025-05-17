@@ -2,8 +2,12 @@
 import React from 'react';
 import { Heart, Star } from "lucide-react"
 import Link from "next/link"
+import { useShop } from '@/context/ShopContext';
 
-const ProductCard = ({ product, onAddToCart, onAddToWishlist, isInWishlist }) => {
+const ProductCard = ({ product }) => {
+  const { addToCart, addToWishlist, wishlist } = useShop();
+  const isInWishlist = wishlist.some(item => item.id === product._id);
+
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <Link href={`/product/${product._id}`}>
@@ -46,13 +50,13 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist, isInWishlist }) =>
 
         <div className="flex space-x-2">
           <button
-            onClick={() => onAddToCart(product)}
+            onClick={() => addToCart({ ...product, id: product._id })}
             className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-md font-medium transition-colors text-sm"
           >
             Add to Cart
           </button>
           <button
-            onClick={() => onAddToWishlist(product)}
+            onClick={() => addToWishlist({ ...product, id: product._id })}
             className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
           >
             <Heart size={18} className={isInWishlist ? "fill-rose-600 text-rose-600" : ""} />

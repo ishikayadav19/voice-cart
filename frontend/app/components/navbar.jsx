@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { ShoppingCart, Heart, Search, Mic, Menu, X, User } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -14,6 +14,7 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isVoiceListening, setIsVoiceListening] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const searchInputRef = useRef(null)
   const router = useRouter()
 
   // Handle scroll effect
@@ -29,6 +30,13 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Focus search input when search is opened
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [isSearchOpen])
 
   // Handle voice search
   const startVoiceSearch = () => {
@@ -47,6 +55,7 @@ const Navbar = () => {
         const transcript = event.results[0][0].transcript
         setSearchQuery(transcript)
         setIsVoiceListening(false)
+        handleSearch(event, transcript)
       }
 
       recognition.onerror = () => {
@@ -63,12 +72,32 @@ const Navbar = () => {
     }
   }
 
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+  const handleSearch = (e, query = searchQuery) => {
+    e?.preventDefault()
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+      setIsSearchOpen(false)
+      setSearchQuery("")
     }
   }
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Open search with Ctrl/Cmd + K
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        setIsSearchOpen(true)
+      }
+      // Close search with Escape
+      if (e.key === 'Escape' && isSearchOpen) {
+        setIsSearchOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [isSearchOpen])
 
   // Categories for the navbar
   const categories = [
@@ -120,13 +149,14 @@ const Navbar = () => {
                 <Search className="h-5 w-5" />
               </button>
               {isSearchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-75 bg-white rounded-lg shadow-lg p-2 flex items-center">
-                  <form onSubmit={handleSearch} className="flex">
+                <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-lg p-2">
+                  <form onSubmit={handleSearch} className="flex items-center">
                     <input
+                      ref={searchInputRef}
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products..."
+                      placeholder="Search products... (Press Ctrl/Cmd + K)"
                       className="flex-1 p-2 border-none outline-none"
                     />
                     <button
@@ -135,13 +165,17 @@ const Navbar = () => {
                     >
                       <Search className="h-5 w-5" />
                     </button>
+                    <button
+                      type="button"
+                      onClick={startVoiceSearch}
+                      className={`p-2 ${isVoiceListening ? "text-rose-600 animate-pulse" : "text-gray-500 hover:text-rose-600"}`}
+                    >
+                      <Mic className="h-5 w-5" />
+                    </button>
                   </form>
-                  <button
-                    onClick={startVoiceSearch}
-                    className={`p-2 ${isVoiceListening ? "text-rose-600 animate-pulse" : "text-gray-500 hover:text-rose-600"}`}
-                  >
-                    <Mic className="h-5 w-5" />
-                  </button>
+                  <div className="text-xs text-gray-500 mt-1 px-2">
+                    Press <kbd className="px-1 py-0.5 bg-gray-100 rounded">Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-gray-100 rounded">K</kbd> to search
+                  </div>
                 </div>
               )}
             </div>
