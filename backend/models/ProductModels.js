@@ -9,6 +9,8 @@ const mySchema = new Schema({
     stock: {type: Number, required: true},
     brand: {type: String, required: true},
     rating: {type: Number, required: true},
+    inStock: {type: Boolean, required: true},
+    featured: {type: Boolean, required: true},
     createdAt: {type:Date, default: Date.now},
     
     

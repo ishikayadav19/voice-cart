@@ -58,20 +58,39 @@ const AddProductPage = () => {
       stock: '',
       brand: '',
       rating: '',
+      inStock: true,
+      featured: false
     },
     validationSchema: ProductSchema,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
+        // Convert string values to numbers where needed
+        const productData = {
+          ...values,
+          price: Number(values.price),
+          discountPrice: Number(values.discountPrice) || Number(values.price),
+          stock: Number(values.stock),
+          rating: Number(values.rating),
+          inStock: values.stock > 0,
+          featured: false
+        };
+
         const res = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/product/add`,
-          values
+          productData
         );
         
-        toast.success('Product Added Successfully!');
-        router.push('/seller/products');
-        resetForm();
+        if (res.data) {
+          toast.success('Product Added Successfully!');
+          router.push('/seller/products');
+          resetForm();
+        } else {
+          throw new Error('No data received from server');
+        }
       } catch (error) {
+        console.error('Error adding product:', error);
         toast.error(error?.response?.data?.message || 'Failed to add product');
+      } finally {
         setSubmitting(false);
       }
     }
@@ -168,8 +187,8 @@ const AddProductPage = () => {
                       Price
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <DollarSign className="h-5 w-5 text-gray-400" />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none h-5 w-5 mt-4 text-gray-400">
+                        &#8377;
                       </div>
                       <input
                         id="price"
@@ -193,8 +212,8 @@ const AddProductPage = () => {
                       Discount Price (Optional)
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <DollarSign className="h-5 w-5 text-gray-400" />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none h-5 w-5 mt-4 text-gray-400">
+                        &#8377;
                       </div>
                       <input
                         id="discountPrice"

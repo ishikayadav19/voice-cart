@@ -36,11 +36,11 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist, isInWishlist }) =>
         <div className="flex items-center mb-3">
           {product.discountPrice ? (
             <>
-              <span className="text-lg font-bold text-rose-600">${product.discountPrice.toFixed(2)}</span>
-              <span className="ml-2 text-sm line-through text-gray-500">${product.price.toFixed(2)}</span>
+              <span className="text-lg font-bold text-rose-600"> &#8377;{product.discountPrice.toFixed(2)}</span>
+              <span className="ml-2 text-sm line-through text-gray-500"> &#8377;{product.price.toFixed(2)}</span>
             </>
           ) : (
-            <span className="text-lg font-bold text-gray-800">${product.price.toFixed(2)}</span>
+            <span className="text-lg font-bold text-gray-800"> &#8377;{product.price.toFixed(2)}</span>
           )}
         </div>
 

@@ -5,24 +5,22 @@ import Link from "next/link"
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, CreditCard, Truck } from "lucide-react"
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
+import { useShop } from '@/context/ShopContext'
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState([])
+  const { cart, removeFromCart, updateCartQuantity } = useShop()
   const [loading, setLoading] = useState(true)
   const [promoCode, setPromoCode] = useState("")
   const [promoApplied, setPromoApplied] = useState(false)
   const [promoDiscount, setPromoDiscount] = useState(0)
 
   useEffect(() => {
-    // Load cart items from localStorage or state management
-    const savedCartItems = JSON.parse(localStorage.getItem("cartItems")) || []
-    setCartItems(savedCartItems)
     setLoading(false)
   }, [])
 
   // Calculate cart totals
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => {
+    return cart.reduce((total, item) => {
       return total + (item.discountPrice || item.price) * item.quantity
     }, 0)
   }
@@ -42,23 +40,12 @@ const CartPage = () => {
   // Update item quantity
   const updateQuantity = (productId, newQuantity) => {
     if (newQuantity < 1) return
-    
-    setCartItems(prevItems => {
-      const updatedItems = prevItems.map(item => 
-        item._id === productId ? { ...item, quantity: newQuantity } : item
-      )
-      localStorage.setItem("cartItems", JSON.stringify(updatedItems))
-      return updatedItems
-    })
+    updateCartQuantity(productId, newQuantity)
   }
 
   // Remove item from cart
   const removeItem = (productId) => {
-    setCartItems(prevItems => {
-      const updatedItems = prevItems.filter(item => item._id !== productId)
-      localStorage.setItem("cartItems", JSON.stringify(updatedItems))
-      return updatedItems
-    })
+    removeFromCart(productId)
   }
 
   // Apply promo code
@@ -91,13 +78,13 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar cartItems={cartItems} />
+      <Navbar cartItems={cart} />
 
       <main className="flex-1 pt-24 pb-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
 
-          {cartItems.length === 0 ? (
+          {cart.length === 0 ? (
             <div className="text-center py-12">
               <h2 className="text-2xl font-semibold text-gray-700 mb-4">Your cart is empty</h2>
               <p className="text-gray-600 mb-6">Looks like you haven't added any items to your cart yet.</p>
@@ -113,12 +100,12 @@ const CartPage = () => {
               {/* Cart Items */}
               <div className="lg:col-span-2">
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  {cartItems.map((item) => (
+                  {cart.map((item) => (
                     <div
-                      key={item._id}
+                      key={item.id}
                       className="flex items-center p-4 border-b border-gray-200 last:border-b-0"
                     >
-                      <Link href={`/product/${item._id}`} className="flex-shrink-0">
+                      <Link href={`/product/${item.id}`} className="flex-shrink-0">
                         <img
                           src={item.image || "/placeholder.svg"}
                           alt={item.name}
@@ -126,7 +113,7 @@ const CartPage = () => {
                         />
                       </Link>
                       <div className="ml-4 flex-1">
-                        <Link href={`/product/${item._id}`}>
+                        <Link href={`/product/${item.id}`}>
                           <h3 className="text-lg font-semibold text-gray-800 hover:text-rose-600">
                             {item.name}
                           </h3>
@@ -145,21 +132,21 @@ const CartPage = () => {
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center border border-gray-300 rounded-md">
                           <button
-                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             className="p-2 text-gray-600 hover:text-rose-600"
                           >
                             <Minus size={16} />
                           </button>
                           <span className="px-4 py-2">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             className="p-2 text-gray-600 hover:text-rose-600"
                           >
                             <Plus size={16} />
                           </button>
                         </div>
                         <button
-                          onClick={() => removeItem(item._id)}
+                          onClick={() => removeItem(item.id)}
                           className="p-2 text-gray-500 hover:text-rose-600"
                         >
                           <Trash2 size={20} />
@@ -198,16 +185,11 @@ const CartPage = () => {
                     )}
 
                     <div className="border-t border-gray-200 pt-4">
-                      <div className="flex justify-between">
-                        <span className="text-lg font-semibold">Total</span>
-                        <span className="text-lg font-bold text-rose-600">
-                          ${calculateTotal().toFixed(2)}
-                        </span>
+                      <div className="flex justify-between font-bold text-lg">
+                        <span>Total</span>
+                        <span>${calculateTotal().toFixed(2)}</span>
                       </div>
                     </div>
-                    <button className="w-full bg-rose-600 text-white py-3 rounded-md hover:bg-rose-700 transition-colors">
-                      Proceed to Checkout
-                    </button>
                   </div>
                 </div>
               </div>

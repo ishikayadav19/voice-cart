@@ -4,20 +4,31 @@ const router= express.Router();
 
 
 router.post('/add' , (req, res) => {
-    console.log(req.body);
+    console.log('Adding product:', req.body);
     
-    new Model(req.body).save()
+    // Set default values for required fields if not provided
+    const productData = {
+        ...req.body,
+        rating: req.body.rating || 0,
+        inStock: req.body.inStock ?? true,
+        featured: req.body.featured ?? false,
+        stock: req.body.stock || 0
+    };
+    
+    new Model(productData).save()
     .then((result) => {
+        console.log('Product added successfully:', result);
         res.status(200).json(result);
     }).catch((err) => {
-        if(err?.code === 11000){
-        res.status(400).json({message:"Product already registered"});
+        console.error('Error adding product:', err);
+        if(err?.code === 11000) {
+            res.status(400).json({message: "Product already registered"});
+        } else {
+            res.status(500).json({
+                message: "Error adding product",
+                error: err.message
+            });
         }
-        else{
-            res.status(500).json({message:"Some error occured"});
-        }
-
-       
     });
 });
 
@@ -37,15 +48,29 @@ router.get('/getbyid/:id', (req, res) =>{
 
 //update
 router.put('/update/:id', (req, res) => {
-  Model.findByIdAndUpdate(req.params.id, res.body)
-  .then((result) => {
-      res.status(200).json(result);
-      })
-      .catch((err) => {
-      console.log(err);
-      res.status(500).json(err);
-     });
-  
+    const { id } = req.params;
+    const updateData = {
+        ...req.body,
+        rating: req.body.rating || 0,
+        inStock: req.body.inStock ?? true,
+        featured: req.body.featured ?? false,
+        stock: req.body.stock || 0
+    };
+
+    Model.findByIdAndUpdate(id, updateData, { new: true })
+    .then((result) => {
+        if (!result) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        res.status(200).json(result);
+    })
+    .catch((err) => {
+        console.error('Error updating product:', err);
+        res.status(500).json({
+            message: 'Failed to update product',
+            error: err.message
+        });
+    });
 });
 
 
@@ -91,9 +116,21 @@ router.delete('/delete/:id', (req, res) => {
     });
 });
 
-
+// Get products by category
+router.get('/category/:category', (req, res) => {
+  const { category } = req.params;
   
-
-
+  Model.find({ category: category })
+    .then((products) => {
+      if (products.length === 0) {
+        return res.status(404).json({ message: 'No products found in this category' });
+      }
+      res.status(200).json(products);
+    })
+    .catch((err) => {
+      console.error('Error fetching products by category:', err);
+      res.status(500).json({ message: 'Failed to fetch products', error: err });
+    });
+});
 
 module.exports = router;

@@ -14,6 +14,7 @@ import { Infinity } from "ldrs/react"
 import "ldrs/react/Infinity.css"
 import { ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart } from "lucide-react"
 import CountdownTimer from "./components/CountdownTimer"
+import { useShop } from '@/context/ShopContext';
 
 
 
@@ -47,18 +48,16 @@ const bannerSlides = [
 ]
 
 export default function Home() {
+  const { addToCart, addToWishlist, cart, wishlist } = useShop();
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isVoiceActive, setIsVoiceActive] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [cartItems, setCartItems] = useState([])
-  const [wishlistItems, setWishlistItems] = useState([])
   const [featuredProducts, setFeaturedProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [products, setProducts] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
-  const [deals, setDeals] = useState([]);
+  const [products, setProducts] = useState([])
+  const [deals, setDeals] = useState([])
   const [dealEndTime] = useState(new Date().getTime() + 48 * 60 * 60 * 1000); // 48 hours from now
-  const [popularProducts, setPopularProducts] = useState([]);
+  const [popularProducts, setPopularProducts] = useState([])
 
   // Handle banner slider
   useEffect(() => {
@@ -75,39 +74,6 @@ export default function Home() {
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev === 0 ? bannerSlides.length - 1 : prev - 1))
   }
-
-  // Add to cart function
-  const addToCart = (product) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item._id === product._id);
-      if (existingItem) {
-        return prevItems.map(item => 
-          item._id === product._id 
-            ? { ...item, quantity: item.quantity + 1 } 
-            : item
-        );
-      } else {
-        return [...prevItems, { ...product, quantity: 1 }];
-      }
-    });
-  };
-
-  // Add to wishlist function
-  const addToWishlist = (product) => {
-    setWishlistItems(prevItems => {
-      const isInWishlist = prevItems.some(item => item._id === product._id);
-      if (isInWishlist) {
-        return prevItems.filter(item => item._id !== product._id);
-      } else {
-        return [...prevItems, product];
-      }
-    });
-  };
-
-  // Calculate total items in cart
-  const getTotalCartItems = () => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
-  };
 
   // Handle voice commands
   const handleVoiceCommand = (command) => {
@@ -165,21 +131,6 @@ export default function Home() {
     }
   };
 
-  const handleAddToCart = (product) => {
-    // Implement cart functionality
-    console.log('Adding to cart:', product);
-  };
-
-  const handleAddToWishlist = (product) => {
-    setWishlist(prev => {
-      const isInWishlist = prev.some(item => item._id === product._id);
-      if (isInWishlist) {
-        return prev.filter(item => item._id !== product._id);
-      }
-      return [...prev, product];
-    });
-  };
-
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -203,9 +154,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Navbar 
-        cartItems={cartItems} 
-        wishlistItems={wishlistItems} 
-        totalCartItems={getTotalCartItems()}
+        cartItems={cart} 
+        wishlistItems={wishlist} 
+        totalCartItems={cart.length}
       />
 
       {/* Voice Assistant Floating Button */}
@@ -291,8 +242,8 @@ export default function Home() {
                   <h3 className="text-lg font-semibold mb-2 text-gray-800 hover:text-rose-600 transition-colors">{deal.name}</h3>
                 </Link>
                 <div className="flex items-center mb-3">
-                  <span className="text-xl font-bold text-rose-600">${deal.discountPrice.toFixed(2)}</span>
-                  <span className="ml-2 text-sm line-through text-gray-500">${deal.price.toFixed(2)}</span>
+                  <span className="text-xl font-bold text-rose-600">&#8377;{deal.discountPrice.toFixed(2)}</span>
+                  <span className="ml-2 text-sm line-through text-gray-500">&#8377;{deal.price.toFixed(2)}</span>
                 </div>
 
                 {/* Countdown Timer */}
@@ -320,7 +271,7 @@ export default function Home() {
                   >
                     <Heart
                       size={20}
-                      className={wishlistItems.some((item) => item._id === deal._id) ? "fill-rose-600 text-rose-600" : ""}
+                      className={wishlist.some((item) => item._id === deal._id) ? "fill-rose-600 text-rose-600" : ""}
                     />
                   </button>
                 </div>
@@ -365,11 +316,11 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {popularProducts.slice(0, 4).map((product) => (
             <ProductCard
-              key={product.id}
+              key={product._id}
               product={product}
               onAddToCart={addToCart}
               onAddToWishlist={addToWishlist}
-              isInWishlist={wishlistItems.some((item) => item.id === product.id)}
+              isInWishlist={wishlist.some((item) => item._id === product._id)}
             />
           ))}
         </div>
@@ -441,8 +392,8 @@ export default function Home() {
                 <ProductCard 
                   key={product._id} 
                   product={product}
-                  onAddToCart={handleAddToCart}
-                  onAddToWishlist={handleAddToWishlist}
+                  onAddToCart={addToCart}
+                  onAddToWishlist={addToWishlist}
                   isInWishlist={wishlist.some(item => item._id === product._id)}
                 />
               ))}

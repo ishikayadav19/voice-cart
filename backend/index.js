@@ -4,6 +4,7 @@ require('dotenv').config(); //cannot be import direclty, import krne ke liye con
 const UserRouter = require('./routers/UserRouter')
 const ProductRouter = require('./routers/ProductRouter')
 const SellerRouter = require('./routers/SellerRouter') //importing the router for the seller routes
+const reviewRouter = require('./routers/review');
 // initialize express
 const app = express();
 const cors = require('cors'); //importing cors package
@@ -19,6 +20,7 @@ app.use(express.json()); // to parse the json data from the body of the request
 app.use('/user',UserRouter);
 app.use('/product',ProductRouter);
 app.use('/seller',SellerRouter); //use the router for the seller routes
+app.use('/api/reviews', reviewRouter);
 
 // endpoint or routes
 app.get('/', (req, res) => {

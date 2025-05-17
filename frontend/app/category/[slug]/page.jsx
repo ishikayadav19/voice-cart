@@ -6,212 +6,19 @@ import { Filter, ChevronDown, SlidersHorizontal, Heart, ShoppingCart } from "luc
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
 import ProductCard from "../../components/ProductCard"
-
-// Sample product data
-const allProducts = [
-  {
-    id: 1,
-    name: "Wireless Noise Cancelling Headphones",
-    price: 199.99,
-    discountPrice: 149.99,
-    category: "electronics",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.5,
-    reviews: 128,
-    brand: "SoundMaster",
-    inStock: true,
-  },
-  {
-    id: 2,
-    name: "Smart 4K Ultra HD TV - 55 inch",
-    price: 699.99,
-    discountPrice: 549.99,
-    category: "electronics",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.7,
-    reviews: 245,
-    brand: "VisionPlus",
-    inStock: true,
-  },
-  {
-    id: 3,
-    name: "Bluetooth Portable Speaker",
-    price: 89.99,
-    discountPrice: 69.99,
-    category: "electronics",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.3,
-    reviews: 112,
-    brand: "SoundMaster",
-    inStock: true,
-  },
-  {
-    id: 4,
-    name: "Smartphone - 128GB",
-    price: 799.99,
-    discountPrice: 749.99,
-    category: "electronics",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.6,
-    reviews: 320,
-    brand: "TechPro",
-    inStock: true,
-  },
-  {
-    id: 5,
-    name: "Laptop - 15.6 inch, 512GB SSD",
-    price: 1299.99,
-    discountPrice: 1099.99,
-    category: "electronics",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.8,
-    reviews: 189,
-    brand: "TechPro",
-    inStock: false,
-  },
-  {
-    id: 6,
-    name: "Premium Cotton T-Shirt",
-    price: 29.99,
-    discountPrice: 19.99,
-    category: "fashion",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.3,
-    reviews: 89,
-    brand: "StyleX",
-    inStock: true,
-  },
-  {
-    id: 7,
-    name: "Designer Denim Jeans",
-    price: 79.99,
-    discountPrice: 59.99,
-    category: "fashion",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.6,
-    reviews: 112,
-    brand: "UrbanFit",
-    inStock: true,
-  },
-  {
-    id: 8,
-    name: "Leather Jacket",
-    price: 199.99,
-    discountPrice: 159.99,
-    category: "fashion",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.7,
-    reviews: 76,
-    brand: "StyleX",
-    inStock: true,
-  },
-  {
-    id: 9,
-    name: "Modern Coffee Table",
-    price: 249.99,
-    discountPrice: 199.99,
-    category: "home",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.4,
-    reviews: 67,
-    brand: "HomeEssentials",
-    inStock: true,
-  },
-  {
-    id: 10,
-    name: "Luxury Scented Candle Set",
-    price: 39.99,
-    discountPrice: 29.99,
-    category: "home",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.8,
-    reviews: 156,
-    brand: "AromaLux",
-    inStock: true,
-  },
-  {
-    id: 11,
-    name: "Anti-Aging Face Serum",
-    price: 59.99,
-    discountPrice: 44.99,
-    category: "beauty",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.7,
-    reviews: 203,
-    brand: "GlowUp",
-    inStock: true,
-  },
-  {
-    id: 12,
-    name: "Professional Makeup Brush Set",
-    price: 49.99,
-    discountPrice: 34.99,
-    category: "beauty",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.5,
-    reviews: 178,
-    brand: "BeautyPro",
-    inStock: true,
-  },
-  {
-    id: 13,
-    name: "Basketball",
-    price: 29.99,
-    discountPrice: 24.99,
-    category: "sports",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.6,
-    reviews: 92,
-    brand: "SportElite",
-    inStock: true,
-  },
-  {
-    id: 14,
-    name: "Yoga Mat",
-    price: 39.99,
-    discountPrice: 29.99,
-    category: "sports",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.7,
-    reviews: 145,
-    brand: "FitLife",
-    inStock: true,
-  },
-  {
-    id: 15,
-    name: "Bestselling Novel",
-    price: 19.99,
-    discountPrice: 14.99,
-    category: "books",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.8,
-    reviews: 210,
-    brand: "PageTurner",
-    inStock: true,
-  },
-  {
-    id: 16,
-    name: "Cookbook Collection",
-    price: 34.99,
-    discountPrice: 29.99,
-    category: "books",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.5,
-    reviews: 87,
-    brand: "CulinaryPress",
-    inStock: true,
-  },
-]
+import axios from "axios"
 
 const CategoryPage = () => {
   const params = useParams()
   const { slug } = params
   const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [cartItems, setCartItems] = useState([])
   const [wishlistItems, setWishlistItems] = useState([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [filters, setFilters] = useState({
-    priceRange: [0, 2000],
+    priceRange: [0, 100000],
     brands: [],
     rating: 0,
     availability: false,
@@ -223,10 +30,23 @@ const CategoryPage = () => {
     return slug.charAt(0).toUpperCase() + slug.slice(1)
   }
 
-  // Filter products by category
+  // Fetch products by category from backend
   useEffect(() => {
-    const filteredProducts = allProducts.filter((product) => product.category === slug)
-    setProducts(filteredProducts)
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const response = await axios.get(`http://localhost:5000/product/category/${slug}`)
+        setProducts(response.data)
+        setError(null)
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to fetch products')
+        setProducts([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
   }, [slug])
 
   // Get unique brands for filter
@@ -248,269 +68,246 @@ const CategoryPage = () => {
     setFilters((prev) => {
       const brands = [...prev.brands]
       if (brands.includes(brand)) {
-        return {
-          ...prev,
-          brands: brands.filter((b) => b !== brand),
-        }
-      } else {
-        return {
-          ...prev,
-          brands: [...brands, brand],
-        }
+        return { ...prev, brands: brands.filter((b) => b !== brand) }
       }
+      return { ...prev, brands: [...brands, brand] }
     })
   }
 
-  // Apply filters to products
+  // Get filtered and sorted products
   const getFilteredProducts = () => {
-    let filtered = [...products]
+    let filtered = products.filter((product) => {
+      const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
+      const matchesBrand = filters.brands.length === 0 || filters.brands.includes(product.brand)
+      const matchesRating = product.rating >= filters.rating
+      const matchesAvailability = !filters.availability || product.inStock
 
-    // Apply price filter
-    filtered = filtered.filter((product) => {
-      const price = product.discountPrice || product.price
-      return price >= filters.priceRange[0] && price <= filters.priceRange[1]
+      return matchesPrice && matchesBrand && matchesRating && matchesAvailability
     })
-
-    // Apply brand filter
-    if (filters.brands.length > 0) {
-      filtered = filtered.filter((product) => filters.brands.includes(product.brand))
-    }
-
-    // Apply rating filter
-    if (filters.rating > 0) {
-      filtered = filtered.filter((product) => product.rating >= filters.rating)
-    }
-
-    // Apply availability filter
-    if (filters.availability) {
-      filtered = filtered.filter((product) => product.inStock)
-    }
 
     // Apply sorting
     switch (sortOption) {
-      case "price-low-high":
-        filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price))
+      case "price-low":
+        // Sort by price ascending (low to high)
+        filtered = [...filtered].sort((a, b) => {
+          const priceA = Number(a.price) || 0
+          const priceB = Number(b.price) || 0
+          if (priceA < priceB) return -1
+          if (priceA > priceB) return 1
+          return 0
+        })
         break
-      case "price-high-low":
-        filtered.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price))
+      case "price-high":
+        // Sort by price descending (high to low)
+        filtered = [...filtered].sort((a, b) => {
+          const priceA = Number(a.price) || 0
+          const priceB = Number(b.price) || 0
+          if (priceA > priceB) return -1
+          if (priceA < priceB) return 1
+          return 0
+        })
         break
       case "rating":
-        filtered.sort((a, b) => b.rating - a.rating)
+        // Sort by rating descending
+        filtered = [...filtered].sort((a, b) => {
+          const ratingA = Number(a.rating) || 0
+          const ratingB = Number(b.rating) || 0
+          if (ratingA > ratingB) return -1
+          if (ratingA < ratingB) return 1
+          return 0
+        })
         break
-      case "newest":
-        // In a real app, you would sort by date
-        filtered.sort((a, b) => b.id - a.id)
+      case "featured":
+        // Sort by featured status first, then by rating
+        filtered = [...filtered].sort((a, b) => {
+          // First sort by featured status
+          if (a.featured && !b.featured) return -1
+          if (!a.featured && b.featured) return 1
+          // If featured status is the same, sort by rating
+          const ratingA = Number(a.rating) || 0
+          const ratingB = Number(b.rating) || 0
+          if (ratingA > ratingB) return -1
+          if (ratingA < ratingB) return 1
+          return 0
+        })
         break
       default:
-        // 'featured' - no specific sorting
         break
     }
 
     return filtered
   }
 
-  const filteredProducts = getFilteredProducts()
+  // Format price in rupees
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(price)
+  }
 
-  // Handle adding to cart
+  // Handle add to cart
   const handleAddToCart = (product) => {
     setCartItems((prev) => [...prev, product])
   }
 
-  // Handle adding to wishlist
+  // Handle add to wishlist
   const handleAddToWishlist = (product) => {
     setWishlistItems((prev) => [...prev, product])
   }
 
+  if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>
+  if (error) return <div className="flex justify-center items-center min-h-screen text-red-500">Error: {error}</div>
+
+  const filteredProducts = getFilteredProducts()
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar cartItems={cartItems} wishlistItems={wishlistItems} />
-
-      <main className="flex-1 pt-24 pb-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          {/* Category Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{getCategoryName()}</h1>
-            <p className="text-gray-600">Explore our collection of {getCategoryName().toLowerCase()} products.</p>
-          </div>
-
-          {/* Filter and Sort Controls */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      
+      <main className="container mx-auto mt-8 px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">{getCategoryName()}</h1>
+          
+          <div className="flex items-center space-x-4">
             <button
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 md:hidden"
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg shadow-sm ${
+                isFilterOpen ? 'bg-blue-500 text-white' : 'bg-white'
+              }`}
             >
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
+              <Filter size={20} />
+              <span>Filters</span>
             </button>
-
-            <div className="flex items-center">
-              <span className="text-sm text-gray-500 mr-2">Sort by:</span>
-              <div className="relative">
-                <select
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-                >
-                  <option value="featured">Featured</option>
-                  <option value="price-low-high">Price: Low to High</option>
-                  <option value="price-high-low">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
-                  <option value="newest">Newest Arrivals</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-            </div>
-
-            <div className="text-sm text-gray-500">
-              Showing {filteredProducts.length} of {products.length} products
-            </div>
+            
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="px-4 py-2 bg-white rounded-lg shadow-sm"
+            >
+              <option value="featured">Featured</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="rating">Top Rated</option>
+            </select>
           </div>
+        </div>
 
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Filters Sidebar */}
-            <div className={`md:w-64 flex-shrink-0 ${isFilterOpen ? "block" : "hidden md:block"}`}>
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">Filters</h2>
-                  <button
-                    onClick={() =>
-                      setFilters({
-                        priceRange: [0, 2000],
-                        brands: [],
-                        rating: 0,
-                        availability: false,
-                      })
-                    }
-                    className="text-sm text-rose-600 hover:text-rose-700"
-                  >
-                    Clear All
-                  </button>
-                </div>
-
-                {/* Price Range Filter */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Price Range</h3>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">${filters.priceRange[0]}</span>
-                    <span className="text-sm text-gray-500">${filters.priceRange[1]}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="2000"
-                    step="50"
-                    value={filters.priceRange[1]}
-                    onChange={(e) =>
-                      handleFilterChange("priceRange", [filters.priceRange[0], Number.parseInt(e.target.value)])
-                    }
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-
-                {/* Brand Filter */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Brand</h3>
-                  <div className="space-y-2">
-                    {getBrands().map((brand) => (
-                      <div key={brand} className="flex items-center">
-                        <input
-                          id={`brand-${brand}`}
-                          type="checkbox"
-                          checked={filters.brands.includes(brand)}
-                          onChange={() => toggleBrandFilter(brand)}
-                          className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor={`brand-${brand}`} className="ml-2 text-sm text-gray-700">
-                          {brand}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Rating Filter */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Rating</h3>
-                  <div className="space-y-2">
-                    {[4, 3, 2, 1].map((rating) => (
-                      <div key={rating} className="flex items-center">
-                        <input
-                          id={`rating-${rating}`}
-                          type="radio"
-                          checked={filters.rating === rating}
-                          onChange={() => handleFilterChange("rating", rating)}
-                          className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300"
-                        />
-                        <label htmlFor={`rating-${rating}`} className="ml-2 text-sm text-gray-700 flex items-center">
-                          {Array(rating)
-                            .fill()
-                            .map((_, i) => (
-                              <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                              </svg>
-                            ))}
-                          <span className="ml-1">& Up</span>
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Availability Filter */}
-                <div>
-                  <div className="flex items-center">
-                    <input
-                      id="availability"
-                      type="checkbox"
-                      checked={filters.availability}
-                      onChange={() => handleFilterChange("availability", !filters.availability)}
-                      className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="availability" className="ml-2 text-sm text-gray-700">
-                      In Stock Only
-                    </label>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Filters Sidebar */}
+          {isFilterOpen && (
+            <div className="md:col-span-1 bg-white p-4 rounded-lg shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Filters</h2>
+                <button
+                  onClick={() => setFilters({
+                    priceRange: [0, 100000],
+                    brands: [],
+                    rating: 0,
+                    availability: false,
+                  })}
+                  className="text-sm text-blue-500 hover:text-blue-600"
+                >
+                  Clear All
+                </button>
+              </div>
+              
+              {/* Price Range */}
+              <div className="mb-4">
+                <h3 className="font-medium mb-2">Price Range</h3>
+                <input
+                  type="range"
+                  min="0"
+                  max="100000"
+                  step="100"
+                  value={filters.priceRange[1]}
+                  onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>{formatPrice(filters.priceRange[0])}</span>
+                  <span>{formatPrice(filters.priceRange[1])}</span>
                 </div>
               </div>
-            </div>
 
-            {/* Product Grid */}
-            <div className="flex-1">
-              {filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onAddToCart={() => handleAddToCart(product)}
-                      onAddToWishlist={() => handleAddToWishlist(product)}
-                      isInWishlist={wishlistItems.some((item) => item.id === product.id)}
-                    />
+              {/* Brands */}
+              <div className="mb-4">
+                <h3 className="font-medium mb-2">Brands</h3>
+                <div className="space-y-2">
+                  {getBrands().map((brand) => (
+                    <label key={brand} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={filters.brands.includes(brand)}
+                        onChange={() => toggleBrandFilter(brand)}
+                        className="rounded"
+                      />
+                      <span>{brand}</span>
+                    </label>
                   ))}
                 </div>
-              ) : (
-                <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                  <SlidersHorizontal className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-800 mb-2">No products found</h3>
-                  <p className="text-gray-600 mb-4">Try adjusting your filters or search criteria.</p>
-                  <button
-                    onClick={() =>
-                      setFilters({
-                        priceRange: [0, 2000],
-                        brands: [],
-                        rating: 0,
-                        availability: false,
-                      })
-                    }
-                    className="px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700 transition-colors"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-              )}
+              </div>
+
+              {/* Rating */}
+              <div className="mb-4">
+                <h3 className="font-medium mb-2">Rating</h3>
+                <select
+                  value={filters.rating}
+                  onChange={(e) => handleFilterChange('rating', parseInt(e.target.value))}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="0">All Ratings</option>
+                  <option value="4">4+ Stars</option>
+                  <option value="3">3+ Stars</option>
+                  <option value="2">2+ Stars</option>
+                </select>
+              </div>
+
+              {/* Availability */}
+              <div className="mb-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={filters.availability}
+                    onChange={(e) => handleFilterChange('availability', e.target.checked)}
+                    className="rounded"
+                  />
+                  <span>In Stock Only</span>
+                </label>
+              </div>
             </div>
+          )}
+
+          {/* Products Grid */}
+          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ${isFilterOpen ? 'md:col-span-3' : 'md:col-span-4'}`}>
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  onAddToCart={() => handleAddToCart(product)}
+                  onAddToWishlist={() => handleAddToWishlist(product)}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8">
+                <SlidersHorizontal className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-800 mb-2">No products found</h3>
+                <p className="text-gray-600 mb-4">Try adjusting your filters or search criteria.</p>
+                <button
+                  onClick={() => setFilters({
+                    priceRange: [0, 100000],
+                    brands: [],
+                    rating: 0,
+                    availability: false,
+                  })}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </main>

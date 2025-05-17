@@ -4,8 +4,11 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ShoppingCart, Heart, Search, Mic, Menu, X, User } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useShop } from '@/context/ShopContext'
 
-const Navbar = ({ cartItems = [], wishlistItems = [], totalCartItems = 0 }) => {
+const Navbar = () => {
+  const { cart } = useShop()
+  const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -86,10 +89,10 @@ const Navbar = ({ cartItems = [], wishlistItems = [], totalCartItems = 0 }) => {
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center">
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-purple-600">
+              <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-purple-600">
                 VoiceCart
               </span>
-              <Mic className="ml-1 h-5 w-5 text-rose-600" />
+              <Mic className="ml-1 h-6 w-6 text-rose-600" />
             </div>
           </Link>
 
@@ -99,7 +102,7 @@ const Navbar = ({ cartItems = [], wishlistItems = [], totalCartItems = 0 }) => {
               <Link
                 key={category.name}
                 href={category.path}
-                className="text-gray-700 hover:text-rose-600 font-medium transition-colors"
+                className="text-black font-bold hover:text-rose-600 font-medium transition-colors"
               >
                 {category.name}
               </Link>
@@ -112,12 +115,12 @@ const Navbar = ({ cartItems = [], wishlistItems = [], totalCartItems = 0 }) => {
             <div className="relative">
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-gray-700 hover:text-rose-600 transition-colors"
+                className="p-2 text-black font-bold hover:text-rose-600 transition-colors"
               >
                 <Search className="h-5 w-5" />
               </button>
               {isSearchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-lg shadow-lg p-2 flex items-center">
+                <div className="absolute right-0 top-full mt-2 w-75 bg-white rounded-lg shadow-lg p-2 flex items-center">
                   <form onSubmit={handleSearch} className="flex">
                     <input
                       type="text"
@@ -145,19 +148,14 @@ const Navbar = ({ cartItems = [], wishlistItems = [], totalCartItems = 0 }) => {
 
             {/* Wishlist */}
             <Link href="/wishlist">
-              <div className="relative p-2 text-gray-700 hover:text-rose-600 transition-colors">
+              <div className="relative p-2 text-black hover:text-rose-600 transition-colors">
                 <Heart className="h-5 w-5" />
-                {wishlistItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                    {wishlistItems.length}
-                  </span>
-                )}
               </div>
             </Link>
 
             {/* Cart */}
             <Link href="/cart">
-              <div className="relative p-2 text-gray-700 hover:text-rose-600 transition-colors">
+              <div className="relative p-2 text-black hover:text-rose-600 transition-colors">
                 <ShoppingCart className="h-5 w-5" />
                 {totalCartItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
@@ -169,7 +167,7 @@ const Navbar = ({ cartItems = [], wishlistItems = [], totalCartItems = 0 }) => {
 
             {/* Account */}
             <Link href="/login">
-              <div className="hidden sm:block p-2 text-gray-700 hover:text-rose-600 transition-colors">
+              <div className="hidden sm:block p-2 text-black hover:text-rose-600 transition-colors">
                 <User className="h-5 w-5" />
               </div>
             </Link>
