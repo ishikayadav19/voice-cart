@@ -42,7 +42,8 @@ const SellerLoginPage = () => {
       )
 
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token)
+        localStorage.setItem("sellerToken", response.data.token)
+        sessionStorage.setItem("sellerToken", response.data.token)
         setSuccess(true)
         toast.success("Login successful!")
         setTimeout(() => {

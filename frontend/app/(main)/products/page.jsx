@@ -177,10 +177,10 @@ const ProductsPage = () => {
       <Navbar />
       
       {/* Banner Section */}
-      <div className="relative h-64 bg-gradient-to-r from-rose-500 to-purple-600 mb-8">
+      <div className="relative  h-64 bg-gradient-to-r from-rose-500 to-purple-600 mb-8">
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white">
+          <div className="text-center mt-8  text-white">
             <SectionHeading
               title="All Products"
               subtitle="Discover our amazing collection of products"

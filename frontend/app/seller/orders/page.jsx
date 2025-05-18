@@ -16,6 +16,8 @@ import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
 import axios from "axios"
 import toast from "react-hot-toast"
+import { motion, AnimatePresence } from "framer-motion"
+import SectionHeading from "@/app/components/SectionHeading"
 
 const OrdersPage = () => {
   const router = useRouter()
@@ -34,6 +36,7 @@ const OrdersPage = () => {
     try {
       const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
       if (!token) {
+        toast.error("Please login to access orders")
         router.push("/seller/login")
         return
       }
@@ -50,7 +53,14 @@ const OrdersPage = () => {
       setOrders(response.data)
     } catch (error) {
       console.error("Error fetching orders:", error)
-      toast.error("Failed to load orders")
+      if (error.response?.status === 401) {
+        localStorage.removeItem("sellerToken")
+        sessionStorage.removeItem("sellerToken")
+        toast.error("Session expired. Please login again.")
+        router.push("/seller/login")
+      } else {
+        toast.error("Failed to load orders")
+      }
     } finally {
       setIsLoading(false)
     }
@@ -117,25 +127,40 @@ const OrdersPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 p-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">Orders</h1>
-            <p className="text-gray-600 mt-2">Manage your customer orders</p>
-          </div>
+      <main className="flex-1 p-8 mt-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto space-y-8 ">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <SectionHeading
+              title="Order Management"
+              subtitle="Track and manage your customer orders"
+              colors={["#E11D48", "#7C3AED", "#E11D48"]}
+              animationSpeed={3}
+              className="text-3xl font-bold"
+              align="left"
+            />
+          </motion.div>
 
           {/* Search and Filter */}
-          <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-white rounded-xl shadow-sm p-6"
+          >
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
                   <input
                     type="text"
-                    placeholder="Search orders..."
+                    placeholder="Search orders by ID or customer name..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
                   />
                 </div>
               </div>
@@ -143,7 +168,7 @@ const OrdersPage = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
                 >
                   <option value="all">All Status</option>
                   <option value="pending">Pending</option>
@@ -155,132 +180,132 @@ const OrdersPage = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
                 >
                   <option value="date">Date</option>
                   <option value="amount">Amount</option>
                   <option value="status">Status</option>
                 </select>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <ArrowUpDown className="h-5 w-5" />
-                </button>
+                </motion.button>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {isLoading ? (
-            <div className="flex justify-center items-center h-64">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-center items-center h-64"
+            >
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
-            </div>
+            </motion.div>
           ) : (
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-white rounded-xl shadow-sm overflow-hidden"
+            >
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Order ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Customer
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Amount
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Date
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredOrders.map((order) => (
-                      <tr key={order._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          #{order._id.slice(-6)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {order.customerName}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${order.amount.toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                              order.status
-                            )}`}
-                          >
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(order.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() =>
-                              router.push(`/seller/orders/${order._id}`)
-                            }
-                            className="text-rose-600 hover:text-rose-900 mr-4"
-                          >
-                            <Eye className="h-5 w-5" />
-                          </button>
-                          {order.status === "pending" && (
-                            <>
-                              <button
-                                onClick={() =>
-                                  handleStatusUpdate(order._id, "processing")
-                                }
-                                className="text-blue-600 hover:text-blue-900 mr-4"
-                              >
-                                <Truck className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleStatusUpdate(order._id, "cancelled")
-                                }
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <XCircle className="h-5 w-5" />
-                              </button>
-                            </>
-                          )}
-                          {order.status === "processing" && (
-                            <button
-                              onClick={() =>
-                                handleStatusUpdate(order._id, "shipped")
-                              }
-                              className="text-purple-600 hover:text-purple-900"
+                    <AnimatePresence>
+                      {filteredOrders.map((order, index) => (
+                        <motion.tr
+                          key={order._id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            #{order._id.slice(-6)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {order.customerName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${order.amount.toFixed(2)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                                order.status
+                              )}`}
                             >
-                              <Truck className="h-5 w-5" />
-                            </button>
-                          )}
-                          {order.status === "shipped" && (
-                            <button
-                              onClick={() =>
-                                handleStatusUpdate(order._id, "delivered")
-                              }
-                              className="text-green-600 hover:text-green-900"
+                              {order.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(order.date).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => router.push(`/seller/orders/${order._id}`)}
+                              className="text-rose-600 hover:text-rose-900 mr-4 transition-colors"
                             >
-                              <CheckCircle className="h-5 w-5" />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                              <Eye className="h-5 w-5" />
+                            </motion.button>
+                            {order.status === "pending" && (
+                              <>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleStatusUpdate(order._id, "processing")}
+                                  className="text-blue-600 hover:text-blue-900 mr-4 transition-colors"
+                                >
+                                  <Truck className="h-5 w-5" />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleStatusUpdate(order._id, "cancelled")}
+                                  className="text-red-600 hover:text-red-900 transition-colors"
+                                >
+                                  <XCircle className="h-5 w-5" />
+                                </motion.button>
+                              </>
+                            )}
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </AnimatePresence>
                   </tbody>
                 </table>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </main>

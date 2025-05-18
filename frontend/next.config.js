@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'res.cloudinary.com'],
   },
   experimental: {
   },
@@ -17,4 +17,4 @@ const nextConfig = {
   },
 }
 
-export default nextConfig 
+export default nextConfig

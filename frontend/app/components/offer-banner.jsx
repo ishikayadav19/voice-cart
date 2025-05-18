@@ -22,7 +22,7 @@ const OfferBanner = () => {
             </div>
           </div>
           <div className="md:w-1/2">
-            <img src="/placeholder.svg?height=300&width=600" alt="Summer Sale" className="w-full h-auto" />
+            <img src="/summ.png"  alt="Summer Sale" className="w-full h-auto"  />
           </div>
         </div>
       </div>

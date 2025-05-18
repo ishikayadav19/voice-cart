@@ -26,7 +26,7 @@ const bannerSlides = [
     id: 1,
     title: "Summer Sale",
     subtitle: "Up to 50% off on selected items",
-    image: "/placeholder.svg?height=500&width=1200",
+    image: "/summer.png?height=500&width=1200",
     buttonText: "Shop Now",
     link: "/sale",
   },
@@ -34,7 +34,7 @@ const bannerSlides = [
     id: 2,
     title: "New Arrivals",
     subtitle: "Check out our latest collection",
-    image: "/placeholder.svg?height=500&width=1200",
+    image: "/NewArrival.png?height=500&width=1200",
     buttonText: "Explore",
     link: "/new-arrivals",
   },
@@ -42,7 +42,7 @@ const bannerSlides = [
     id: 3,
     title: "Voice Shopping",
     subtitle: "Try our new voice shopping experience",
-    image: "/placeholder.svg?height=500&width=1200",
+    image: "/voice.png?height=500&width=1200",
     buttonText: "Learn More",
     link: "/voice-shopping",
   },
@@ -417,7 +417,12 @@ export default function Home() {
       {/* Featured Products Section */}
       <main className="flex-1 px-4 py-16">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8 transform transition-all duration-300 hover:scale-105">Featured Products</h1>
+        <SectionHeading
+            title="Featured Products"
+            
+            colors={["#E11D48", "#7C3AED", "#E11D48"]}
+            animationSpeed={3}
+          />
           
           {loading ? (
             <div className="flex justify-center items-center h-64">
