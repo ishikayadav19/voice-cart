@@ -9,6 +9,7 @@ import { Star, Heart, ShoppingCart, Share2, ChevronRight, MessageSquare } from '
 import { useShop } from '@/context/ShopContext';
 import { Infinity } from 'ldrs/react';
 import 'ldrs/react/Infinity.css';
+import { motion } from 'framer-motion';
 
 const ProductViewPage = () => {
   const [product, setProduct] = useState(null);
@@ -21,12 +22,14 @@ const ProductViewPage = () => {
   const [reviewSuccess, setReviewSuccess] = useState('');
   const { id } = useParams();
   const { addToCart, addToWishlist, cart, wishlist } = useShop();
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getbyid/${id}`);
         setProduct(response.data);
+        setSelectedImage(response.data.mainImage || (response.data.images && response.data.images[0]));
         setLoading(false);
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -167,22 +170,35 @@ const ProductViewPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Image */}
           <div className="space-y-4">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-xl shadow-sm overflow-hidden"
+            >
               <img 
-                src={product.image || "/placeholder.svg"} 
+                src={selectedImage || product.mainImage || (product.images && product.images[0]) || "/placeholder.svg"} 
                 alt={product.name} 
                 className="w-full h-[500px] object-contain p-4"
               />
-            </div>
+            </motion.div>
             <div className="grid grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:ring-2 hover:ring-rose-500">
+              {product.images && product.images.map((image, index) => (
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer transition-all duration-300 ${
+                    selectedImage === image ? 'ring-2 ring-rose-500' : 'hover:ring-2 hover:ring-gray-300'
+                  }`}
+                  onClick={() => setSelectedImage(image)}
+                >
                   <img 
-                    src={product.image || "/placeholder.svg"} 
-                    alt={`${product.name} ${index}`} 
+                    src={image || "/placeholder.svg"} 
+                    alt={`${product.name} ${index + 1}`} 
                     className="w-full h-24 object-contain p-2"
                   />
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>

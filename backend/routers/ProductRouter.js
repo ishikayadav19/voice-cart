@@ -130,7 +130,7 @@ router.delete('/delete/:id', (req, res) => {
 router.get('/category/:category', (req, res) => {
   const { category } = req.params;
   
-  Model.find({ category: category })
+  Model.find({ category: { $regex: new RegExp(`^${category}$`, 'i') } })
     .then((products) => {
       if (products.length === 0) {
         return res.status(404).json({ message: 'No products found in this category' });

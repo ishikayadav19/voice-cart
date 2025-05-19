@@ -30,27 +30,33 @@ const CategoryPage = () => {
 
   // Get category name with proper capitalization
   const getCategoryName = () => {
-    return slug.charAt(0).toUpperCase() + slug.slice(1)
+    return slug.charAt(0).toUpperCase() + slug.slice(1).toLowerCase();
   }
 
   // Fetch products by category from backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setLoading(true)
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/category/${slug}`)
-        setProducts(response.data)
-        setError(null)
+        setLoading(true);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/category/${slug.toLowerCase()}`);
+        if (response.data && Array.isArray(response.data)) {
+          setProducts(response.data);
+          setError(null);
+        } else {
+          setError('No products found in this category');
+          setProducts([]);
+        }
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch products')
-        setProducts([])
+        console.error('Error fetching products:', err);
+        setError(err.response?.data?.message || 'Failed to fetch products');
+        setProducts([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchProducts()
-  }, [slug])
+    fetchProducts();
+  }, [slug]);
 
   // Get unique brands for filter
   const getBrands = () => {

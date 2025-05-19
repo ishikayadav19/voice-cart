@@ -12,7 +12,8 @@ import VoiceAssistant from "./components/voice-assistant"
 import axios from "axios"
 import { Infinity } from "ldrs/react"
 import "ldrs/react/Infinity.css"
-import { ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart, ArrowUp } from "lucide-react"
+import { ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart, ArrowUp, 
+  Smartphone, Shirt, Home as HomeIcon, Sparkles, Trophy, BookOpen } from "lucide-react"
 import CountdownTimer from "./components/CountdownTimer"
 import { useShop } from '@/context/ShopContext';
 import SectionHeading from './components/SectionHeading';
@@ -138,10 +139,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Filter products with 40-50% discount
+    // Filter products with more than 50% discount
     const filteredDeals = products.filter((product) => {
       const discountPercentage = product.discountPrice ? Math.round((1 - product.discountPrice / product.price) * 100) : 0;
-      return discountPercentage >= 40 && discountPercentage <= 50;
+      return discountPercentage > 40;
     });
     setDeals(filteredDeals);
 
@@ -261,7 +262,11 @@ export default function Home() {
               >
                 <Link href={`/product/${deal._id}`}>
                   <div className="relative">
-                    <img src={deal.image || "/placeholder.svg"} alt={deal.name} className="w-full h-64 object-cover" />
+                    <img 
+                      src={deal.mainImage || (deal.images && deal.images[0]) || "/placeholder.svg"} 
+                      alt={deal.name} 
+                      className="w-full h-64 object-contain p-4 bg-white" 
+                    />
                     <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md font-bold">
                       {Math.round((1 - deal.discountPrice / deal.price) * 100)}% OFF
                     </div>
@@ -325,14 +330,21 @@ export default function Home() {
             animationSpeed={3.5}
           />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {["Electronics", "Fashion", "Home", "Beauty", "Sports", "Books"].map((category) => (
-              <Link href={`/category/${category.toLowerCase()}`} key={category}>
+            {[
+              { name: "Electronics", slug: "electronics", icon: Smartphone },
+              { name: "Fashion", slug: "fashion", icon: Shirt },
+              { name: "Home", slug: "home", icon: HomeIcon },
+              { name: "Beauty", slug: "beauty", icon: Sparkles },
+              { name: "Sports", slug: "sports", icon: Trophy },
+              { name: "Books", slug: "books", icon: BookOpen }
+            ].map((category) => (
+              <Link href={`/category/${category.slug}`} key={category.slug}>
                 <div className="bg-white rounded-lg shadow-md overflow-hidden text-center transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
                   <div className="p-4">
                     <div className="w-16 h-16 mx-auto mb-3 bg-rose-100 rounded-full flex items-center justify-center transform transition-all duration-300 hover:scale-110">
-                      <img src={`/placeholder.svg?height=40&width=40`} alt={category} className="w-8 h-8" />
+                      <category.icon className="w-8 h-8 text-rose-600" />
                     </div>
-                    <h3 className="font-medium text-gray-800 transform transition-all duration-300 hover:scale-105">{category}</h3>
+                    <h3 className="font-medium text-gray-800 transform transition-all duration-300 hover:scale-105">{category.name}</h3>
                   </div>
                 </div>
               </Link>
