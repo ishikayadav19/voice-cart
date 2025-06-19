@@ -196,6 +196,14 @@ const CartPage = () => {
                         <span> &#8377;{calculateTotal().toFixed(2)}</span>
                       </div>
                     </div>
+
+                    <Link
+                      href="/checkout"
+                      className="mt-6 w-full bg-rose-600 text-white px-6 py-3 rounded-md hover:bg-rose-700 transition-colors flex items-center justify-center"
+                    >
+                      <CreditCard className="h-5 w-5 mr-2" />
+                      Proceed to Checkout
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -1,11 +1,19 @@
 // importing express
 const express = require('express'); //package ka naam variable bna kr import kr dega
 require('dotenv').config(); //cannot be import direclty, import krne ke liye configure krna pdhta h en packages ko
+
+// Check if environment variables are loaded
+console.log('Checking .env variables in index.js:');
+console.log('EMAIL_USER:', process.env.EMAIL_USER);
+console.log('EMAIL_PASSWORD is set:', !!process.env.EMAIL_PASSWORD);
+
 const UserRouter = require('./routers/UserRouter')
 const ProductRouter = require('./routers/ProductRouter')
 const SellerRouter = require('./routers/SellerRouter') //importing the router for the seller routes
 const reviewRouter = require('./routers/review');
 const AdminPublicRouter = require('./routers/AdminPublicRouter'); // Import the new public admin router
+const orderRouter = require('./routers/OrderRouter');
+const emailRouter = require('./routers/emailRouter'); // Add this line
 
 // initialize express
 const app = express();
@@ -24,6 +32,8 @@ app.use('/product',ProductRouter);
 app.use('/seller',SellerRouter); //use the router for the seller routes
 app.use('/api/reviews', reviewRouter);
 app.use('/api/admin', AdminPublicRouter); // Use the public admin router
+app.use('/api/orders', orderRouter);
+app.use('/api/email', emailRouter); // Add this line
 
 // endpoint or routes
 app.get('/', (req, res) => {

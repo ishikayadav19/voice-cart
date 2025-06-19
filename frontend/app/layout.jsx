@@ -2,6 +2,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ShopProvider } from "../context/ShopContext"
 import { Toaster } from "react-hot-toast"
+import Notification from './components/Notification'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
         <Toaster />
         <ShopProvider>
           {children}
+          <Notification />
         </ShopProvider>
       </body>
     </html>

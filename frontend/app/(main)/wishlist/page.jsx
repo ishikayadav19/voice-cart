@@ -42,13 +42,13 @@ const WishlistPage = () => {
                   <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     {wishlist.map((product) => (
                       <motion.div
-                        key={product._id}
+                        key={product._id || product.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         className="flex items-center p-4 border-b border-gray-200 last:border-b-0"
                       >
-                        <Link href={`/product/${product._id}`} className="flex-shrink-0">
+                        <Link href={`/product/${product._id || product.id}`} className="flex-shrink-0">
                           <img
                             src={product.image || "/placeholder.svg"}
                             alt={product.name}
@@ -56,7 +56,7 @@ const WishlistPage = () => {
                           />
                         </Link>
                         <div className="ml-4 flex-1">
-                          <Link href={`/product/${product._id}`}>
+                          <Link href={`/product/${product._id || product.id}`}>
                             <h3 className="text-lg font-semibold text-gray-800 hover:text-rose-600">
                               {product.name}
                             </h3>
@@ -85,7 +85,7 @@ const WishlistPage = () => {
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => handleRemoveFromWishlist(product._id)}
+                            onClick={() => handleRemoveFromWishlist(product._id || product.id)}
                             className="p-2 text-gray-500 hover:text-rose-600 transition-colors"
                           >
                             <Trash2 size={20} />
