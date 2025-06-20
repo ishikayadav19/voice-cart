@@ -49,11 +49,22 @@ const CheckoutPage = () => {
     // COD fields
     deliveryInstructions: ""
   })
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     // Load Razorpay script when component mounts
     loadRazorpayScript('https://checkout.razorpay.com/v1/checkout.js');
-    setLoading(false)
+    setLoading(false);
+    // Fetch logged-in user's email
+    const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
+    if (token) {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(res => {
+        setUserEmail(res.data.user.email);
+        setFormData(prev => ({ ...prev, email: res.data.user.email }));
+      });
+    }
   }, [])
 
   // Calculate cart totals
@@ -95,7 +106,7 @@ const CheckoutPage = () => {
     // Prepare order details to send to backend
     const orderDetails = {
       customerName: `${formData.firstName} ${formData.lastName}`,
-      email: formData.email,
+      email: userEmail,
       items: cart.map(item => ({
         name: item.name,
         quantity: item.quantity,
@@ -406,6 +417,7 @@ const CheckoutPage = () => {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        readOnly
                       />
                     </div>
                     <div>

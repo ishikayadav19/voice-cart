@@ -33,6 +33,7 @@ app.use('/seller',SellerRouter); //use the router for the seller routes
 app.use('/api/reviews', reviewRouter);
 app.use('/api/admin', AdminPublicRouter); // Use the public admin router
 app.use('/api/orders', orderRouter);
+app.use('/order', orderRouter);
 app.use('/api/email', emailRouter); // Add this line
 
 // endpoint or routes

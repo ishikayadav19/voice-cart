@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { sendOrderConfirmationEmail } = require('../services/emailService');
 const Razorpay = require('razorpay'); // Import Razorpay
 const Order = require('../models/OrderModel'); // Import the Order model
@@ -154,6 +155,47 @@ router.post('/verify-payment', async (req, res) => {
             error: error.message
         });
     }
+});
+
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
+// Secure endpoint: get orders for logged-in user only
+router.get('/myorders', authMiddleware, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const orders = await Order.find({ email }).sort({ createdAt: -1 });
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching orders' });
+  }
+});
+
+// Get all orders for a user by email
+router.get('/getbyemail/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    const orders = await Order.find({ email }).sort({ createdAt: -1 });
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('Error fetching orders by email:', error);
+    res.status(500).json({ message: 'Error fetching orders' });
+  }
 });
 
 module.exports = router; 

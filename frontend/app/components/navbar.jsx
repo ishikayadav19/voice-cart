@@ -109,6 +109,15 @@ const Navbar = () => {
     { name: "Books", path: "/category/books" },
   ]
 
+  const handleProfileClick = () => {
+    const token = typeof window !== 'undefined' && (localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken'));
+    if (token) {
+      router.push('/user/profile');
+    } else {
+      router.push('/user/login');
+    }
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4"}`}
@@ -233,11 +242,9 @@ const Navbar = () => {
             </Link>
 
             {/* Account */}
-            <Link href="/login">
-              <div className="hidden sm:block p-2 text-black hover:text-rose-600 transition-colors">
+            <div className="hidden sm:block p-2 text-black hover:text-rose-600 transition-colors cursor-pointer" onClick={handleProfileClick}>
                 <User className="h-5 w-5" />
               </div>
-            </Link>
 
             {/* Login/Register Buttons */}
             <div className="hidden md:flex items-center space-x-2">
@@ -278,11 +285,9 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="pt-4 border-t flex flex-col space-y-2">
-                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <span className="block px-4 py-2 border border-rose-600 text-rose-600 rounded-md text-center hover:bg-rose-50 transition-colors">
-                    Login
+                <span className="block px-4 py-2 border border-rose-600 text-rose-600 rounded-md text-center hover:bg-rose-50 transition-colors cursor-pointer" onClick={() => { handleProfileClick(); setIsMobileMenuOpen(false); }}>
+                  Profile
                   </span>
-                </Link>
                 <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
                   <span className="block px-4 py-2 bg-rose-600 text-white rounded-md text-center hover:bg-rose-700 transition-colors">
                     Sign Up

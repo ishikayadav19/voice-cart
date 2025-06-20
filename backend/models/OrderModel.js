@@ -53,6 +53,13 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  deliveryDate: {
+    type: Date,
+    default: function() {
+      // Default delivery date: 5 days after order creation
+      return new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    }
+  },
 });
 
 const Order = mongoose.model('Order', orderSchema);

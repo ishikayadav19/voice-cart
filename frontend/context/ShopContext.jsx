@@ -1,5 +1,6 @@
 "use client"
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import axios from "axios";
 
 const ShopContext = createContext()
 
@@ -7,25 +8,43 @@ export const ShopProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([])
   const [cart, setCart] = useState([])
   const [notification, setNotification] = useState(null)
+  const [userEmail, setUserEmail] = useState("");
 
-  // Load saved state from localStorage on initial render
+  // Get logged-in user's email on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedWishlist = localStorage.getItem('wishlist')
-      const savedCart = localStorage.getItem('cart')
-      
-      if (savedWishlist) setWishlist(JSON.parse(savedWishlist))
-      if (savedCart) setCart(JSON.parse(savedCart))
+    const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
+    if (token) {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(res => {
+        setUserEmail(res.data.user.email);
+      }).catch(() => setUserEmail(""));
+    } else {
+      setUserEmail("");
     }
-  }, [])
+  }, []);
 
-  // Save state to localStorage whenever it changes
+  // Load cart for the current user
+  useEffect(() => {
+    if (userEmail) {
+      const savedCart = localStorage.getItem(`cart_${userEmail}`);
+      setCart(savedCart ? JSON.parse(savedCart) : []);
+    }
+  }, [userEmail]);
+
+  // Save cart to localStorage for the current user
+  useEffect(() => {
+    if (userEmail) {
+      localStorage.setItem(`cart_${userEmail}`, JSON.stringify(cart));
+    }
+  }, [cart, userEmail]);
+
+  // Save wishlist globally (not user-specific)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('wishlist', JSON.stringify(wishlist))
-      localStorage.setItem('cart', JSON.stringify(cart))
     }
-  }, [wishlist, cart])
+  }, [wishlist])
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type })
@@ -118,12 +137,15 @@ export const ShopProvider = ({ children }) => {
       wishlist,
       cart,
       notification,
+      userEmail,
       addToWishlist,
       removeFromWishlist,
       addToCart,
       removeFromCart,
       updateCartQuantity,
-      moveToCart
+      moveToCart,
+      setCart,
+      showNotification
     }}>
       {children}
     </ShopContext.Provider>

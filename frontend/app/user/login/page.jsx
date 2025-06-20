@@ -41,6 +41,7 @@ const UserLoginPage = () => {
       toast.success('Login successful!')
       setTimeout(() => {
         router.push('/user/profile')
+        setTimeout(() => window.location.reload(), 100)
       }, 1000)
     } catch (error) {
       console.error('Login error:', error)
