@@ -10,7 +10,7 @@ const mySchema = new Schema({
     createdAt: { type: Date, default: Date.now },
     wishlist: [{
         type: Schema.Types.ObjectId,
-        ref: 'Product'
+        ref: 'productsdata'
     }]
 })
 

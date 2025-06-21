@@ -40,6 +40,13 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
+        // Check if seller is approved
+        if (!seller.isApproved) {
+            return res.status(403).json({ 
+                message: "Your account is pending approval. Please wait for admin approval before logging in." 
+            });
+        }
+
         // Generate JWT token
         const token = jwt.sign(
             { id: seller._id, email: seller.email },

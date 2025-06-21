@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server';
+
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
@@ -5,14 +7,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const page = searchParams.get('page') || 1;
     
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    console.log('Backend URL:', backendUrl);
-
-    if (!backendUrl) {
-      throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
-    }
-
-    const response = await fetch(`${backendUrl}/api/admin/users?page=${page}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/admin/users?page=${page}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -20,18 +15,15 @@ export async function GET(request) {
     });
 
     if (!response.ok) {
-      // Log the response status and text for more details
-      const errorText = await response.text();
-      console.error(`Backend response error: ${response.status} - ${errorText}`);
-      throw new Error(`Failed to fetch users: ${response.statusText}`);
+      throw new Error('Failed to fetch users');
     }
 
     const data = await response.json();
-    return Response.json(data);
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Error in users API route:', error);
-    return Response.json(
-      { message: `Error fetching users: ${error.message}` },
+    console.error('Error fetching users:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch users' },
       { status: 500 }
     );
   }

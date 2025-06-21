@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Search, MoreVertical, Trash2, UserX, UserCheck } from 'lucide-react'
+import { Users, Search, Trash2, UserX, UserCheck, Mail, Calendar } from 'lucide-react'
 import SectionHeading from '@/app/components/SectionHeading'
 
 const UsersPage = () => {
@@ -12,6 +12,11 @@ const UsersPage = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
   const [error, setError] = useState(null)
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    suspendedUsers: 0
+  })
 
   useEffect(() => {
     fetchUsers()
@@ -28,6 +33,11 @@ const UsersPage = () => {
       const data = await response.json()
       setUsers(data.users || [])
       setTotalPages(data.totalPages || 1)
+      setStats({
+        totalUsers: data.totalUsers || 0,
+        activeUsers: data.users?.filter(u => u.status !== 'suspended').length || 0,
+        suspendedUsers: data.users?.filter(u => u.status === 'suspended').length || 0
+      })
     } catch (error) {
       console.error('Error fetching users:', error)
       setError('Failed to load users. Please try again.')
@@ -47,27 +57,44 @@ const UsersPage = () => {
         body: JSON.stringify({ status: newStatus }),
       })
       if (response.ok) {
+        alert(`User ${newStatus === 'active' ? 'activated' : 'suspended'} successfully!`)
         fetchUsers() // Refresh the list
+      } else {
+        const errorData = await response.json()
+        alert(errorData.message || 'Failed to update user status')
       }
     } catch (error) {
       console.error('Error updating user status:', error)
+      alert('Failed to update user status')
     }
   }
 
   const handleDelete = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+    if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       try {
         const response = await fetch(`/api/admin/users/${userId}`, {
           method: 'DELETE',
         })
         if (response.ok) {
+          alert('User deleted successfully!')
           fetchUsers() // Refresh the list
+        } else {
+          const errorData = await response.json()
+          alert(errorData.message || 'Failed to delete user')
         }
       } catch (error) {
         console.error('Error deleting user:', error)
+        alert('Failed to delete user. Please try again.')
       }
     }
   }
+
+  // Filter users based on search query
+  const filteredUsers = users.filter(user =>
+    user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.city?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   if (loading) {
     return (
@@ -100,12 +127,65 @@ const UsersPage = () => {
         animationSpeed={3}
       />
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-lg shadow-md p-6"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-500 text-sm">Total Users</p>
+              <h3 className="text-2xl font-bold mt-1">{stats.totalUsers}</h3>
+            </div>
+            <div className="p-3 rounded-full bg-blue-500 bg-opacity-10">
+              <Users className="text-blue-500" size={24} />
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-lg shadow-md p-6"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-500 text-sm">Active Users</p>
+              <h3 className="text-2xl font-bold mt-1">{stats.activeUsers}</h3>
+            </div>
+            <div className="p-3 rounded-full bg-green-500 bg-opacity-10">
+              <UserCheck className="text-green-500" size={24} />
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-lg shadow-md p-6"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-500 text-sm">Suspended Users</p>
+              <h3 className="text-2xl font-bold mt-1">{stats.suspendedUsers}</h3>
+            </div>
+            <div className="p-3 rounded-full bg-red-500 bg-opacity-10">
+              <UserX className="text-red-500" size={24} />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
       {/* Search and Filters */}
       <div className="flex items-center justify-between">
         <div className="relative">
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder="Search users by name, email, or city..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
@@ -127,7 +207,10 @@ const UsersPage = () => {
                 User
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
+                Contact
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Location
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Joined
@@ -141,8 +224,8 @@ const UsersPage = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {users && users.length > 0 ? (
-              users.map((user) => (
+            {filteredUsers && filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => (
                 <motion.tr
                   key={user._id}
                   initial={{ opacity: 0 }}
@@ -158,45 +241,63 @@ const UsersPage = () => {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {user.name}
+                          {user.name || 'N/A'}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{user.email}</div>
+                    <div className="flex items-center">
+                      <Mail className="h-4 w-4 text-gray-400 mr-2" />
+                      <div className="text-sm text-gray-900">{user.email}</div>
+                    </div>
+                    {user.phone && (
+                      <div className="text-sm text-gray-500 mt-1">{user.phone}</div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">
-                      {new Date(user.createdAt).toLocaleDateString()}
+                    <div className="text-sm text-gray-900">{user.city || 'Not specified'}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 text-gray-400 mr-2" />
+                      <div className="text-sm text-gray-500">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
+                      user.status === 'suspended' 
+                        ? 'bg-red-100 text-red-800' 
+                        : 'bg-green-100 text-green-800'
                     }`}>
-                      {user.status || 'active'}
+                      {user.status === 'suspended' ? 'Suspended' : 'Active'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
                       <button
-                        onClick={() => handleStatusChange(user._id, user.status === 'active' ? 'suspended' : 'active')}
-                        className="text-gray-400 hover:text-gray-500"
+                        onClick={() => handleStatusChange(user._id, user.status === 'suspended' ? 'active' : 'suspended')}
+                        className={`p-1 rounded ${
+                          user.status === 'suspended' 
+                            ? 'text-green-600 hover:text-green-900' 
+                            : 'text-red-600 hover:text-red-900'
+                        }`}
+                        title={user.status === 'suspended' ? 'Activate User' : 'Suspend User'}
                       >
-                        {user.status === 'active' ? (
-                          <UserX className="h-5 w-5" />
+                        {user.status === 'suspended' ? (
+                          <UserCheck size={16} />
                         ) : (
-                          <UserCheck className="h-5 w-5" />
+                          <UserX size={16} />
                         )}
                       </button>
                       <button
                         onClick={() => handleDelete(user._id)}
-                        className="text-gray-400 hover:text-red-500"
+                        className="text-red-600 hover:text-red-900 p-1"
+                        title="Delete User"
                       >
-                        <Trash2 className="h-5 w-5" />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </td>
@@ -204,8 +305,8 @@ const UsersPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-                  No users found
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                  {searchQuery ? 'No users found matching your search.' : 'No users found.'}
                 </td>
               </tr>
             )}
@@ -214,27 +315,27 @@ const UsersPage = () => {
       </motion.div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-700">
-          Showing page {currentPage} of {totalPages}
-        </div>
-        <div className="flex space-x-2">
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center space-x-2">
           <button
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 border rounded-md disabled:opacity-50"
+            className="px-3 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
           >
             Previous
           </button>
+          <span className="px-3 py-2">
+            Page {currentPage} of {totalPages}
+          </span>
           <button
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 border rounded-md disabled:opacity-50"
+            className="px-3 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
           >
             Next
           </button>
         </div>
-      </div>
+      )}
     </div>
   )
 }

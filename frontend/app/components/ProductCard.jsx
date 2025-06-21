@@ -1,9 +1,10 @@
 "use client"
 import React from 'react';
-import { Heart, Star } from "lucide-react"
+import { Heart } from "lucide-react"
 import Link from "next/link"
 import { useShop } from '@/context/ShopContext';
 import { motion } from 'framer-motion';
+import ReviewSummary from "./ReviewSummary";
 
 const ProductCard = ({ product }) => {
   const { addToCart, addToWishlist, wishlist } = useShop();
@@ -39,21 +40,12 @@ const ProductCard = ({ product }) => {
           </h3>
         </Link>
 
-        <div className="flex items-center mb-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={16}
-                className={`${
-                  i < Math.floor(product.rating)
-                    ? "text-yellow-400 fill-current"
-                    : "text-gray-300"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="ml-1 text-sm text-gray-500">({product.rating})</span>
+        <div className="mb-2">
+          <ReviewSummary 
+            rating={product.rating || 0} 
+            reviewCount={product.reviews || 0} 
+            size="md" 
+          />
         </div>
 
         <div className="flex items-center mb-3">

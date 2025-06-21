@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Store, Package, TrendingUp } from 'lucide-react'
+import { Users, Store, Package, TrendingUp, Clock } from 'lucide-react'
 import SectionHeading from '@/app/components/SectionHeading'
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalSellers: 0,
-    totalProducts: 0
+    totalProducts: 0,
+    pendingSellers: 0
   })
   const [recent, setRecent] = useState({
     users: [],
@@ -24,10 +25,22 @@ const AdminDashboard = () => {
       try {
         const response = await fetch('/api/admin/dashboard')
         const data = await response.json()
-        setStats(data.stats)
-        setRecent(data.recent)
+        setStats({
+          totalUsers: data?.stats?.totalUsers ?? 0,
+          totalSellers: data?.stats?.totalSellers ?? 0,
+          totalProducts: data?.stats?.totalProducts ?? 0,
+          pendingSellers: data?.stats?.pendingSellers ?? 0,
+        })
+        setRecent(data?.recent || { users: [], sellers: [], products: [] })
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
+        setStats({
+          totalUsers: 0,
+          totalSellers: 0,
+          totalProducts: 0,
+          pendingSellers: 0,
+        })
+        setRecent({ users: [], sellers: [], products: [] })
       } finally {
         setLoading(false)
       }
@@ -44,10 +57,16 @@ const AdminDashboard = () => {
       color: 'bg-blue-500'
     },
     {
-      title: 'Total Sellers',
+      title: 'Approved Sellers',
       value: stats.totalSellers,
       icon: Store,
       color: 'bg-green-500'
+    },
+    {
+      title: 'Pending Sellers',
+      value: stats.pendingSellers,
+      icon: Clock,
+      color: 'bg-yellow-500'
     },
     {
       title: 'Total Products',
@@ -75,7 +94,7 @@ const AdminDashboard = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, index) => {
           const Icon = stat.icon
           return (
@@ -110,17 +129,21 @@ const AdminDashboard = () => {
         >
           <h3 className="text-lg font-semibold mb-4">Recent Users</h3>
           <div className="space-y-4">
-            {recent.users.map((user) => (
-              <div key={user._id} className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                  <Users size={20} className="text-gray-500" />
+            {recent.users.length > 0 ? (
+              recent.users.map((user) => (
+                <div key={user._id} className="flex items-center space-x-4">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <Users size={20} className="text-gray-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-sm text-gray-500">{user.email}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{user.name}</p>
-                  <p className="text-sm text-gray-500">{user.email}</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm">No recent users</p>
+            )}
           </div>
         </motion.div>
 
@@ -130,19 +153,23 @@ const AdminDashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-lg shadow-md p-6"
         >
-          <h3 className="text-lg font-semibold mb-4">Recent Sellers</h3>
+          <h3 className="text-lg font-semibold mb-4">Recent Approved Sellers</h3>
           <div className="space-y-4">
-            {recent.sellers.map((seller) => (
-              <div key={seller._id} className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                  <Store size={20} className="text-gray-500" />
+            {recent.sellers.length > 0 ? (
+              recent.sellers.map((seller) => (
+                <div key={seller._id} className="flex items-center space-x-4">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <Store size={20} className="text-gray-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{seller.storeName}</p>
+                    <p className="text-sm text-gray-500">{seller.email}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{seller.storeName}</p>
-                  <p className="text-sm text-gray-500">{seller.email}</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm">No recent sellers</p>
+            )}
           </div>
         </motion.div>
 
@@ -154,19 +181,23 @@ const AdminDashboard = () => {
         >
           <h3 className="text-lg font-semibold mb-4">Recent Products</h3>
           <div className="space-y-4">
-            {recent.products.map((product) => (
-              <div key={product._id} className="flex items-center space-x-4">
-                <img
-                  src={product.mainImage}
-                  alt={product.name}
-                  className="w-10 h-10 rounded-md object-cover"
-                />
-                <div>
-                  <p className="font-medium">{product.name}</p>
-                  <p className="text-sm text-gray-500">₹{product.price}</p>
+            {recent.products.length > 0 ? (
+              recent.products.map((product) => (
+                <div key={product._id} className="flex items-center space-x-4">
+                  <img
+                    src={product.mainImage}
+                    alt={product.name}
+                    className="w-10 h-10 rounded-md object-cover"
+                  />
+                  <div>
+                    <p className="font-medium">{product.name}</p>
+                    <p className="text-sm text-gray-500">₹{product.price}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm">No recent products</p>
+            )}
           </div>
         </motion.div>
       </div>

@@ -8,6 +8,8 @@ const sellerSchema = new Schema({
     phone: { type: String, required: true }, 
     storeName: { type: String, required: true },
     address: { type: String, default: "Not provided" }, 
+    isApproved: { type: Boolean, default: false },
+    approvedAt: { type: Date },
     createdAt: { type: Date, default: Date.now } 
 });
 

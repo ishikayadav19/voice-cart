@@ -1,6 +1,7 @@
 "use client"
-import { Heart, Star } from "lucide-react"
+import { Heart } from "lucide-react"
 import Link from "next/link"
+import ReviewSummary from "./ReviewSummary"
 
 const ProductCard = ({ product, onAddToCart, onAddToWishlist, isInWishlist }) => {
   return (
@@ -23,13 +24,12 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist, isInWishlist }) =>
           </h3>
         </Link>
 
-        <div className="flex items-center mb-2">
-          <div className="flex text-amber-400 mr-1">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} size={14} className={i < Math.floor(product.rating) ? "fill-amber-400" : "text-gray-300"} />
-            ))}
-          </div>
-          <span className="text-xs text-gray-500">({product.reviews})</span>
+        <div className="mb-2">
+          <ReviewSummary 
+            rating={product.rating || 0} 
+            reviewCount={product.reviews || 0} 
+            size="sm" 
+          />
         </div>
 
         <div className="flex items-center mb-3">
