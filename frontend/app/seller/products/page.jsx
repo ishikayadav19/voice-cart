@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import SectionHeading from '@/app/components/SectionHeading';
 import { Package, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -19,8 +20,10 @@ const ProductsPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`);
-      console.table(res.data);
+      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/seller/myproducts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setProducts(res.data);
       setLoading(false);
     } catch (error) {
@@ -39,8 +42,10 @@ const ProductsPage = () => {
   };
 
   const handleDelete = async (id) => {
-    const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/product/delete/${id}`)
-    console.log(res.data);
+    const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
+    const res = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/product/seller/delete/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     fetchProducts();
     toast.success('Product Deleted Successfully!');
   };

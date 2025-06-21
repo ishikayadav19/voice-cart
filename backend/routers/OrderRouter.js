@@ -5,6 +5,8 @@ const { sendOrderConfirmationEmail } = require('../services/emailService');
 const Razorpay = require('razorpay'); // Import Razorpay
 const Order = require('../models/OrderModel'); // Import the Order model
 const crypto = require('crypto'); // Import crypto for signature verification
+const Product = require('../models/ProductModels'); // Import the Product model
+const Seller = require('../models/SellerModels');
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -24,6 +26,21 @@ router.post('/create', async (req, res) => {
       paymentMethod
     } = req.body;
 
+    // Enrich items with productId and sellerId
+    const enrichedItems = await Promise.all(items.map(async (item) => {
+      // item should have productId
+      const product = await Product.findById(item.productId);
+      if (!product) throw new Error(`Product not found: ${item.productId}`);
+      return {
+        productId: product._id,
+        sellerId: product.seller,
+        name: product.name,
+        quantity: item.quantity,
+        price: product.price,
+        status: 'pending'
+      };
+    }));
+
     // Generate a unique order number
     const orderNumber = 'ORD' + Date.now().toString().slice(-8);
 
@@ -31,7 +48,7 @@ router.post('/create', async (req, res) => {
     const newOrder = new Order({
         customerName,
         email,
-        items,
+        items: enrichedItems,
         totalAmount,
         shippingAddress,
         paymentMethod,
@@ -195,6 +212,89 @@ router.get('/getbyemail/:email', async (req, res) => {
   } catch (error) {
     console.error('Error fetching orders by email:', error);
     res.status(500).json({ message: 'Error fetching orders' });
+  }
+});
+
+// Cancel an order (user)
+router.put('/cancel/:orderId', authMiddleware, async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const email = req.user.email;
+    // Find the order by _id and email (ownership)
+    const order = await Order.findOne({ _id: orderId, email });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    if (order.status === 'delivered' || order.status === 'cancelled') {
+      return res.status(400).json({ message: 'Order cannot be cancelled' });
+    }
+    order.status = 'cancelled';
+    await order.save();
+    res.status(200).json({ message: 'Order cancelled successfully', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to cancel order' });
+  }
+});
+
+// Seller auth middleware
+const sellerAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.seller = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
+// Get all orders for the logged-in seller
+router.get('/seller/myorders', sellerAuth, async (req, res) => {
+  try {
+    const sellerId = req.seller.id;
+    // Find all orders that have at least one item for this seller
+    const orders = await Order.find({ 'items.sellerId': sellerId }).sort({ createdAt: -1 });
+    // For each order, filter items to only those belonging to this seller
+    const filteredOrders = orders.map(order => {
+      const sellerItems = order.items.filter(item => item.sellerId.toString() === sellerId);
+      return sellerItems.length > 0 ? { ...order.toObject(), items: sellerItems } : null;
+    }).filter(Boolean);
+    res.status(200).json(filteredOrders);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch seller orders' });
+  }
+});
+
+// Update status of a seller's own order item
+router.put('/seller/orderitem/:orderId/:itemId', sellerAuth, async (req, res) => {
+  try {
+    const { orderId, itemId } = req.params;
+    const { status } = req.body;
+    const allowedStatuses = ['pending', 'completed', 'failed', 'shipped', 'delivered', 'cancelled'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    const item = order.items.id(itemId);
+    if (!item) {
+      return res.status(404).json({ message: 'Order item not found' });
+    }
+    if (item.sellerId.toString() !== req.seller.id) {
+      return res.status(403).json({ message: 'Not authorized to update this item' });
+    }
+    item.status = status;
+    await order.save();
+    console.log('Updated order item status:', order.items.map(i => ({ id: i._id, status: i.status })));
+    res.status(200).json({ message: 'Order item status updated', order });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update order item status' });
   }
 });
 

@@ -17,6 +17,17 @@ const Navbar = () => {
   const searchInputRef = useRef(null)
   const router = useRouter()
 
+  // Auth state for user and seller
+  const [isLoggedInUser, setIsLoggedInUser] = useState(false);
+  const [isLoggedInSeller, setIsLoggedInSeller] = useState(false);
+
+  useEffect(() => {
+    const userToken = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
+    const sellerToken = localStorage.getItem('sellerToken') || sessionStorage.getItem('sellerToken');
+    setIsLoggedInUser(!!userToken);
+    setIsLoggedInSeller(!!sellerToken);
+  }, []);
+
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -109,13 +120,25 @@ const Navbar = () => {
     { name: "Books", path: "/category/books" },
   ]
 
+  // Enhanced profile click logic for user/seller context
   const handleProfileClick = () => {
-    const token = typeof window !== 'undefined' && (localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken'));
-    if (token) {
+    if (isLoggedInUser) {
       router.push('/user/profile');
+    } else if (isLoggedInSeller) {
+      router.push('/seller/profile');
     } else {
-      router.push('/user/login');
+      router.push('/login');
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('usertoken');
+    sessionStorage.removeItem('usertoken');
+    localStorage.removeItem('sellerToken');
+    sessionStorage.removeItem('sellerToken');
+    router.push('/');
+    // Optionally, reload the page to reset state
+    // window.location.reload();
   };
 
   return (
@@ -246,19 +269,30 @@ const Navbar = () => {
                 <User className="h-5 w-5" />
               </div>
 
+            {(isLoggedInUser || isLoggedInSeller) && (
+              <button
+                onClick={handleLogout}
+                className="ml-2 px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors"
+              >
+                Logout
+              </button>
+            )}
+
             {/* Login/Register Buttons */}
-            <div className="hidden md:flex items-center space-x-2">
-              <Link href="/login">
-                <span className="px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors">
-                  Login
-                </span>
-              </Link>
-              <Link href="/signup">
-                <span className="px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700 transition-colors">
-                  Sign Up
-                </span>
-              </Link>
-            </div>
+            {!(isLoggedInUser || isLoggedInSeller) && (
+              <div className="hidden md:flex items-center space-x-2">
+                <Link href="/login">
+                  <span className="px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors">
+                    Login
+                  </span>
+                </Link>
+                <Link href="/signup">
+                  <span className="px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700 transition-colors">
+                    Sign Up
+                  </span>
+                </Link>
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <button

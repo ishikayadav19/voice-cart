@@ -1,7 +1,24 @@
 const express = require('express');
 const Model = require('../models/ProductModels'); // import the model
 const router= express.Router();
+const jwt = require('jsonwebtoken');
+const Seller = require('../models/SellerModels');
 
+// Seller auth middleware
+const sellerAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.seller = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
 
 router.post('/add' , (req, res) => {
     console.log('Adding product:', req.body);
@@ -273,6 +290,63 @@ router.get('/wishlist/check/:userId/:productId', async (req, res) => {
   } catch (error) {
     console.error('Error checking wishlist:', error);
     res.status(500).json({ message: 'Error checking wishlist' });
+  }
+});
+
+// Get all products for the logged-in seller
+router.get('/seller/myproducts', sellerAuth, async (req, res) => {
+  try {
+    const products = await Model.find({ seller: req.seller.id });
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch seller products' });
+  }
+});
+
+// Add a product for the logged-in seller
+router.post('/seller/add', sellerAuth, async (req, res) => {
+  try {
+    const productData = {
+      ...req.body,
+      seller: req.seller.id
+    };
+    const product = new Model(productData);
+    await product.save();
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to add product', error: error.message });
+  }
+});
+
+// Update a product for the logged-in seller
+router.put('/seller/update/:id', sellerAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Model.findOneAndUpdate(
+      { _id: id, seller: req.seller.id },
+      req.body,
+      { new: true }
+    );
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found or not owned by seller' });
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update product', error: error.message });
+  }
+});
+
+// Delete a product for the logged-in seller
+router.delete('/seller/delete/:id', sellerAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Model.findOneAndDelete({ _id: id, seller: req.seller.id });
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found or not owned by seller' });
+    }
+    res.status(200).json({ message: 'Product deleted successfully', product });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete product', error: error.message });
   }
 });
 

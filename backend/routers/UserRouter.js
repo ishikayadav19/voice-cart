@@ -5,6 +5,22 @@ require('dotenv').config(); // import the dotenv library to use environment vari
 
 const router= express.Router();
 
+// Move authMiddleware to the top before any routes use it
+const authMiddleware = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+      next();
+    } catch (err) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+};
+
 router.post('/add' , (req, res) => {
     console.log(req.body);
     
@@ -108,7 +124,7 @@ router.get('/getbyid/:id', (req, res) =>{
  
 //update
 router.put('/update/:id', (req, res) => {
-    Model.findByIdAndUpdate(req.params.id, res.body)
+    Model.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then((result) => {
         res.status(200).json(result);
         })
@@ -116,10 +132,25 @@ router.put('/update/:id', (req, res) => {
         console.log(err);
         res.status(500).json(err);
        });
-    
 });
 
-
+// Update current user's profile
+router.put('/profile', authMiddleware, async (req, res) => {
+  try {
+    const allowedFields = ['name', 'email', 'phone', 'city'];
+    const updates = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    });
+    const user = await Model.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update profile' });
+  }
+});
 
 //delete
 router.delete('/delete/:id', (req, res) =>{
@@ -165,32 +196,18 @@ router.post('/authenticate', (req, res)=>{
 
 }
 )
-const authMiddleware = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'No token provided' });
+
+// Get current user's profile
+router.get('/profile', authMiddleware, async (req, res) => {
+  try {
+    const user = await Model.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    const token = authHeader.split(' ')[1];
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
-      next();
-    } catch (err) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-  };
-  
-  // Get current user's profile
-  router.get('/profile', authMiddleware, async (req, res) => {
-    try {
-      const user = await Model.findById(req.user.id).select('-password');
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      res.status(200).json({ user });
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching profile' });
-    }
-  });
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching profile' });
+  }
+});
 
 module.exports = router;

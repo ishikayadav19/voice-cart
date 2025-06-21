@@ -28,10 +28,10 @@ const UserProfilePage = () => {
   const { setCart, userEmail } = useShop();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserProfile = async () => {
       const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
       if (!token) {
-        router.push("/login");
+        router.push('/user/login');
         return;
       }
       try {
@@ -57,17 +57,19 @@ const UserProfilePage = () => {
         });
         setOrders(ordersRes.data || []);
       } catch (error) {
-        if (token) {
+        // If unauthorized or forbidden, clear token and redirect
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          localStorage.removeItem('usertoken');
+          sessionStorage.removeItem('usertoken');
+          router.push('/user/login');
+        } else {
           toast.error("Failed to load profile");
-          console.log(error);
         }
-        router.push("/login");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchUser();
+    fetchUserProfile();
   }, [router]);
 
   const handleLogoutKeepCart = () => {
@@ -86,6 +88,14 @@ const UserProfilePage = () => {
     setCart([]);
     toast.success("Logged out and cart cleared");
     router.push("/login");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('usertoken');
+    sessionStorage.removeItem('usertoken');
+    localStorage.removeItem('sellerToken');
+    sessionStorage.removeItem('sellerToken');
+    router.push('/');
   };
 
   const handleEditProfile = () => {
@@ -123,6 +133,44 @@ const UserProfilePage = () => {
     }
   };
 
+  // Cancel order handler
+  const handleCancelOrder = async (orderId) => {
+    const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
+    if (!token) {
+      toast.error('You must be logged in to cancel orders.');
+      return;
+    }
+    try {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/order/cancel/${orderId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('Order cancelled successfully');
+      // Update the order status in the UI
+      setOrders((prevOrders) => prevOrders.map(order =>
+        order._id === orderId ? { ...order, status: 'cancelled' } : order
+      ));
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to cancel order');
+    }
+  };
+
+  const handleViewOrderDetails = (orderId) => {
+    router.push(`/orders/${orderId}`);
+  };
+
+  // Helper to get aggregate status for order items
+  const getOrderAggregateStatus = (order) => {
+    if (!order.items || order.items.length === 0) return 'pending';
+    if (order.items.length === 1) return order.items[0].status || 'pending';
+    // Priority: pending > shipped > delivered > cancelled
+    if (order.items.some(i => (i.status || 'pending') === 'pending')) return 'pending';
+    if (order.items.some(i => i.status === 'shipped')) return 'shipped';
+    if (order.items.every(i => i.status === 'delivered')) return 'delivered';
+    if (order.items.every(i => i.status === 'cancelled')) return 'cancelled';
+    if (order.items.some(i => i.status === 'delivered')) return 'delivered';
+    return order.items[0].status || 'pending';
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
@@ -141,7 +189,13 @@ const UserProfilePage = () => {
                   className="text-3xl font-bold mb-2"
                 />
               </div>
-              <div className="absolute top-8 right-8">
+              <div className="absolute top-8 right-8 flex gap-2">
+                {/* <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors"
+                >
+                  Logout
+                </button> */}
                 <button
                   onClick={handleEditProfile}
                   className="flex items-center gap-1 text-rose-600 hover:text-rose-700 focus:outline-none"
@@ -228,7 +282,7 @@ const UserProfilePage = () => {
                             <div className="font-semibold text-gray-800">Order #{order.orderNumber}</div>
                             <div className="text-sm text-gray-500">Order Date: {new Date(order.createdAt).toLocaleString()}</div>
                             <div className="text-sm text-gray-500">Delivery Date: {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "TBD"}</div>
-                            <div className="text-sm text-gray-600">Status: <span className="font-medium">{order.status}</span></div>
+                            <div className="text-sm text-gray-600">Status: <span className="font-medium">{getOrderAggregateStatus(order)}</span></div>
                             <div className="text-sm text-gray-600">Payment: <span className="font-medium">{order.paymentMethod}</span></div>
                             <div className="text-sm text-gray-600">Shipping: {order.shippingAddress?.address}, {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}</div>
                             <div className="mt-2">
@@ -236,10 +290,34 @@ const UserProfilePage = () => {
                               <ul className="ml-4 list-disc text-sm">
                                 {order.items.map((item, idx) => (
                                   <li key={idx}>
-                                    {item.name} x{item.quantity} @ ₹{item.price}
+                                    {item.name} x{item.quantity} @ ₹{item.price} — 
+                                    <span className="font-semibold">
+                                      {item.status ? item.status : order.status}
+                                    </span>
                                   </li>
                                 ))}
                               </ul>
+                            </div>
+                            <div className="flex gap-2 mt-3">
+                              {/* Cancel Order Button */}
+                              {(order.status !== 'delivered' && order.status !== 'cancelled') && (
+                                <button
+                                  onClick={() => handleCancelOrder(order._id)}
+                                  className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded shadow text-sm"
+                                >
+                                  Cancel Order
+                                </button>
+                              )}
+                              {/* View Details Button */}
+                              <button
+                                onClick={() => handleViewOrderDetails(order._id)}
+                                className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded shadow text-sm"
+                              >
+                                View Details
+                              </button>
+                              {order.status === 'cancelled' && (
+                                <div className="text-rose-600 font-semibold text-sm">Order Cancelled</div>
+                              )}
                             </div>
                           </div>
                           <div className="text-right mt-2 md:mt-0">

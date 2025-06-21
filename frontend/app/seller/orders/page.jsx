@@ -42,7 +42,7 @@ const OrdersPage = () => {
       }
 
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/orders`,
+        `${process.env.NEXT_PUBLIC_API_URL}/order/seller/myorders`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -66,26 +66,44 @@ const OrdersPage = () => {
     }
   }
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
+  const handleStatusUpdate = async (orderId, itemId, newStatus) => {
+    // Optimistic update: update local state immediately
+    setOrders(prevOrders => prevOrders.map(order => {
+      if (order._id !== orderId) return order;
+      return {
+        ...order,
+        items: order.items.map(item =>
+          (item._id === itemId ? { ...item, status: newStatus } : item)
+        )
+      };
+    }));
     try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/orders/${orderId}`,
+      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/order/seller/orderitem/${orderId}/${itemId}`,
         { status: newStatus },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
-
-      toast.success("Order status updated successfully")
-      fetchOrders()
+      );
+      toast.success("Order item status updated successfully");
+      fetchOrders(); // Optionally re-sync with backend
     } catch (error) {
-      console.error("Error updating order status:", error)
-      toast.error("Failed to update order status")
+      // Revert optimistic update on error
+      setOrders(prevOrders => prevOrders.map(order => {
+        if (order._id !== orderId) return order;
+        return {
+          ...order,
+          items: order.items.map(item =>
+            (item._id === itemId ? { ...item, status: item.status } : item)
+          )
+        };
+      }));
+      toast.error("Failed to update order item status");
     }
-  }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -104,13 +122,27 @@ const OrdersPage = () => {
     }
   }
 
+  // Improved aggregate status function
+  const getOrderAggregateStatus = (order) => {
+    if (!order.items || order.items.length === 0) return 'pending';
+    if (order.items.length === 1) return order.items[0].status || 'pending';
+    // Priority: pending > shipped > delivered > cancelled
+    if (order.items.some(i => (i.status || 'pending') === 'pending')) return 'pending';
+    if (order.items.some(i => i.status === 'shipped')) return 'shipped';
+    if (order.items.every(i => i.status === 'delivered')) return 'delivered';
+    if (order.items.every(i => i.status === 'cancelled')) return 'cancelled';
+    if (order.items.some(i => i.status === 'delivered')) return 'delivered';
+    return order.items[0].status || 'pending';
+  };
+
   const filteredOrders = orders
     .filter((order) => {
-      const matchesSearch =
-        order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesStatus = statusFilter === "all" || order.status === statusFilter
-      return matchesSearch && matchesStatus
+      const search = searchQuery.toLowerCase();
+      const matchesOrderId = order._id.toLowerCase().includes(search);
+      const matchesCustomer = order.customerName.toLowerCase().includes(search);
+      const matchesProduct = order.items.some(item => item.name.toLowerCase().includes(search));
+      const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+      return (matchesOrderId || matchesCustomer || matchesProduct) && matchesStatus;
     })
     .sort((a, b) => {
       const aValue = a[sortBy]
@@ -124,6 +156,14 @@ const OrdersPage = () => {
         : -1
     })
 
+  // Define possible statuses for seller to select
+  const statusOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'shipped', label: 'Shipped' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'cancelled', label: 'Cancelled' },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -133,14 +173,15 @@ const OrdersPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="flex flex-col items-center justify-center"
           >
             <SectionHeading
               title="Order Management"
               subtitle="Track and manage your customer orders"
               colors={["#E11D48", "#7C3AED", "#E11D48"]}
               animationSpeed={3}
-              className="text-3xl font-bold"
-              align="left"
+              className="text-3xl font-bold text-center"
+              align="center"
             />
           </motion.div>
 
@@ -255,15 +296,13 @@ const OrdersPage = () => {
                             {order.customerName}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            ${order.amount.toFixed(2)}
+                            ₹{order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
-                              className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                                order.status
-                              )}`}
+                              className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(getOrderAggregateStatus(order))}`}
                             >
-                              {order.status}
+                              {getOrderAggregateStatus(order)}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -275,29 +314,27 @@ const OrdersPage = () => {
                               whileTap={{ scale: 0.9 }}
                               onClick={() => router.push(`/seller/orders/${order._id}`)}
                               className="text-rose-600 hover:text-rose-900 mr-4 transition-colors"
+                              title="View Order Details"
                             >
                               <Eye className="h-5 w-5" />
                             </motion.button>
-                            {order.status === "pending" && (
-                              <>
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => handleStatusUpdate(order._id, "processing")}
-                                  className="text-blue-600 hover:text-blue-900 mr-4 transition-colors"
+                            {/* Per-item actions */}
+                            {order.items.map((item, idx) => (
+                              <span key={item._id || idx} className="inline-flex items-center gap-2 ml-2">
+                                <span className="text-xs text-gray-500">{item.name} x{item.quantity}</span>
+                                <select
+                                  value={item.status}
+                                  onChange={e => handleStatusUpdate(order._id, item._id, e.target.value)}
+                                  className="ml-2 px-2 py-1 border rounded text-xs"
+                                  style={{ minWidth: 90 }}
                                 >
-                                  <Truck className="h-5 w-5" />
-                                </motion.button>
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => handleStatusUpdate(order._id, "cancelled")}
-                                  className="text-red-600 hover:text-red-900 transition-colors"
-                                >
-                                  <XCircle className="h-5 w-5" />
-                                </motion.button>
-                              </>
-                            )}
+                                  {statusOptions.map(opt => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                  ))}
+                                </select>
+                                <span className={`ml-1 text-xs ${item.status === 'shipped' ? 'text-green-600' : item.status === 'delivered' ? 'text-green-700' : item.status === 'cancelled' ? 'text-red-600' : 'text-gray-500'}`}>{item.status}</span>
+                              </span>
+                            ))}
                           </td>
                         </motion.tr>
                       ))}

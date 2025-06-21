@@ -2,6 +2,8 @@ const express = require('express');
 const Model = require('../models/SellerModels');
 const jwt = require('jsonwebtoken'); // import the jwt library
 require('dotenv').config(); // import the dotenv library to use environment variables
+const Product = require('../models/ProductModels');
+const Order = require('../models/OrderModel');
 
 const router = express.Router();
 
@@ -88,6 +90,116 @@ router.delete('/delete/:id', (req, res) => {
             console.error('Error deleting seller:', err);
             res.status(500).json({ message: 'Failed to delete seller', error: err });
         });
+});
+
+// Update seller profile
+router.put('/update/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const allowedFields = ['name', 'phone', 'storeName', 'address'];
+    const updates = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    });
+    const seller = await Model.findByIdAndUpdate(id, updates, { new: true }).select('-password -confirmPassword');
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+    res.status(200).json({ seller });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update seller profile' });
+  }
+});
+
+// Seller auth middleware (reuse from ProductRouter)
+const sellerAuth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.seller = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
+// GET /seller/profile - Get seller profile
+router.get('/profile', sellerAuth, async (req, res) => {
+  try {
+    const seller = await Model.findById(req.seller.id).select('-password -confirmPassword');
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+    res.status(200).json(seller);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load seller profile' });
+  }
+});
+
+// PUT /seller/profile - Update seller profile for logged-in seller
+router.put('/profile', sellerAuth, async (req, res) => {
+  try {
+    const allowedFields = ['name', 'phone', 'storeName', 'address'];
+    const updates = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    });
+    const seller = await Model.findByIdAndUpdate(req.seller.id, updates, { new: true }).select('-password -confirmPassword');
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+    res.status(200).json({ seller });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update seller profile' });
+  }
+});
+
+// Seller dashboard endpoint
+router.get('/dashboard', sellerAuth, async (req, res) => {
+  try {
+    const sellerId = req.seller.id;
+    // Get all products for this seller
+    const products = await Product.find({ seller: sellerId });
+    const productIds = products.map(p => p._id);
+    // Get all orders with at least one item for this seller
+    const orders = await Order.find({ 'items.sellerId': sellerId });
+    // Calculate stats
+    let totalSales = 0;
+    let totalOrders = 0;
+    const customerEmails = new Set();
+    const recentOrders = [];
+    orders.forEach(order => {
+      const sellerItems = order.items.filter(item => item.sellerId.toString() === sellerId);
+      if (sellerItems.length > 0) {
+        totalOrders++;
+        sellerItems.forEach(item => {
+          totalSales += item.price * item.quantity;
+        });
+        customerEmails.add(order.email);
+        recentOrders.push({
+          ...order.toObject(),
+          items: sellerItems
+        });
+      }
+    });
+    // Sort recentOrders by createdAt desc and take top 5
+    recentOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.status(200).json({
+      stats: {
+        totalSales,
+        totalOrders,
+        totalProducts: products.length,
+        totalCustomers: customerEmails.size
+      },
+      recentOrders: recentOrders.slice(0, 5)
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load dashboard data' });
+  }
 });
 
 module.exports = router;

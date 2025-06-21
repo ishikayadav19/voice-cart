@@ -95,7 +95,7 @@ const AddProductPage = () => {
         };
 
         const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/product/add`,
+          `${process.env.NEXT_PUBLIC_API_URL}/product/seller/add`,
           productData,
           {
             headers: {

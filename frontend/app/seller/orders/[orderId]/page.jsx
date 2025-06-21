@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
@@ -6,7 +6,7 @@ import Navbar from "../../../components/navbar";
 import Footer from "../../../components/footer";
 import SectionHeading from "@/app/components/SectionHeading";
 
-const OrderDetailsPage = () => {
+const SellerOrderDetailsPage = () => {
   const router = useRouter();
   const params = useParams();
   const { orderId } = params;
@@ -16,13 +16,13 @@ const OrderDetailsPage = () => {
 
   useEffect(() => {
     const fetchOrder = async () => {
-      const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
+      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
       if (!token) {
-        router.push("/user/login");
+        router.push("/seller/login");
         return;
       }
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/order/myorders`, {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/order/seller/myorders`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const found = (res.data || []).find(o => o._id === orderId);
@@ -57,11 +57,11 @@ const OrderDetailsPage = () => {
   const getTrackingMessage = (status) => {
     switch (status) {
       case 'pending':
-        return 'Your order is pending and will be processed soon.';
+        return 'Order is pending and will be processed soon.';
       case 'shipped':
-        return 'Your order has been shipped!';
+        return 'Order has been shipped!';
       case 'delivered':
-        return 'Order delivered. Thank you for shopping!';
+        return 'Order delivered.';
       case 'cancelled':
         return 'Order was cancelled.';
       default:
@@ -74,6 +74,12 @@ const OrderDetailsPage = () => {
       <Navbar />
       <main className="flex-1 px-4 py-16 flex flex-col items-center">
         <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg">
+          <button
+            onClick={() => router.back()}
+            className="mb-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-700"
+          >
+            Back to Orders
+          </button>
           <SectionHeading
             title="Order Details"
             subtitle={order ? `Order #${order.orderNumber}` : ""}
@@ -94,27 +100,24 @@ const OrderDetailsPage = () => {
                   <div className="text-sm text-gray-500">Delivery Date: {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "TBD"}</div>
                 </div>
                 <div className="text-right mt-4 md:mt-0">
-                  <div className="text-lg font-bold text-rose-600">₹{order.totalAmount}</div>
+                  <div className="text-lg font-bold text-rose-600">₹{order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}</div>
                   <div className="text-xs text-gray-400">{order.items.length} item(s)</div>
                 </div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="font-medium text-gray-700 mb-2">Customer Info</div>
+                <div className="text-sm text-gray-600">{order.customerName} ({order.email})</div>
               </div>
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="font-medium text-gray-700 mb-2">Shipping Address</div>
                 <div className="text-sm text-gray-600">{order.shippingAddress?.address}, {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}</div>
               </div>
               <div className="bg-gray-50 rounded-lg p-4">
-                <div className="font-medium text-gray-700 mb-2">Payment Method</div>
-                <div className="text-sm text-gray-600">{order.paymentMethod}</div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4">
                 <div className="font-medium text-gray-700 mb-2">Order Items</div>
                 <ul className="ml-4 list-disc text-sm">
                   {order.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.name} x{item.quantity} @ ₹{item.price} — 
-                      <span className="font-semibold">
-                        {item.status ? item.status : order.status}
-                      </span>
+                      {item.name} x{item.quantity} @ ₹{item.price}
                     </li>
                   ))}
                 </ul>
@@ -135,4 +138,4 @@ const OrderDetailsPage = () => {
   );
 };
 
-export default OrderDetailsPage; 
+export default SellerOrderDetailsPage; 

@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   Users,
   DollarSign,
+  IndianRupee,
   TrendingUp,
   AlertCircle,
 } from "lucide-react"
@@ -71,11 +72,13 @@ const SellerDashboard = () => {
     fetchDashboardData()
   }, [router])
 
+  // statCards defines the dashboard stats and their display properties
+  // Each card has a title, value, icon, and color
   const statCards = [
     {
       title: "Total Sales",
-      value: `$${stats.totalSales.toFixed(2)}`,
-      icon: DollarSign,
+      value: `₹${stats.totalSales.toFixed(2)}`,
+      icon: IndianRupee,
       color: "bg-green-500",
     },
     {
@@ -98,23 +101,53 @@ const SellerDashboard = () => {
     },
   ]
 
+  // Helper to get aggregate status for order items
+  const getOrderAggregateStatus = (order) => {
+    if (!order.items || order.items.length === 0) return 'pending';
+    if (order.items.length === 1) return order.items[0].status || 'pending';
+    // Priority: pending > shipped > delivered > cancelled
+    if (order.items.some(i => (i.status || 'pending') === 'pending')) return 'pending';
+    if (order.items.some(i => i.status === 'shipped')) return 'shipped';
+    if (order.items.every(i => i.status === 'delivered')) return 'delivered';
+    if (order.items.every(i => i.status === 'cancelled')) return 'cancelled';
+    if (order.items.some(i => i.status === 'delivered')) return 'delivered';
+    return order.items[0].status || 'pending';
+  };
+
+  // Helper to get color class for status
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'shipped':
+        return 'bg-purple-100 text-purple-800';
+      case 'delivered':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 p-8 mt-8 bg-gray-50">
         <div className="max-w-7xl mx-auto space-y-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.6, type: 'spring', stiffness: 80 }}
+            className="flex flex-col items-center justify-center mb-4"
           >
             <SectionHeading
               title="Seller Dashboard"
               subtitle="Welcome back! Here's your store overview"
               colors={["#E11D48", "#7C3AED", "#E11D48"]}
               animationSpeed={3}
-              className="text-3xl font-bold"
-              align="left"
+              className="text-4xl font-extrabold text-center drop-shadow-lg"
+              align="center"
             />
           </motion.div>
 
@@ -229,19 +262,13 @@ const SellerDashboard = () => {
                                 {order.customerName}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${order.amount.toFixed(2)}
+                                ₹{order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
-                                  className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                    order.status === "completed"
-                                      ? "bg-green-100 text-green-800"
-                                      : order.status === "pending"
-                                      ? "bg-yellow-100 text-yellow-800"
-                                      : "bg-red-100 text-red-800"
-                                  }`}
+                                  className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(getOrderAggregateStatus(order))}`}
                                 >
-                                  {order.status}
+                                  {getOrderAggregateStatus(order)}
                                 </span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

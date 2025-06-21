@@ -6,6 +6,7 @@ const mySchema = new Schema({
     email: { type: String, unique: true },
     password: { type: String, required: true },
     city: { type: String, default: "unknown" },
+    phone: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
     wishlist: [{
         type: Schema.Types.ObjectId,

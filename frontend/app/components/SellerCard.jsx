@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, IndianRupee } from "lucide-react";
 import Link from "next/link";
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -22,53 +22,49 @@ const SellerCard = ({product}) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <Link href={`/product/${product._id}`}>
-      
-      <div className="relative aspect-w-1 aspect-h-1">
-        <img 
-          src={product.mainImage || (product.images && product.images[0]) || "/placeholder.svg"} 
-          alt={product.name} 
-          className="w-full h-48 object-contain p-4 bg-white" 
-        />
-        {product.discountPrice && (
-          <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md text-xs font-bold">
-            {Math.round((1 - product.discountPrice / product.price) * 100)}% OFF
-          </div>
-        )}
-      </div>
-      </Link>
-
-      <div className="p-4">
-        <h3 className="text-lg font-semibold mb-1 text-gray-800 line-clamp-2">
-          {product.name}
-        </h3>
-
-        <div className="flex items-center mb-3">
-          {product.discountPrice ? (
-            <>
-              <span className="text-lg font-bold text-rose-600"> &#8377;{product.discountPrice.toFixed(2)}</span>
-              <span className="ml-2 text-sm line-through text-gray-500"> &#8377;{product.price.toFixed(2)}</span>
-            </>
-          ) : (
-            <span className="text-lg font-bold text-gray-800"> &#8377;{product.price.toFixed(2)}</span>
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 relative group">
+      <Link href={`/product/${product._id}`} className="block">
+        <div className="relative aspect-w-1 aspect-h-1 bg-gradient-to-br from-rose-50 to-purple-50">
+          <img 
+            src={product.mainImage || (product.images && product.images[0]) || "/placeholder.svg"} 
+            alt={product.name} 
+            className="w-full h-48 object-contain p-4 transition-transform duration-300 group-hover:scale-105" 
+          />
+          {product.discountPrice && (
+            <div className="absolute top-2 right-2 bg-gradient-to-r from-rose-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow">
+              {Math.round((1 - product.discountPrice / product.price) * 100)}% OFF
+            </div>
           )}
         </div>
-
-        <div className="flex space-x-2">
+      </Link>
+      <div className="p-5 flex flex-col h-44 justify-between">
+        <div>
+          <h3 className="text-lg font-bold mb-1 text-gray-800 line-clamp-2 min-h-[2.5rem]">{product.name}</h3>
+          <div className="flex items-center mb-3 space-x-2">
+            {product.discountPrice ? (
+              <>
+                <span className="text-xl font-bold text-rose-600 flex items-center"><IndianRupee className="h-4 w-4 mr-0.5" />{product.discountPrice.toFixed(2)}</span>
+                <span className="text-sm line-through text-gray-500 flex items-center"><IndianRupee className="h-3 w-3 mr-0.5" />{product.price.toFixed(2)}</span>
+              </>
+            ) : (
+              <span className="text-xl font-bold text-gray-800 flex items-center"><IndianRupee className="h-4 w-4 mr-0.5" />{product.price.toFixed(2)}</span>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 mt-4">
           <button
             onClick={handleEdit}
-            className="flex items-center p-4 justify-center bg-blue-500 hover:bg-blue-700 text-white py-2 rounded-md font-medium transition-colors text-sm"
+            title="Edit Product"
+            className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm shadow"
           >
-            <Pencil size={16} className="mr-2" />
-           
+            <Pencil size={16} className="mr-1" /> Edit
           </button>
           <button
             onClick={handleDelete}
-            className="flex items-center justify-center p-4 bg-red-500 hover:bg-red-700 text-white py-2 rounded-md font-medium transition-colors text-sm"
+            title="Delete Product"
+            className="flex items-center justify-center bg-red-500 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm shadow"
           >
-            <Trash2 size={16} className="mr-2" />
-            
+            <Trash2 size={16} className="mr-1" /> Delete
           </button>
         </div>
       </div>

@@ -108,6 +108,7 @@ const CheckoutPage = () => {
       customerName: `${formData.firstName} ${formData.lastName}`,
       email: userEmail,
       items: cart.map(item => ({
+        productId: item._id || item.id,
         name: item.name,
         quantity: item.quantity,
         price: item.discountPrice || item.price

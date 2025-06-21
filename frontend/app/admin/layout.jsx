@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { 
   LayoutDashboard, 
   Users, 
@@ -17,6 +17,23 @@ import {
 const AdminLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const pathname = usePathname()
+  const router = useRouter();
+
+  useEffect(() => {
+    // Protect all /admin routes except /admin/login
+    if (pathname !== '/admin/login') {
+      const token = localStorage.getItem('admintoken') || sessionStorage.getItem('admintoken');
+      if (!token) {
+        router.push('/admin/login');
+      }
+    }
+  }, [pathname, router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('admintoken');
+    sessionStorage.removeItem('admintoken');
+    router.push('/admin/login');
+  };
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
@@ -25,6 +42,11 @@ const AdminLayout = ({ children }) => {
     { name: 'Products', icon: Package, path: '/admin/products' },
     { name: 'Settings', icon: Settings, path: '/admin/settings' },
   ]
+
+  // If on /admin/login, render only the login page (no sidebar, no layout)
+  if (pathname === '/admin/login') {
+    return <div>{children}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -76,7 +98,7 @@ const AdminLayout = ({ children }) => {
         <div className="absolute bottom-0 w-full p-4 border-t">
           <button
             className="flex items-center w-full p-3 text-gray-600 rounded-lg hover:bg-gray-50"
-            onClick={() => {/* Handle logout */}}
+            onClick={handleLogout}
           >
             <LogOut size={20} />
             {isSidebarOpen && (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Save, Image as ImageIcon, Package, Tag, DollarSign, Hash } from "lucide-react"
+import { ArrowLeft, Save, Image as ImageIcon, Package, Tag, IndianRupee, Hash } from "lucide-react"
 import Navbar from "../../../../components/navbar"
 import Footer from "../../../../components/footer"
 import axios from "axios"
@@ -17,6 +17,7 @@ import React from 'react'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const EditProductPage = () => {
+  const router = useRouter();
   const {id} = useParams();
   const [productData, setProductData] = React.useState(null);
   const fetchProductData = async () => {
@@ -29,16 +30,19 @@ const EditProductPage = () => {
     fetchProductData()
   }, [])
 
-  const handleUpdate =  (values) => {
-    console.log(values);
-    axios.put(`${BASE_URL}/product/update/${id}`, values)
+  const handleUpdate =  (values, { setSubmitting }) => {
+    const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
+    axios.put(`${BASE_URL}/product/seller/update/${id}`, values, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
     .then((res) => {
-      console.log(res.data);
       toast.success('Product updated successfully');
+      setSubmitting(false);
+      router.push('/seller/products');
     })
     .catch((err) => {
-      console.log(err);
       toast.error('Error updating product');
+      setSubmitting(false);
     });
   }
   if(productData === null){
@@ -141,15 +145,15 @@ const EditProductPage = () => {
                 />
               </div>
 
-              {/* Price and Stock */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Price, Discount, and Stock */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Price
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <DollarSign className="h-5 w-5 text-gray-400" />
+                      <IndianRupee className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       type="number"
@@ -163,6 +167,28 @@ const EditProductPage = () => {
                       placeholder="0.00"
                     />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Discount Price
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <IndianRupee className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="number"
+                      name="discountPrice"
+                      value={productForm.values.discountPrice || ''}
+                      onChange={productForm.handleChange}
+                      min="0"
+                      max={productForm.values.price}
+                      step="0.01"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Leave blank or 0 for no discount.</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -208,22 +234,15 @@ const EditProductPage = () => {
               </div>
 
               {/* Submit Button */}
-              <div className="flex justify-end pt-4">
-              <button disabled={productForm.isSubmitting}
-                type="submit"
-                className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {
-                  productForm.isSubmitting ? (
-                    <Infinity
-                      size="30"
-                      speed="2.5"
-                      color="white"
-                    />
-                  ): 'Submit'
-                }
-               
-              </button>
+              <div className="flex justify-end mt-8">
+                <button
+                  type="submit"
+                  disabled={productForm.isSubmitting}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-600 to-purple-600 text-white rounded-lg shadow hover:from-rose-700 hover:to-purple-700 transition-all font-semibold text-lg disabled:opacity-60"
+                >
+                  <Save className="h-5 w-5" />
+                  {productForm.isSubmitting ? 'Saving...' : 'Save Changes'}
+                </button>
               </div>
             </div>
           </form>

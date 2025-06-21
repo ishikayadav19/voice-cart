@@ -11,11 +11,13 @@ import {
   Lock,
   Save,
   AlertCircle,
+  BarChart3,
 } from "lucide-react"
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
 import axios from "axios"
 import toast from "react-hot-toast"
+import SectionHeading from "../../components/SectionHeading"
 
 const ProfilePage = () => {
   const router = useRouter()
@@ -34,36 +36,45 @@ const ProfilePage = () => {
     confirm: "",
   })
   const [errors, setErrors] = useState({})
+  const [editMode, setEditMode] = useState(false)
+  const [editProfile, setEditProfile] = useState(profile)
 
   useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  const fetchProfile = async () => {
-    try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
       if (!token) {
-        router.push("/seller/login")
-        return
+        router.push("/seller/login");
+        return;
       }
-
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/profile`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/seller/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setProfile(response.data);
+      } catch (error) {
+        // If unauthorized or forbidden, clear token and redirect
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          localStorage.removeItem("sellerToken");
+          sessionStorage.removeItem("sellerToken");
+          router.push("/seller/login");
+        } else {
+          toast.error("Failed to load profile");
         }
-      )
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserProfile();
+  }, [router]);
 
-      setProfile(response.data)
-    } catch (error) {
-      console.error("Error fetching profile:", error)
-      toast.error("Failed to load profile")
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  useEffect(() => {
+    setEditProfile(profile)
+  }, [profile])
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target
@@ -76,6 +87,14 @@ const ProfilePage = () => {
   const handlePasswordChange = (e) => {
     const { name, value } = e.target
     setPassword((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const handleEditProfileChange = (e) => {
+    const { name, value } = e.target
+    setEditProfile((prev) => ({
       ...prev,
       [name]: value,
     }))
@@ -165,6 +184,50 @@ const ProfilePage = () => {
     }
   }
 
+  const handleEditProfileSubmit = async (e) => {
+    e.preventDefault()
+    const profileErrors = validateProfile()
+    if (Object.keys(profileErrors).length > 0) {
+      setErrors(profileErrors)
+      return
+    }
+    setIsSaving(true)
+    try {
+      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/seller/profile`,
+        editProfile,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      toast.success("Profile updated successfully")
+      setErrors({})
+      setEditMode(false)
+      fetchUserProfile()
+    } catch (error) {
+      console.error("Error updating profile:", error)
+      toast.error("Failed to update profile")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditProfile(profile)
+    setEditMode(false)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('usertoken');
+    sessionStorage.removeItem('usertoken');
+    localStorage.removeItem('sellerToken');
+    sessionStorage.removeItem('sellerToken');
+    router.push('/');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -178,273 +241,154 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
-      <main className="flex-1 p-6 bg-gray-50">
-        <div className="max-w-3xl mx-auto">
+      <main className="flex-1 px-4 py-16 flex flex-col items-center justify-center">
+        <div className="w-full max-w-2xl mt-5 flex justify-center mb-4">
+          <button
+            onClick={() => router.push('/seller/dashboard')}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-lg shadow hover:from-rose-600 hover:to-purple-700 transition-all font-semibold text-sm"
+          >
+            <BarChart3 className="h-5 w-5" />
+            Go to Dashboard
+          </button>
+        </div>
+        <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg relative">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">Profile Settings</h1>
-            <p className="text-gray-600 mt-2">Manage your store information</p>
+            <SectionHeading
+              title="Seller Profile"
+              subtitle={profile.name ? `Welcome back, ${profile.name}!` : "Manage your store information"}
+              colors={["#E11D48", "#7C3AED", "#E11D48"]}
+              animationSpeed={3}
+              className="text-3xl font-bold mb-2"
+            />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Profile Information */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-6">
-                Store Information
-              </h2>
-              <form onSubmit={handleProfileSubmit} className="space-y-4">
+          {!editMode && (
+            <div className="absolute top-8 right-8 flex gap-2">
+              <button
+                onClick={() => setEditMode(true)}
+                className="flex items-center gap-1 text-rose-600 hover:text-rose-700 focus:outline-none"
+                aria-label="Edit Profile"
+              >
+                <User className="h-5 w-5" /> Edit
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center text-gray-700">
+              <User className="h-5 w-5 mr-2 text-gray-400" />
+              <span className="font-medium">Name:</span>
+              <span className="ml-2">{profile.name}</span>
+            </div>
+            <div className="flex items-center text-gray-700">
+              <Mail className="h-5 w-5 mr-2 text-gray-400" />
+              <span className="font-medium">Email:</span>
+              <span className="ml-2">{profile.email}</span>
+            </div>
+            <div className="flex items-center text-gray-700">
+              <Phone className="h-5 w-5 mr-2 text-gray-400" />
+              <span className="font-medium">Phone:</span>
+              <span className="ml-2">{profile.phone}</span>
+            </div>
+            <div className="flex items-center text-gray-700">
+              <Store className="h-5 w-5 mr-2 text-gray-400" />
+              <span className="font-medium">Store Name:</span>
+              <span className="ml-2">{profile.storeName}</span>
+            </div>
+            <div className="flex items-center text-gray-700">
+              <MapPin className="h-5 w-5 mr-2 text-gray-400" />
+              <span className="font-medium">Address:</span>
+              <span className="ml-2">{profile.address}</span>
+            </div>
+          </div>
+          {editMode && (
+            <form onSubmit={handleEditProfileSubmit} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm relative animate-fadeIn">
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                aria-label="Close"
+              >
+                X
+              </button>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Edit Profile</h3>
+              <div className="space-y-3">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Full Name
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={profile.name}
-                      onChange={handleProfileChange}
-                      className={`block w-full pl-10 pr-3 py-2 border ${
-                        errors.name ? "border-red-300" : "border-gray-300"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500`}
-                    />
-                  </div>
-                  {errors.name && (
-                    <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                  )}
+                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={editProfile.name}
+                    onChange={handleEditProfileChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                    required
+                  />
                 </div>
-
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Email Address
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={profile.email}
-                      onChange={handleProfileChange}
-                      className={`block w-full pl-10 pr-3 py-2 border ${
-                        errors.email ? "border-red-300" : "border-gray-300"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500`}
-                    />
-                  </div>
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                  )}
+                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={editProfile.email}
+                    disabled
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed"
+                  />
                 </div>
-
                 <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Phone Number
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Phone className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={profile.phone}
-                      onChange={handleProfileChange}
-                      className={`block w-full pl-10 pr-3 py-2 border ${
-                        errors.phone ? "border-red-300" : "border-gray-300"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500`}
-                    />
-                  </div>
-                  {errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-                  )}
+                  <label className="block text-sm font-medium text-gray-700">Phone</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={editProfile.phone}
+                    onChange={handleEditProfileChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  />
                 </div>
-
                 <div>
-                  <label
-                    htmlFor="storeName"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Store Name
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Store className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      id="storeName"
-                      name="storeName"
-                      value={profile.storeName}
-                      onChange={handleProfileChange}
-                      className={`block w-full pl-10 pr-3 py-2 border ${
-                        errors.storeName ? "border-red-300" : "border-gray-300"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500`}
-                    />
-                  </div>
-                  {errors.storeName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.storeName}</p>
-                  )}
+                  <label className="block text-sm font-medium text-gray-700">Store Name</label>
+                  <input
+                    type="text"
+                    name="storeName"
+                    value={editProfile.storeName}
+                    onChange={handleEditProfileChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  />
                 </div>
-
                 <div>
-                  <label
-                    htmlFor="address"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Store Address
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute top-2 left-3 flex items-start pointer-events-none">
-                      <MapPin className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <textarea
-                      id="address"
-                      name="address"
-                      rows="3"
-                      value={profile.address}
-                      onChange={handleProfileChange}
-                      className={`block w-full pl-10 pr-3 py-2 border ${
-                        errors.address ? "border-red-300" : "border-gray-300"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500`}
-                    />
-                  </div>
-                  {errors.address && (
-                    <p className="mt-1 text-sm text-red-600">{errors.address}</p>
-                  )}
+                  <label className="block text-sm font-medium text-gray-700">Address</label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={editProfile.address}
+                    onChange={handleEditProfileChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-rose-500 focus:border-rose-500"
+                  />
                 </div>
-
+              </div>
+              <div className="flex gap-4 mt-6">
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className={`w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 ${
-                    isSaving ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded shadow disabled:opacity-60"
                 >
-                  {isSaving ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  ) : (
-                    <Save className="h-5 w-5 mr-2" />
-                  )}
                   {isSaving ? "Saving..." : "Save Changes"}
                 </button>
-              </form>
-            </div>
-
-            {/* Change Password */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-6">
-                Change Password
-              </h2>
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="current"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Current Password
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="password"
-                      id="current"
-                      name="current"
-                      value={password.current}
-                      onChange={handlePasswordChange}
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="new"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    New Password
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="password"
-                      id="new"
-                      name="new"
-                      value={password.new}
-                      onChange={handlePasswordChange}
-                      className={`block w-full pl-10 pr-3 py-2 border ${
-                        errors.new ? "border-red-300" : "border-gray-300"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500`}
-                    />
-                  </div>
-                  {errors.new && (
-                    <p className="mt-1 text-sm text-red-600">{errors.new}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="confirm"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Confirm New Password
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="password"
-                      id="confirm"
-                      name="confirm"
-                      value={password.confirm}
-                      onChange={handlePasswordChange}
-                      className={`block w-full pl-10 pr-3 py-2 border ${
-                        errors.confirm ? "border-red-300" : "border-gray-300"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500`}
-                    />
-                  </div>
-                  {errors.confirm && (
-                    <p className="mt-1 text-sm text-red-600">{errors.confirm}</p>
-                  )}
-                </div>
-
                 <button
-                  type="submit"
-                  disabled={isSaving}
-                  className={`w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 ${
-                    isSaving ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded shadow"
                 >
-                  {isSaving ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  ) : (
-                    <Save className="h-5 w-5 mr-2" />
-                  )}
-                  {isSaving ? "Saving..." : "Update Password"}
+                  Cancel
                 </button>
-              </form>
-            </div>
-          </div>
+              </div>
+            </form>
+          )}
         </div>
       </main>
       <Footer />
