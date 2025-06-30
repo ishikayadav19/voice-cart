@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import axios from "axios"
 import Navbar from "../../components/navbar"
@@ -102,4 +102,10 @@ const SearchPage = () => {
   )
 }
 
-export default SearchPage 
+export default function SearchPageWrapper() {
+  return (
+    <Suspense>
+      <SearchPage />
+    </Suspense>
+  );
+} 

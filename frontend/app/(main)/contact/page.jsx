@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Mail, Phone, MapPin, Send, Check } from "lucide-react"
 import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
-import SectionHeading from "../../components/section-heading"
+import SectionHeading from "../../components/SectionHeading"
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
