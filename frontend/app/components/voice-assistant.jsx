@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from "react"
 import { Mic, X, Volume2 } from "lucide-react"
+import useVoiceContext from "@/context/voiceContext";
 
-const VoiceAssistant = ({ isActive, setIsActive, onCommand }) => {
+const VoiceAssistant = ({ isActive: isActiveProp, setIsActive: setIsActiveProp, onCommand }) => {
+  const [internalActive, setInternalActive] = useState(false);
+  const isActive = isActiveProp !== undefined ? isActiveProp : internalActive;
+  const setIsActive = setIsActiveProp !== undefined ? setIsActiveProp : setInternalActive;
   const [transcript, setTranscript] = useState("")
   const [isListening, setIsListening] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
   const [recognition, setRecognition] = useState(null)
+  const { interpretVoiceCommand, resetTranscript } = useVoiceContext();
 
   // Initialize speech recognition
   useEffect(() => {
@@ -28,23 +33,20 @@ const VoiceAssistant = ({ isActive, setIsActive, onCommand }) => {
           const current = event.resultIndex
           const currentTranscript = event.results[current][0].transcript
           setTranscript(currentTranscript)
+          console.log('Recognized Voice Command:', currentTranscript);
+          // Use context's command logic with transcript
+          setTimeout(() => {
+            interpretVoiceCommand(currentTranscript);
+            resetTranscript();
+          }, 100);
         }
 
         recognitionInstance.onend = () => {
           setIsListening(false)
-          if (transcript) {
-            // Process the command
-            onCommand(transcript)
-
-            // Provide feedback
-            speakResponse(`I heard: ${transcript}`)
-
-            // Reset transcript after processing
-            setTimeout(() => {
-              setTranscript("")
-              setIsActive(false)
-            }, 3000)
-          }
+          setTimeout(() => {
+            setTranscript("");
+            setIsActive(false);
+          }, 3000);
         }
 
         recognitionInstance.onerror = (event) => {

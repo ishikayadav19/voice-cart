@@ -10,7 +10,7 @@ const CategoryProducts = ({ category }) => {
     const fetchProductsByCategory = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5000/product/category/${category}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/category/${category}`);
         setProducts(response.data);
         setError(null);
       } catch (err) {

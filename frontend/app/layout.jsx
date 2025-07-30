@@ -3,6 +3,8 @@ import "./globals.css"
 import { ShopProvider } from "../context/ShopContext"
 import { Toaster } from "react-hot-toast"
 import Notification from './components/Notification'
+import { VoiceProvider } from "../context/voiceContext";
+import VoiceAssistant from './components/voice-assistant'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -16,10 +18,15 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <Toaster />
-        <ShopProvider>
-          {children}
-          <Notification />
-        </ShopProvider>
+        <VoiceProvider>
+          <ShopProvider>
+            {children}
+            <Notification />
+            <div className="fixed bottom-6 right-6 z-50">
+              <VoiceAssistant />
+            </div>
+          </ShopProvider>
+        </VoiceProvider>
       </body>
     </html>
   )

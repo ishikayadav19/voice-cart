@@ -12,8 +12,10 @@ import VoiceAssistant from "./components/voice-assistant"
 import axios from "axios"
 import { Infinity } from "ldrs/react"
 import "ldrs/react/Infinity.css"
-import { ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart, ArrowUp, 
-  Smartphone, Shirt, Home as HomeIcon, Sparkles, Trophy, BookOpen } from "lucide-react"
+import {
+  ChevronLeft, ChevronRight, Heart, Mic, ShoppingCart, ArrowUp,
+  Smartphone, Shirt, Home as HomeIcon, Sparkles, Trophy, BookOpen
+} from "lucide-react"
 import CountdownTimer from "./components/CountdownTimer"
 import { useShop } from '@/context/ShopContext';
 import SectionHeading from './components/SectionHeading';
@@ -97,7 +99,7 @@ export default function Home() {
         cart: "/cart",
         wishlist: "/wishlist",
         login: "/login",
-        "sign up": "/signup",
+        signup: "/signup",
         contact: "/contact",
       }
 
@@ -110,7 +112,7 @@ export default function Home() {
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/all`)
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`)
         // Get the first 4 products as featured products
         setFeaturedProducts(response.data.slice(0, 4))
         setLoading(false)
@@ -162,20 +164,20 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  // const scrollToTop = () => {
+  //   window.scrollTo({ top: 0, behavior: 'smooth' })
+  // }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar 
-        cartItems={cart} 
-        wishlistItems={wishlist} 
+      <Navbar
+        cartItems={cart}
+        wishlistItems={wishlist}
         totalCartItems={cart.length}
       />
 
       {/* Back to Top Button */}
-      {showBackToTop && (
+      {/* {showBackToTop && (
         <button
           onClick={scrollToTop}
           className="fixed bottom-8 right-8 bg-rose-600 text-white p-3 rounded-full shadow-lg hover:bg-rose-700 transition-all duration-300 transform hover:scale-110 z-50"
@@ -183,7 +185,7 @@ export default function Home() {
         >
           <ArrowUp size={24} />
         </button>
-      )}
+      )} */}
 
       {/* Voice Assistant Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">
@@ -198,8 +200,8 @@ export default function Home() {
         >
           {bannerSlides.map((slide) => (
             <div key={slide.id} className="min-w-full h-full relative">
-              <div 
-                className="absolute inset-0 bg-cover bg-center transform transition-transform duration-1000 hover:scale-105" 
+              <div
+                className="absolute inset-0 bg-cover bg-center transform transition-transform duration-1000 hover:scale-105"
                 style={{ backgroundImage: `url(${slide.image})` }}
               >
                 <div className="absolute inset-0 bg-black bg-opacity-40"></div>
@@ -236,9 +238,8 @@ export default function Home() {
           {bannerSlides.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
-                index === currentSlide ? "bg-white scale-125" : "bg-white bg-opacity-50"
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${index === currentSlide ? "bg-white scale-125" : "bg-white bg-opacity-50"
+                }`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
@@ -262,10 +263,10 @@ export default function Home() {
               >
                 <Link href={`/product/${deal._id}`}>
                   <div className="relative">
-                    <img 
-                      src={deal.mainImage || (deal.images && deal.images[0]) || "/placeholder.svg"} 
-                      alt={deal.name} 
-                      className="w-full h-64 object-contain p-4 bg-white" 
+                    <img
+                      src={deal.mainImage || (deal.images && deal.images[0]) || "/placeholder.svg"}
+                      alt={deal.name}
+                      className="w-full h-64 object-contain p-4 bg-white"
                     />
                     <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md font-bold">
                       {Math.round((1 - deal.discountPrice / deal.price) * 100)}% OFF
@@ -429,39 +430,39 @@ export default function Home() {
       {/* Featured Products Section */}
       <main className="flex-1 px-4 py-16">
         <div className="max-w-7xl mx-auto">
-        <SectionHeading
+          <SectionHeading
             title="Featured Products"
-            
+
             colors={["#E11D48", "#7C3AED", "#E11D48"]}
             animationSpeed={3}
           />
-          
+
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Infinity size="30" speed="2.5" color="#E11D48" />
             </div>
           ) : (
             <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.slice(0,4).map((product) => (
-                <div key={product._id} className="transform transition-all duration-300 hover:scale-105">
-                  <ProductCard 
-                    product={product}
-                    onAddToCart={addToCart}
-                    onAddToWishlist={addToWishlist}
-                    isInWishlist={wishlist.some(item => item._id === product._id)}
-                  />
-                </div>
-              ))}
-            </div>
-             <div className="text-center mt-12">
-            <Link
-              href="/products"
-              className="inline-block bg-rose-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-rose-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-            >
-              View All Products
-            </Link>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.slice(0, 4).map((product) => (
+                  <div key={product._id} className="transform transition-all duration-300 hover:scale-105">
+                    <ProductCard
+                      product={product}
+                      onAddToCart={addToCart}
+                      onAddToWishlist={addToWishlist}
+                      isInWishlist={wishlist.some(item => item._id === product._id)}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="text-center mt-12">
+                <Link
+                  href="/products"
+                  className="inline-block bg-rose-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-rose-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                >
+                  View All Products
+                </Link>
+              </div>
             </>
           )}
         </div>
