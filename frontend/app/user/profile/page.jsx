@@ -12,9 +12,12 @@ import { useShop } from '@/context/ShopContext'
 import { ShopProvider } from '@/context/ShopContext'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from "@/lib/supabase";
+
 const UserProfilePage = () => {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const { user, profile, loading: authLoading, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [editMode, setEditMode] = useState(false);
@@ -25,77 +28,55 @@ const UserProfilePage = () => {
     city: "",
   });
   const [saving, setSaving] = useState(false);
-  const { setCart, userEmail } = useShop();
+  const { setCart } = useShop();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
-      if (!token) {
-        router.push('/user/login');
-        return;
-      }
+    if (authLoading) return;
+
+    if (!user) {
+      router.push('/user/login');
+      return;
+    }
+
+    const fetchOrders = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const userData = response.data.user;
-        if (userData && userData.id && !userData._id) {
-          userData._id = userData.id;
-        }
-        setUser(userData);
-        setEditData({
-          name: userData.name || "",
-          email: userData.email || "",
-          phone: userData.phone || "",
-          city: userData.city || "",
-        });
-        // Fetch orders for logged-in user securely
-        const ordersRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/order/myorders`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setOrders(ordersRes.data || []);
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*, items:order_items(*)')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setOrders(data || []);
       } catch (error) {
-        // If unauthorized or forbidden, clear token and redirect
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          localStorage.removeItem('usertoken');
-          sessionStorage.removeItem('usertoken');
-          router.push('/user/login');
-        } else {
-          toast.error("Failed to load profile");
-        }
+        console.error("Error fetching orders:", error);
+        toast.error("Failed to load orders");
       } finally {
         setLoading(false);
       }
     };
-    fetchUserProfile();
-  }, [router]);
 
-  const handleLogoutKeepCart = () => {
-    localStorage.removeItem('usertoken');
-    sessionStorage.removeItem('usertoken');
-    toast.success("Logged out successfully");
-    router.push("/login");
+    if (profile) {
+      setEditData({
+        name: profile.name || "",
+        email: profile.email || "",
+        phone: profile.phone || "",
+        city: profile.city || "",
+      });
+      fetchOrders();
+    }
+  }, [user, profile, authLoading, router]);
+
+  const handleLogoutKeepCart = async () => {
+    await signOut();
   };
 
-  const handleLogoutAndClearCart = () => {
-    localStorage.removeItem('usertoken');
-    sessionStorage.removeItem('usertoken');
-    if (userEmail) {
-      localStorage.removeItem(`cart_${userEmail}`);
+  const handleLogoutAndClearCart = async () => {
+    if (profile?.email) {
+      localStorage.removeItem(`cart_${profile.email}`);
     }
     setCart([]);
-    toast.success("Logged out and cart cleared");
-    router.push("/login");
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('usertoken');
-    sessionStorage.removeItem('usertoken');
-    localStorage.removeItem('sellerToken');
-    sessionStorage.removeItem('sellerToken');
-    router.push('/');
+    await signOut();
   };
 
   const handleEditProfile = () => {
@@ -117,15 +98,23 @@ const UserProfilePage = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
-      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, editData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUser(response.data.user);
-      setEditMode(false);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: editData.name,
+          phone: editData.phone,
+          city: editData.city
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
       toast.success("Profile updated successfully");
+      setEditMode(false);
+      // AuthContext will automatically pick up the profile change due to onAuthStateChange or we might need to manually refresh if needed, 
+      // but usually fetching it on mount/update is enough. 
+      // Given our AuthContext fetches profile on user change, we might want to expose a refreshProfile function or rely on the single profile fetch logic there.
+      window.location.reload(); // Quick way to sync profile for now
     } catch (error) {
       toast.error("Failed to update profile");
     } finally {
@@ -135,22 +124,26 @@ const UserProfilePage = () => {
 
   // Cancel order handler
   const handleCancelOrder = async (orderId) => {
-    const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
-    if (!token) {
+    if (!user) {
       toast.error('You must be logged in to cancel orders.');
       return;
     }
     try {
-      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/order/cancel/${orderId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
       toast.success('Order cancelled successfully');
       // Update the order status in the UI
       setOrders((prevOrders) => prevOrders.map(order =>
-        order._id === orderId ? { ...order, status: 'cancelled' } : order
+        order.id === orderId ? { ...order, status: 'cancelled' } : order
       ));
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to cancel order');
+      toast.error('Failed to cancel order');
     }
   };
 
@@ -160,15 +153,8 @@ const UserProfilePage = () => {
 
   // Helper to get aggregate status for order items
   const getOrderAggregateStatus = (order) => {
-    if (!order.items || order.items.length === 0) return 'pending';
-    if (order.items.length === 1) return order.items[0].status || 'pending';
-    // Priority: pending > shipped > delivered > cancelled
-    if (order.items.some(i => (i.status || 'pending') === 'pending')) return 'pending';
-    if (order.items.some(i => i.status === 'shipped')) return 'shipped';
-    if (order.items.every(i => i.status === 'delivered')) return 'delivered';
-    if (order.items.every(i => i.status === 'cancelled')) return 'cancelled';
-    if (order.items.some(i => i.status === 'delivered')) return 'delivered';
-    return order.items[0].status || 'pending';
+    if (!order.items || order.items.length === 0) return order.status || 'pending';
+    return order.status || 'pending'; // In the new schema, order status is the source of truth for the whole order
   };
 
   return (
@@ -176,14 +162,14 @@ const UserProfilePage = () => {
       <Navbar />
       <main className="flex-1 px-4 py-16 flex items-center justify-center">
         <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg relative">
-          {loading ? (
+          {(authLoading || loading) ? (
             <div className="text-center text-gray-600">Loading profile...</div>
-          ) : user ? (
+          ) : profile ? (
             <>
               <div className="mb-8">
                 <SectionHeading
                   title="Your Profile"
-                  subtitle={`Welcome back, ${user.name}!`}
+                  subtitle={`Welcome back, ${profile.name}!`}
                   colors={["#E11D48", "#7C3AED", "#E11D48"]}
                   animationSpeed={3}
                   className="text-3xl font-bold mb-2"
@@ -208,36 +194,36 @@ const UserProfilePage = () => {
                 <div className="flex items-center text-gray-700">
                   <User className="h-5 w-5 mr-2 text-gray-400" />
                   <span className="font-medium">Name:</span>
-                  <span className="ml-2">{user.name}</span>
+                  <span className="ml-2">{profile.name}</span>
                 </div>
                 <div className="flex items-center text-gray-700">
                   <Mail className="h-5 w-5 mr-2 text-gray-400" />
                   <span className="font-medium">Email:</span>
-                  <span className="ml-2">{user.email}</span>
+                  <span className="ml-2">{profile.email}</span>
                 </div>
-                {user.phone && (
+                {profile.phone && (
                   <div className="flex items-center text-gray-700">
                     <Phone className="h-5 w-5 mr-2 text-gray-400" />
                     <span className="font-medium">Phone:</span>
-                    <span className="ml-2">{user.phone}</span>
+                    <span className="ml-2">{profile.phone}</span>
                   </div>
                 )}
-                {user.city && (
+                {profile.city && (
                   <div className="flex items-center text-gray-700">
                     <MapPin className="h-5 w-5 mr-2 text-gray-400" />
                     <span className="font-medium">City:</span>
-                    <span className="ml-2">{user.city}</span>
+                    <span className="ml-2">{profile.city}</span>
                   </div>
                 )}
-                {user.createdAt && (
+                {profile.created_at && (
                   <div className="flex items-center text-gray-700">
                     <span className="font-medium">Joined:</span>
-                    <span className="ml-2">{new Date(user.createdAt).toLocaleDateString()}</span>
+                    <span className="ml-2">{new Date(profile.created_at).toLocaleDateString()}</span>
                   </div>
                 )}
                 <div className="flex items-center text-gray-700">
                   <span className="font-medium">Wishlist Items:</span>
-                  <span className="ml-2">{user.wishlist ? user.wishlist.length : 0}</span>
+                  <span className="ml-2">0</span>
                 </div>
               </div>
               {/* Logout Button with Modal */}
@@ -276,21 +262,21 @@ const UserProfilePage = () => {
                 {orders.length > 0 ? (
                   <div className="divide-y divide-gray-200 mt-4">
                     {orders.map((order) => (
-                      <div key={order._id || order.orderNumber} className="py-4">
+                      <div key={order.id || order.order_number} className="py-4">
                         <div className="flex flex-wrap justify-between items-center">
                           <div>
-                            <div className="font-semibold text-gray-800">Order #{order.orderNumber}</div>
-                            <div className="text-sm text-gray-500">Order Date: {new Date(order.createdAt).toLocaleString()}</div>
-                            <div className="text-sm text-gray-500">Delivery Date: {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "TBD"}</div>
+                            <div className="font-semibold text-gray-800">Order #{order.order_number}</div>
+                            <div className="text-sm text-gray-500">Order Date: {new Date(order.created_at).toLocaleString()}</div>
+                            <div className="text-sm text-gray-500">Delivery Date: {order.delivery_date ? new Date(order.delivery_date).toLocaleDateString() : "TBD"}</div>
                             <div className="text-sm text-gray-600">Status: <span className="font-medium">{getOrderAggregateStatus(order)}</span></div>
-                            <div className="text-sm text-gray-600">Payment: <span className="font-medium">{order.paymentMethod}</span></div>
-                            <div className="text-sm text-gray-600">Shipping: {order.shippingAddress?.address}, {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}</div>
+                            <div className="text-sm text-gray-600">Payment: <span className="font-medium">{order.payment_method}</span></div>
+                            <div className="text-sm text-gray-600">Shipping: {order.shipping_address?.address}, {order.shipping_address?.city}, {order.shipping_address?.state} {order.shipping_address?.zip_code}</div>
                             <div className="mt-2">
                               <span className="font-medium">Items:</span>
                               <ul className="ml-4 list-disc text-sm">
                                 {order.items.map((item, idx) => (
                                   <li key={idx}>
-                                    {item.name} x{item.quantity} @ ₹{item.price} — 
+                                    {item.name} x{item.quantity} @ ₹{item.price} —
                                     <span className="font-semibold">
                                       {item.status ? item.status : order.status}
                                     </span>
@@ -302,7 +288,7 @@ const UserProfilePage = () => {
                               {/* Cancel Order Button */}
                               {(order.status !== 'delivered' && order.status !== 'cancelled') && (
                                 <button
-                                  onClick={() => handleCancelOrder(order._id)}
+                                  onClick={() => handleCancelOrder(order.id)}
                                   className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded shadow text-sm"
                                 >
                                   Cancel Order
@@ -310,7 +296,7 @@ const UserProfilePage = () => {
                               )}
                               {/* View Details Button */}
                               <button
-                                onClick={() => handleViewOrderDetails(order._id)}
+                                onClick={() => handleViewOrderDetails(order.id)}
                                 className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded shadow text-sm"
                               >
                                 View Details
@@ -321,7 +307,7 @@ const UserProfilePage = () => {
                             </div>
                           </div>
                           <div className="text-right mt-2 md:mt-0">
-                            <div className="text-lg font-bold text-rose-600">₹{order.totalAmount}</div>
+                            <div className="text-lg font-bold text-rose-600">₹{order.total_amount}</div>
                             <div className="text-xs text-gray-400">{order.items.length} item(s)</div>
                           </div>
                         </div>

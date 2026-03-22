@@ -19,8 +19,12 @@ import toast from "react-hot-toast"
 import SectionHeading from "@/app/components/SectionHeading"
 import { motion, AnimatePresence } from "framer-motion"
 
+import { useAuth } from "@/context/AuthContext"
+import { supabase } from "@/lib/supabase"
+
 const SellerDashboard = () => {
   const router = useRouter()
+  const { user, profile, loading: authLoading } = useAuth()
   const [stats, setStats] = useState({
     totalSales: 0,
     totalOrders: 0,
@@ -31,46 +35,41 @@ const SellerDashboard = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    if (authLoading) return;
+
+    if (!user || profile?.role !== 'seller') {
+      toast.error("Please login as a seller to access the dashboard")
+      router.push("/seller/login")
+      return
+    }
+
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
-        if (!token) {
-          toast.error("Please login to access the dashboard")
-          router.push("/seller/login")
-          return
-        }
+        const { data, error } = await supabase.rpc('get_seller_dashboard', {
+          seller_uuid: user.id
+        });
 
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/seller/dashboard`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+        if (error) throw error;
 
-        if (response.data) {
-          setStats(response.data.stats)
-          setRecentOrders(response.data.recentOrders)
+        if (data) {
+          setStats(data.stats || {
+            totalSales: 0,
+            totalOrders: 0,
+            totalProducts: 0,
+            totalCustomers: 0,
+          })
+          setRecentOrders(data.recentOrders || [])
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
-        if (error.response?.status === 401) {
-          // Token is invalid or expired
-          localStorage.removeItem("sellerToken")
-          sessionStorage.removeItem("sellerToken")
-          toast.error("Session expired. Please login again.")
-          router.push("/seller/login")
-        } else {
-          toast.error("Failed to load dashboard data")
-        }
+        toast.error("Failed to load dashboard data")
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchDashboardData()
-  }, [router])
+  }, [user, profile, authLoading, router])
 
   // statCards defines the dashboard stats and their display properties
   // Each card has a title, value, icon, and color
@@ -248,7 +247,7 @@ const SellerDashboard = () => {
                         <AnimatePresence>
                           {recentOrders.map((order, index) => (
                             <motion.tr
-                              key={order._id}
+                              key={order.id}
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -256,19 +255,19 @@ const SellerDashboard = () => {
                               className="hover:bg-gray-50 transition-colors"
                             >
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                #{order._id.slice(-6)}
+                                #{order.id.slice(0, 8)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {order.customerName}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ₹{order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
+                                ₹{order.totalAmount.toFixed(2)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
-                                  className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(getOrderAggregateStatus(order))}`}
+                                  className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}
                                 >
-                                  {getOrderAggregateStatus(order)}
+                                  {order.status}
                                 </span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

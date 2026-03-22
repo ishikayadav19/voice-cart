@@ -10,8 +10,10 @@ import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from "framer-motion"
 import SectionHeading from "@/app/components/SectionHeading"
+import { useAuth } from '@/context/AuthContext'
 
 const SellerLoginPage = () => {
+  const { login } = useAuth()
   const router = useRouter()
   const [formData, setFormData] = useState({
     email: "",
@@ -36,26 +38,17 @@ const SellerLoginPage = () => {
     setError("")
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/login`,
-        formData
-      )
+      await login(formData.email, formData.password)
 
-      if (response.data.token) {
-        localStorage.setItem("sellerToken", response.data.token)
-        sessionStorage.setItem("sellerToken", response.data.token)
-        setSuccess(true)
-        toast.success("Login successful!")
-        setTimeout(() => {
-          router.push("/seller/dashboard")
-        }, 1000)
-      }
+      setSuccess(true)
+      toast.success("Login successful!")
+      setTimeout(() => {
+        router.push("/seller/dashboard")
+      }, 1000)
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Failed to login. Please check your credentials and try again."
-      )
-      toast.error("Login failed. Please try again.")
+      console.error('Login error:', err)
+      setError(err.message || "Failed to login. Please check your credentials.")
+      toast.error(err.message || "Login failed. Please try again.")
     } finally {
       setLoading(false)
     }

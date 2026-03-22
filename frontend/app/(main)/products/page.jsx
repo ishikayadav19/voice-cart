@@ -10,6 +10,8 @@ import { Filter, X, Search, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { useShop } from '@/context/ShopContext';
 import SectionHeading from '../../components/SectionHeading';
 
+import { supabase } from '@/lib/supabase';
+
 const ProductsPage = () => {
   const { addToCart, addToWishlist, wishlist } = useShop();
   const [products, setProducts] = useState([]);
@@ -42,22 +44,63 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`, {
-        params: {
-          page,
-          limit: 12,
-          ...filters,
-          search: searchQuery
-        }
-      });
-      
-      if (page === 1) {
-        setProducts(res.data);
-      } else {
-        setProducts(prev => [...prev, ...res.data]);
+      const limit = 12;
+      const start = (page - 1) * limit;
+      const end = start + limit - 1;
+
+      let query = supabase
+        .from('products')
+        .select('*', { count: 'exact' });
+
+      // Apply filters
+      if (searchQuery) {
+        query = query.ilike('name', `%${searchQuery}%`);
       }
-      
-      setHasMore(res.data.length === 12);
+
+      if (filters.brands.length > 0) {
+        query = query.in('brand', filters.brands);
+      }
+
+      if (filters.rating > 0) {
+        query = query.gte('rating', filters.rating);
+      }
+
+      if (filters.availability) {
+        query = query.eq('in_stock', true);
+      }
+
+      query = query.gte('price', filters.priceRange[0]).lte('price', filters.priceRange[1]);
+
+      // Apply sorting
+      switch (filters.sortBy) {
+        case "price-low":
+          query = query.order('price', { ascending: true });
+          break;
+        case "price-high":
+          query = query.order('price', { ascending: false });
+          break;
+        case "rating":
+          query = query.order('rating', { ascending: false });
+          break;
+        case "featured":
+          query = query.order('featured', { ascending: false }).order('rating', { ascending: false });
+          break;
+        default:
+          query = query.order('created_at', { ascending: false });
+          break;
+      }
+
+      const { data, count, error } = await query.range(start, end);
+
+      if (error) throw error;
+
+      if (page === 1) {
+        setProducts(data || []);
+      } else {
+        setProducts(prev => [...prev, ...(data || [])]);
+      }
+
+      setHasMore(data && data.length === limit);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -114,68 +157,10 @@ const ProductsPage = () => {
     }).format(price)
   }
 
-  // Get filtered and sorted products
-  const getFilteredProducts = () => {
-    let filtered = products.filter((product) => {
-      const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
-      const matchesBrand = filters.brands.length === 0 || filters.brands.includes(product.brand)
-      const matchesRating = product.rating >= filters.rating
-      const matchesAvailability = !filters.availability || product.inStock
-
-      return matchesPrice && matchesBrand && matchesRating && matchesAvailability
-    })
-
-    // Apply sorting
-    switch (filters.sortBy) {
-      case "price-low":
-        filtered = [...filtered].sort((a, b) => {
-          const priceA = Number(a.price) || 0
-          const priceB = Number(b.price) || 0
-          if (priceA < priceB) return -1
-          if (priceA > priceB) return 1
-          return 0
-        })
-        break
-      case "price-high":
-        filtered = [...filtered].sort((a, b) => {
-          const priceA = Number(a.price) || 0
-          const priceB = Number(b.price) || 0
-          if (priceA > priceB) return -1
-          if (priceA < priceB) return 1
-          return 0
-        })
-        break
-      case "rating":
-        filtered = [...filtered].sort((a, b) => {
-          const ratingA = Number(a.rating) || 0
-          const ratingB = Number(b.rating) || 0
-          if (ratingA > ratingB) return -1
-          if (ratingA < ratingB) return 1
-          return 0
-        })
-        break
-      case "featured":
-        filtered = [...filtered].sort((a, b) => {
-          if (a.featured && !b.featured) return -1
-          if (!a.featured && b.featured) return 1
-          const ratingA = Number(a.rating) || 0
-          const ratingB = Number(b.rating) || 0
-          if (ratingA > ratingB) return -1
-          if (ratingA < ratingB) return 1
-          return 0
-        })
-        break
-      default:
-        break
-    }
-
-    return filtered
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       {/* Banner Section */}
       <div className="relative  h-64 bg-gradient-to-r from-rose-500 to-purple-600 mb-8">
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
@@ -210,12 +195,11 @@ const ProductsPage = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 </div>
               </form>
-              
+
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-300 ${
-                  isFilterOpen ? 'bg-rose-600 text-white' : 'bg-white hover:bg-gray-50'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-300 ${isFilterOpen ? 'bg-rose-600 text-white' : 'bg-white hover:bg-gray-50'
+                  }`}
               >
                 <Filter size={20} />
                 <span>Filters</span>
@@ -237,7 +221,7 @@ const ProductsPage = () => {
               </select>
             </div>
           </div>
-          
+
           <p className="text-gray-600">
             Showing {products.length} products
           </p>

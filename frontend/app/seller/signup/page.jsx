@@ -1,5 +1,5 @@
 'use client';
-import { useFormik} from 'formik';
+import { useFormik } from 'formik';
 import { useState } from "react";
 import { User, Mail, Lock, Phone, Store, MapPin, Eye, EyeOff } from "lucide-react";
 import Navbar from "../../components/navbar";
@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from "framer-motion";
 import SectionHeading from "@/app/components/SectionHeading";
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 const SellerSignupSchema = Yup.object().shape({
   name: Yup.string()
@@ -45,6 +46,7 @@ const SellerSignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const { signup } = useAuth();
   const signupForm = useFormik({
     initialValues: {
       name: '',
@@ -58,23 +60,25 @@ const SellerSignupPage = () => {
     validationSchema: SellerSignupSchema,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/seller/add`,
-          values
-        );
-        
+        await signup(values.email, values.password, {
+          name: values.name,
+          role: 'seller',
+          phone: values.phone,
+          storeName: values.storeName,
+          address: values.address
+        });
+
         setSuccess(true);
-        toast.success('Seller account created successfully!');
+        toast.success('Seller account created successfully! Please check your email for verification.');
         setTimeout(() => {
           router.push('/seller/login');
-        }, 1000);
+        }, 1500);
         resetForm();
       } catch (error) {
         console.error('Signup error:', error);
-        toast.error(
-          error.response?.data?.message || 'Failed to create seller account. Please check your internet connection and try again.');
+        toast.error(error.message || 'Failed to create seller account.');
         setSubmitting(false);
-      } 
+      }
     }
   });
 

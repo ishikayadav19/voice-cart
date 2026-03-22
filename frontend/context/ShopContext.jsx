@@ -1,28 +1,17 @@
 "use client"
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import axios from "axios";
+import { useAuth } from './AuthContext'
 
 const ShopContext = createContext()
 
 export const ShopProvider = ({ children }) => {
+  const { profile, loading: authLoading } = useAuth()
   const [wishlist, setWishlist] = useState([])
   const [cart, setCart] = useState([])
   const [notification, setNotification] = useState(null)
-  const [userEmail, setUserEmail] = useState("");
 
-  // Get logged-in user's email on mount
-  useEffect(() => {
-    const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
-    if (token) {
-      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).then(res => {
-        setUserEmail(res.data.user.email);
-      }).catch(() => setUserEmail(""));
-    } else {
-      setUserEmail("");
-    }
-  }, []);
+  const userEmail = profile?.email || "";
+
 
   // Load cart for the current user
   useEffect(() => {
@@ -54,10 +43,10 @@ export const ShopProvider = ({ children }) => {
   const addToWishlist = (product) => {
     setWishlist(prev => {
       // Check if product already exists in wishlist using either _id or id
-      if (prev.some(item => 
-        item.id === product.id || 
-        item.id === product._id || 
-        item._id === product.id || 
+      if (prev.some(item =>
+        item.id === product.id ||
+        item.id === product._id ||
+        item._id === product.id ||
         item._id === product._id
       )) {
         showNotification('Item already in wishlist', 'info')
@@ -70,7 +59,7 @@ export const ShopProvider = ({ children }) => {
 
   const removeFromWishlist = (productId) => {
     setWishlist(prev => {
-      const newWishlist = prev.filter(item => 
+      const newWishlist = prev.filter(item =>
         item.id !== productId && item._id !== productId
       )
       showNotification('Removed from wishlist')
@@ -81,34 +70,34 @@ export const ShopProvider = ({ children }) => {
   const addToCart = (product) => {
     setCart(prev => {
       // Check if product already exists in cart using either _id or id
-      const existingItem = prev.find(item => 
-        item.id === product.id || 
-        item.id === product._id || 
-        item._id === product.id || 
+      const existingItem = prev.find(item =>
+        item.id === product.id ||
+        item.id === product._id ||
+        item._id === product.id ||
         item._id === product._id
       );
-      
+
       if (existingItem) {
-        return prev.map(item => 
-          (item.id === product.id || 
-           item.id === product._id || 
-           item._id === product.id || 
-           item._id === product._id)
+        return prev.map(item =>
+          (item.id === product.id ||
+            item.id === product._id ||
+            item._id === product.id ||
+            item._id === product._id)
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
       // Add new item with consistent id property
-      return [...prev, { 
-        ...product, 
+      return [...prev, {
+        ...product,
         id: product._id || product.id, // Use _id if available, fallback to id
-        quantity: 1 
+        quantity: 1
       }];
     });
   }
 
   const removeFromCart = (productId) => {
-    setCart(prev => prev.filter(item => 
+    setCart(prev => prev.filter(item =>
       item.id !== productId && item._id !== productId
     ));
   }
@@ -118,8 +107,8 @@ export const ShopProvider = ({ children }) => {
       removeFromCart(productId);
       return;
     }
-    setCart(prev => 
-      prev.map(item => 
+    setCart(prev =>
+      prev.map(item =>
         (item.id === productId || item._id === productId)
           ? { ...item, quantity }
           : item

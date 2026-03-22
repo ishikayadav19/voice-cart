@@ -16,6 +16,7 @@ import Navbar from '@/app/components/navbar';
 import Footer from '@/app/components/footer';
 import { motion, AnimatePresence } from "framer-motion"
 import SectionHeading from "@/app/components/SectionHeading";
+import { useAuth } from '@/context/AuthContext';
 
 
 const SignupSchema = Yup.object().shape({
@@ -42,34 +43,36 @@ const SignupPage = () => {
   const [success, setSuccess] = useState(false)
   const router = useRouter()
 
+  const { signup } = useAuth();
+
   const signForm = useFormik({
-      initialValues: {
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-      },
+    initialValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    },
     validationSchema: SignupSchema,
-      onSubmit: async (values, { resetForm, setSubmitting }) => {
+    onSubmit: async (values, { resetForm, setSubmitting }) => {
       if (!agreeTerms) {
         toast.error('Please agree to the Terms and Conditions');
         return;
       }
 
-        try {
-          const res = await axios.post(
-              `${process.env.NEXT_PUBLIC_API_URL}/user/add`,
-              values
-          );
-          
-          setSuccess(true)
-          toast.success('User Registered Successfully!');
-          setTimeout(() => {
-            router.push('/user/login');
-          }, 1000);
-          resetForm();
+      try {
+        await signup(values.email, values.password, {
+          name: values.name,
+          role: 'user'
+        });
+
+        setSuccess(true)
+        toast.success('User Registered Successfully! Please check your email for verification.');
+        setTimeout(() => {
+          router.push('/user/login');
+        }, 1500);
+        resetForm();
       } catch (error) {
-        toast.error(error?.response?.data?.message || 'Registration failed');
+        toast.error(error?.message || 'Registration failed');
         setSubmitting(false);
       }
     }
@@ -261,21 +264,20 @@ const SignupPage = () => {
                             passwordStrength === 0
                               ? "25%"
                               : passwordStrength === 1
-                              ? "50%"
-                              : passwordStrength === 2
-                              ? "75%"
-                              : "100%",
+                                ? "50%"
+                                : passwordStrength === 2
+                                  ? "75%"
+                                  : "100%",
                         }}
                         transition={{ duration: 0.3 }}
-                        className={`h-1.5 rounded-full ${
-                          passwordStrength === 0
-                            ? "bg-red-500"
-                            : passwordStrength === 1
+                        className={`h-1.5 rounded-full ${passwordStrength === 0
+                          ? "bg-red-500"
+                          : passwordStrength === 1
                             ? "bg-orange-500"
                             : passwordStrength === 2
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                        }`}
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
+                          }`}
                       ></motion.div>
                     </div>
                   </div>

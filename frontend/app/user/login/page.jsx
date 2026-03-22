@@ -10,8 +10,10 @@ import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from "framer-motion"
 import SectionHeading from "@/app/components/SectionHeading"
+import { useAuth } from '@/context/AuthContext'
 
 const UserLoginPage = () => {
+  const { login } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -27,26 +29,15 @@ const UserLoginPage = () => {
     setIsLoading(true)
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/login`,
-        {email, password}
-      )
+      await login(email, password)
 
-      if (rememberMe) {
-        localStorage.setItem('usertoken', response.data.token)
-      } else {
-        sessionStorage.setItem('usertoken', response.data.token)
-      }
       setSuccess(true)
       toast.success('Login successful!')
       router.push('/user/profile')
-      setTimeout(() => {
-        setTimeout(() => window.location.reload(), 100)
-      }, 1000)
     } catch (error) {
       console.error('Login error:', error)
-      setError(error.response?.data?.message || "Login failed. Please check your credentials.")
-      toast.error(error.response?.data?.message || "Login failed. Please try again.")
+      setError(error.message || "Login failed. Please check your credentials.")
+      toast.error(error.message || "Login failed. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -192,11 +183,11 @@ const UserLoginPage = () => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={isLoading}
+                  type="submit"
+                  disabled={isLoading}
                   className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? (
+                >
+                  {isLoading ? (
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}

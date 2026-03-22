@@ -19,77 +19,49 @@ import axios from "axios"
 import toast from "react-hot-toast"
 import SectionHeading from "../../components/SectionHeading"
 
+import { useAuth } from "@/context/AuthContext"
+import { supabase } from "@/lib/supabase"
+
 const ProfilePage = () => {
   const router = useRouter()
+  const { user, profile, loading: authLoading, signOut } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [profile, setProfile] = useState({
+  const [editMode, setEditMode] = useState(false)
+  const [editProfile, setEditProfile] = useState({
     name: "",
     email: "",
     phone: "",
     storeName: "",
     address: "",
   })
-  const [password, setPassword] = useState({
-    current: "",
-    new: "",
-    confirm: "",
-  })
-  const [errors, setErrors] = useState({})
-  const [editMode, setEditMode] = useState(false)
-  const [editProfile, setEditProfile] = useState(profile)
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
-      if (!token) {
-        router.push("/seller/login");
-        return;
-      }
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/seller/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setProfile(response.data);
-      } catch (error) {
-        // If unauthorized or forbidden, clear token and redirect
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          localStorage.removeItem("sellerToken");
-          sessionStorage.removeItem("sellerToken");
-          router.push("/seller/login");
-        } else {
-          toast.error("Failed to load profile");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUserProfile();
-  }, [router]);
+    if (authLoading) return;
+    if (!user || profile?.role !== 'seller') {
+      router.push("/seller/login");
+      return;
+    }
 
-  useEffect(() => {
-    setEditProfile(profile)
-  }, [profile])
+    if (profile) {
+      setEditProfile({
+        name: profile.name || "",
+        email: profile.email || "",
+        phone: profile.phone || "",
+        storeName: profile.store_name || "",
+        address: profile.address || "",
+      });
+      setIsLoading(false);
+    }
+  }, [user, profile, authLoading, router]);
 
-  const handleProfileChange = (e) => {
-    const { name, value } = e.target
-    setProfile((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target
-    setPassword((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+  const validateProfile = () => {
+    const newErrors = {}
+    if (!editProfile.name) newErrors.name = "Name is required"
+    if (!editProfile.phone) newErrors.phone = "Phone is required"
+    if (!editProfile.storeName) newErrors.storeName = "Store name is required"
+    if (!editProfile.address) newErrors.address = "Address is required"
+    return newErrors
   }
 
   const handleEditProfileChange = (e) => {
@@ -100,113 +72,30 @@ const ProfilePage = () => {
     }))
   }
 
-  const validateProfile = () => {
-    const newErrors = {}
-    if (!profile.name) newErrors.name = "Name is required"
-    if (!profile.email) newErrors.email = "Email is required"
-    if (!profile.phone) newErrors.phone = "Phone is required"
-    if (!profile.storeName) newErrors.storeName = "Store name is required"
-    if (!profile.address) newErrors.address = "Address is required"
-    return newErrors
-  }
-
-  const validatePassword = () => {
-    const newErrors = {}
-    if (password.new && password.new.length < 6) {
-      newErrors.new = "Password must be at least 6 characters"
-    }
-    if (password.new !== password.confirm) {
-      newErrors.confirm = "Passwords do not match"
-    }
-    return newErrors
-  }
-
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault()
-    const profileErrors = validateProfile()
-    if (Object.keys(profileErrors).length > 0) {
-      setErrors(profileErrors)
-      return
-    }
-
-    setIsSaving(true)
-    try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/profile`,
-        profile,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
-      toast.success("Profile updated successfully")
-      setErrors({})
-    } catch (error) {
-      console.error("Error updating profile:", error)
-      toast.error("Failed to update profile")
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault()
-    const passwordErrors = validatePassword()
-    if (Object.keys(passwordErrors).length > 0) {
-      setErrors(passwordErrors)
-      return
-    }
-
-    setIsSaving(true)
-    try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/password`,
-        password,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
-      toast.success("Password updated successfully")
-      setPassword({ current: "", new: "", confirm: "" })
-      setErrors({})
-    } catch (error) {
-      console.error("Error updating password:", error)
-      toast.error("Failed to update password")
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
   const handleEditProfileSubmit = async (e) => {
     e.preventDefault()
     const profileErrors = validateProfile()
     if (Object.keys(profileErrors).length > 0) {
-      setErrors(profileErrors)
+      toast.error("Please fill all required fields")
       return
     }
     setIsSaving(true)
     try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/seller/profile`,
-        editProfile,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: editProfile.name,
+          phone: editProfile.phone,
+          store_name: editProfile.storeName,
+          address: editProfile.address
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
       toast.success("Profile updated successfully")
-      setErrors({})
       setEditMode(false)
-      fetchUserProfile()
+      window.location.reload();
     } catch (error) {
       console.error("Error updating profile:", error)
       toast.error("Failed to update profile")
@@ -216,17 +105,31 @@ const ProfilePage = () => {
   }
 
   const handleCancelEdit = () => {
-    setEditProfile(profile)
+    setEditProfile({
+      name: profile.name || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
+      storeName: profile.store_name || "",
+      address: profile.address || "",
+    })
     setEditMode(false)
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('usertoken');
-    sessionStorage.removeItem('usertoken');
-    localStorage.removeItem('sellerToken');
-    sessionStorage.removeItem('sellerToken');
-    router.push('/');
+  const handleLogout = async () => {
+    await signOut();
   };
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (
@@ -299,7 +202,7 @@ const ProfilePage = () => {
             <div className="flex items-center text-gray-700">
               <Store className="h-5 w-5 mr-2 text-gray-400" />
               <span className="font-medium">Store Name:</span>
-              <span className="ml-2">{profile.storeName}</span>
+              <span className="ml-2">{profile.store_name}</span>
             </div>
             <div className="flex items-center text-gray-700">
               <MapPin className="h-5 w-5 mr-2 text-gray-400" />

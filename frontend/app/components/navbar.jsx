@@ -5,9 +5,11 @@ import Link from "next/link"
 import { ShoppingCart, Heart, Search, Mic, Menu, X, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useShop } from '@/context/ShopContext'
+import { useAuth } from '@/context/AuthContext'
 
 const Navbar = () => {
   const { cart } = useShop()
+  const { profile, signOut } = useAuth()
   const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -17,16 +19,10 @@ const Navbar = () => {
   const searchInputRef = useRef(null)
   const router = useRouter()
 
-  // Auth state for user and seller
-  const [isLoggedInUser, setIsLoggedInUser] = useState(false);
-  const [isLoggedInSeller, setIsLoggedInSeller] = useState(false);
+  const isLoggedIn = !!profile;
+  const isSeller = profile?.role === 'seller';
+  const isAdmin = profile?.role === 'admin';
 
-  useEffect(() => {
-    const userToken = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
-    const sellerToken = localStorage.getItem('sellerToken') || sessionStorage.getItem('sellerToken');
-    setIsLoggedInUser(!!userToken);
-    setIsLoggedInSeller(!!sellerToken);
-  }, []);
 
   // Handle scroll effect
   useEffect(() => {
@@ -99,7 +95,7 @@ const Navbar = () => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault()
         setIsSearchOpen(true)
-    }
+      }
       // Close search with Escape
       if (e.key === 'Escape' && isSearchOpen) {
         setIsSearchOpen(false)
@@ -120,25 +116,24 @@ const Navbar = () => {
     { name: "Books", path: "/category/books" },
   ]
 
-  // Enhanced profile click logic for user/seller context
+  // Enhanced profile click logic for user/seller/admin context
   const handleProfileClick = () => {
-    if (isLoggedInUser) {
-      router.push('/user/profile');
-    } else if (isLoggedInSeller) {
-      router.push('/seller/profile');
-    } else {
+    if (!isLoggedIn) {
       router.push('/login');
+      return;
+    }
+
+    if (isAdmin) {
+      router.push('/admin/dashboard');
+    } else if (isSeller) {
+      router.push('/seller/dashboard');
+    } else {
+      router.push('/user/profile');
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('usertoken');
-    sessionStorage.removeItem('usertoken');
-    localStorage.removeItem('sellerToken');
-    sessionStorage.removeItem('sellerToken');
-    router.push('/');
-    // Optionally, reload the page to reset state
-    // window.location.reload();
+  const handleLogout = async () => {
+    await signOut();
   };
 
   return (
@@ -266,10 +261,10 @@ const Navbar = () => {
 
             {/* Account */}
             <div className="hidden sm:block p-2 text-black hover:text-rose-600 transition-colors cursor-pointer" onClick={handleProfileClick}>
-                <User className="h-5 w-5" />
-              </div>
+              <User className="h-5 w-5" />
+            </div>
 
-            {(isLoggedInUser || isLoggedInSeller) && (
+            {isLoggedIn && (
               <button
                 onClick={handleLogout}
                 className="ml-2 px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors"
@@ -279,7 +274,7 @@ const Navbar = () => {
             )}
 
             {/* Login/Register Buttons */}
-            {!(isLoggedInUser || isLoggedInSeller) && (
+            {!isLoggedIn && (
               <div className="hidden md:flex items-center space-x-2">
                 <Link href="/login">
                   <span className="px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors">
@@ -321,7 +316,7 @@ const Navbar = () => {
               <div className="pt-4 border-t flex flex-col space-y-2">
                 <span className="block px-4 py-2 border border-rose-600 text-rose-600 rounded-md text-center hover:bg-rose-50 transition-colors cursor-pointer" onClick={() => { handleProfileClick(); setIsMobileMenuOpen(false); }}>
                   Profile
-                  </span>
+                </span>
                 <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
                   <span className="block px-4 py-2 bg-rose-600 text-white rounded-md text-center hover:bg-rose-700 transition-colors">
                     Sign Up

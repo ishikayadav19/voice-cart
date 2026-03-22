@@ -8,50 +8,50 @@ import ReviewSummary from "./ReviewSummary";
 
 const ProductCard = ({ product }) => {
   const { addToCart, addToWishlist, wishlist } = useShop();
-  const isInWishlist = wishlist.some(item => item._id === product._id);
+  const isInWishlist = wishlist.some(item => (item.id || item._id) === (product.id || product._id));
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
     >
-      <Link href={`/product/${product._id}`}>
+      <Link href={`/product/${product.id || product._id}`}>
         <div className="relative aspect-w-1 aspect-h-1">
           <div className="w-full h-48 bg-white p-4">
-            <img 
-              src={product.mainImage || (product.images && product.images[0]) || "/placeholder.svg"} 
-              alt={product.name} 
+            <img
+              src={product.main_image || product.mainImage || (product.images && product.images[0]) || "/placeholder.svg"}
+              alt={product.name}
               className="w-full h-full object-contain"
             />
           </div>
-          {product.discountPrice && (
+          {(product.discount_price || product.discountPrice) && (
             <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md text-xs font-bold">
-              {Math.round((1 - product.discountPrice / product.price) * 100)}% OFF
+              {Math.round((1 - (product.discount_price || product.discountPrice) / product.price) * 100)}% OFF
             </div>
           )}
         </div>
       </Link>
 
       <div className="p-4">
-        <Link href={`/product/${product._id}`}>
+        <Link href={`/product/${product.id || product._id}`}>
           <h3 className="text-lg font-semibold mb-1 text-gray-800 line-clamp-2 hover:text-rose-600 transition-colors">
             {product.name}
           </h3>
         </Link>
 
         <div className="mb-2">
-          <ReviewSummary 
-            rating={product.rating || 0} 
-            reviewCount={product.reviews || 0} 
-            size="md" 
+          <ReviewSummary
+            rating={product.rating || 0}
+            reviewCount={product.reviews || 0}
+            size="md"
           />
         </div>
 
         <div className="flex items-center mb-3">
-          {product.discountPrice ? (
+          {(product.discount_price || product.discountPrice) ? (
             <>
-              <span className="text-lg font-bold text-rose-600">&#8377;{product.discountPrice.toFixed(2)}</span>
+              <span className="text-lg font-bold text-rose-600">&#8377;{(product.discount_price || product.discountPrice).toFixed(2)}</span>
               <span className="ml-2 text-sm line-through text-gray-500">&#8377;{product.price.toFixed(2)}</span>
             </>
           ) : (
@@ -68,11 +68,10 @@ const ProductCard = ({ product }) => {
           </button>
           <button
             onClick={() => addToWishlist(product)}
-            className={`p-2 rounded-md transition-colors ${
-              isInWishlist
+            className={`p-2 rounded-md transition-colors ${isInWishlist
                 ? "bg-rose-100 text-rose-600"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             <Heart
               size={20}

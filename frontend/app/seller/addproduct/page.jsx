@@ -28,7 +28,7 @@ const ProductSchema = Yup.object().shape({
     .required('Price is required'),
   discountPrice: Yup.number()
     .positive('Discount price must be positive')
-    .test('less-than-price', 'Discount price must be less than regular price', function(value) {
+    .test('less-than-price', 'Discount price must be less than regular price', function (value) {
       return !value || value < this.parent.price;
     }),
   category: Yup.string()
@@ -50,8 +50,12 @@ const ProductSchema = Yup.object().shape({
     .required('Rating is required'),
 });
 
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
+
 const AddProductPage = () => {
   const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [mainImage, setMainImage] = useState('')
   const [additionalImages, setAdditionalImages] = useState([])
@@ -75,54 +79,43 @@ const AddProductPage = () => {
     onSubmit: async (values, { resetForm }) => {
       try {
         setIsSubmitting(true)
-        const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
-        if (!token) {
+        if (!user) {
           toast.error("Please login to add products")
           router.push("/seller/login")
           return
         }
 
         const productData = {
-          ...values,
+          name: values.name,
+          description: values.description,
           price: Number(values.price),
-          discountPrice: Number(values.discountPrice) || Number(values.price),
+          discount_price: Number(values.discountPrice) || Number(values.price),
+          category: values.category,
           stock: Number(values.stock),
+          brand: values.brand,
           rating: Number(values.rating),
-          inStock: values.stock > 0,
-          featured: false,
+          in_stock: values.stock > 0,
+          featured: values.featured || false,
           images: [mainImage, ...additionalImages].filter(Boolean),
-          mainImage: mainImage
+          main_image: mainImage,
+          seller_id: user.id
         };
 
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/product/seller/add`,
-          productData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        
-        if (res.data) {
-          toast.success('Product Added Successfully!');
-          router.push('/seller/products');
-          resetForm();
-          setMainImage('');
-          setAdditionalImages([]);
-        } else {
-          throw new Error('No data received from server');
-        }
+        const { data, error } = await supabase
+          .from('products')
+          .insert([productData])
+          .select();
+
+        if (error) throw error;
+
+        toast.success('Product Added Successfully!');
+        router.push('/seller/products');
+        resetForm();
+        setMainImage('');
+        setAdditionalImages([]);
       } catch (error) {
         console.error('Error adding product:', error);
-        if (error.response?.status === 401) {
-          localStorage.removeItem("sellerToken")
-          sessionStorage.removeItem("sellerToken")
-          toast.error("Session expired. Please login again.")
-          router.push("/seller/login")
-        } else {
-          toast.error(error?.response?.data?.message || 'Failed to add product');
-        }
+        toast.error(error.message || 'Failed to add product');
       } finally {
         setIsSubmitting(false)
       }
@@ -147,7 +140,7 @@ const AddProductPage = () => {
 
     const pd = new FormData();
     pd.append('file', file);
-    pd.append('upload_preset','VoiceCart');
+    pd.append('upload_preset', 'VoiceCart');
     pd.append('cloud_name', 'dx87ugjhk');
 
     try {
@@ -155,7 +148,7 @@ const AddProductPage = () => {
         `https://api.cloudinary.com/v1_1/dx87ugjhk/image/upload`,
         pd
       );
-      
+
       if (result.data && result.data.url) {
         setMainImage(result.data.url);
         productForm.setFieldValue('mainImage', result.data.url);
@@ -190,7 +183,7 @@ const AddProductPage = () => {
     const uploadPromises = files.map(async (file) => {
       const pd = new FormData();
       pd.append('file', file);
-      pd.append('upload_preset','VoiceCart');
+      pd.append('upload_preset', 'VoiceCart');
       pd.append('cloud_name', 'dx87ugjhk');
 
       try {
@@ -209,7 +202,7 @@ const AddProductPage = () => {
     try {
       const uploadedUrls = await Promise.all(uploadPromises);
       const validUrls = uploadedUrls.filter(url => url !== null);
-      
+
       if (validUrls.length > 0) {
         setAdditionalImages(prev => [...prev, ...validUrls]);
         productForm.setFieldValue('images', [mainImage, ...additionalImages, ...validUrls].filter(Boolean));
