@@ -16,7 +16,7 @@ const SellerOrderDetailsPage = () => {
 
   useEffect(() => {
     const fetchOrder = async () => {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       if (!token) {
         router.push("/seller/login");
         return;

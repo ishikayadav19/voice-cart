@@ -38,7 +38,7 @@ const SellerLoginPage = () => {
     setError("")
 
     try {
-      await login(formData.email, formData.password)
+      await login(formData.email, formData.password, "seller")
 
       setSuccess(true)
       toast.success("Login successful!")

@@ -7,7 +7,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const page = searchParams.get('page') || 1;
     
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/admin/users?page=${page}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users?page=${page}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -34,10 +34,7 @@ export async function DELETE(request) {
     const { pathname } = new URL(request.url);
     const id = pathname.substring(pathname.lastIndexOf('/') + 1);
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
-    }
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
     const response = await fetch(`${backendUrl}/api/admin/users/${id}`, {
       method: 'DELETE',
@@ -66,10 +63,7 @@ export async function PUT(request) {
     const parts = pathname.split('/');
     const id = parts[parts.length - 2]; // Get ID before 'status'
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
-    }
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
     const body = await request.json();
 

@@ -51,7 +51,6 @@ const ProductSchema = Yup.object().shape({
 });
 
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabase';
 
 const AddProductPage = () => {
   const router = useRouter()
@@ -101,12 +100,10 @@ const AddProductPage = () => {
           seller_id: user.id
         };
 
-        const { data, error } = await supabase
-          .from('products')
-          .insert([productData])
-          .select();
-
-        if (error) throw error;
+        const token = localStorage.getItem("token");
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/product/seller/add`, productData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
         toast.success('Product Added Successfully!');
         router.push('/seller/products');

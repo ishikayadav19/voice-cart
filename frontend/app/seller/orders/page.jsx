@@ -34,7 +34,7 @@ const OrdersPage = () => {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken")
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token")
       if (!token) {
         toast.error("Please login to access orders")
         router.push("/seller/login")
@@ -54,8 +54,8 @@ const OrdersPage = () => {
     } catch (error) {
       console.error("Error fetching orders:", error)
       if (error.response?.status === 401) {
-        localStorage.removeItem("sellerToken")
-        sessionStorage.removeItem("sellerToken")
+        localStorage.removeItem("token")
+        sessionStorage.removeItem("token")
         toast.error("Session expired. Please login again.")
         router.push("/seller/login")
       } else {
@@ -78,7 +78,7 @@ const OrdersPage = () => {
       };
     }));
     try {
-      const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/order/seller/orderitem/${orderId}/${itemId}`,
         { status: newStatus },
@@ -306,7 +306,7 @@ const OrdersPage = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(order.date).toLocaleDateString()}
+                            {new Date(order.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <motion.button

@@ -1,27 +1,25 @@
 const express = require('express');
-const Model = require('../models/SellerModels');
-const jwt = require('jsonwebtoken'); // import the jwt library
-require('dotenv').config(); // import the dotenv library to use environment variables
-const Product = require('../models/ProductModels');
-const Order = require('../models/OrderModel');
+const supabase = require('../connection');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const ObjectId = require('bson-objectid');
 
 const router = express.Router();
 
 // POST /seller/signup - Register a new seller
-router.post('/add', (req, res) => {
-    console.log(req.body);
-
-    new Model(req.body).save()
-        .then((result) => {
-            res.status(200).json(result);
-        })
-        .catch((err) => {
-            if (err?.code === 11000) {
-                res.status(400).json({ message: "Seller already registered" });
-            } else {
-                res.status(500).json({ message: "Some error occurred" });
-            }
-        });
+router.post('/add', async (req, res) => {
+    try {
+        const id = new ObjectId().toString();
+        const { error } = await supabase.from('sellersdata').insert([{ id, ...req.body }]);
+        if (error) {
+            if (error.code === '23505') return res.status(400).json({ message: "Seller already registered" });
+            throw error;
+        }
+        res.status(200).json({ id, ...req.body });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Some error occurred" });
+    }
 });
 
 // POST /seller/login - Login seller
@@ -29,27 +27,19 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Find seller by email
-        const seller = await Model.findOne({ email });
-        if (!seller) {
+        const { data: seller, error } = await supabase.from('sellersdata').select('*').eq('email', email).single();
+        if (error || !seller || seller.password !== password) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
-        // Check password
-        if (seller.password !== password) {
-            return res.status(401).json({ message: "Invalid email or password" });
-        }
-
-        // Check if seller is approved
-        if (!seller.isApproved) {
+        if (!seller.is_approved) {
             return res.status(403).json({ 
                 message: "Your account is pending approval. Please wait for admin approval before logging in." 
             });
         }
 
-        // Generate JWT token
         const token = jwt.sign(
-            { id: seller._id, email: seller.email },
+            { id: seller.id, email: seller.email },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
@@ -57,12 +47,7 @@ router.post('/login', async (req, res) => {
         res.status(200).json({
             message: "Login successful",
             token,
-            seller: {
-                id: seller._id,
-                name: seller.name,
-                email: seller.email,
-                storeName: seller.storeName
-            }
+            seller: { id: seller.id, name: seller.name, email: seller.email, storeName: seller.store_name, role: "seller" }
         });
     } catch (error) {
         console.error('Login error:', error);
@@ -71,142 +56,147 @@ router.post('/login', async (req, res) => {
 });
 
 // GET /seller/getall - Get all sellers
-router.get('/getall', (req, res) => {
-    Model.find()
-        .then((result) => {
-            res.status(200).json(result);
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).json(err);
-        });
-});
-
-// DELETE /seller/delete/:id - Delete a seller by ID
-router.delete('/delete/:id', (req, res) => {
-    const { id } = req.params;
-
-    Model.findByIdAndDelete(id)
-        .then((deletedSeller) => {
-            if (!deletedSeller) {
-                return res.status(404).json({ message: 'Seller not found' });
-            }
-            res.status(200).json({ message: 'Seller deleted successfully', deletedSeller });
-        })
-        .catch((err) => {
-            console.error('Error deleting seller:', err);
-            res.status(500).json({ message: 'Failed to delete seller', error: err });
-        });
-});
-
-// Update seller profile
-router.put('/update/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const allowedFields = ['name', 'phone', 'storeName', 'address'];
-    const updates = {};
-    allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) updates[field] = req.body[field];
-    });
-    const seller = await Model.findByIdAndUpdate(id, updates, { new: true }).select('-password -confirmPassword');
-    if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+router.get('/getall', async (req, res) => {
+    const { data, error } = await supabase.from('sellersdata').select('*');
+    if (error) {
+        console.error(error);
+        return res.status(500).json(error);
     }
-    res.status(200).json({ seller });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to update seller profile' });
-  }
+    res.status(200).json(data);
 });
 
-// Seller auth middleware (reuse from ProductRouter)
+// DELETE /seller/delete/:id
+router.delete('/delete/:id', async (req, res) => {
+    const { data, error } = await supabase.from('sellersdata').delete().eq('id', req.params.id).select().single();
+    if (error) {
+        console.error('Error deleting seller:', error);
+        return res.status(500).json({ message: 'Failed to delete seller', error });
+    }
+    res.status(200).json({ message: 'Seller deleted successfully', deletedSeller: data });
+});
+
+// Update seller profile (admin or generic update)
+router.put('/update/:id', async (req, res) => {
+    try {
+        const allowedFields = ['name', 'phone', 'storeName', 'address'];
+        const updates = {};
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                if (field === 'storeName') updates.store_name = req.body[field];
+                else updates[field] = req.body[field];
+            }
+        });
+        const { data: seller, error } = await supabase.from('sellersdata').update(updates).eq('id', req.params.id).select().single();
+        if (error || !seller) return res.status(404).json({ message: 'Seller not found' });
+        delete seller.password;
+        delete seller.confirm_password;
+        res.status(200).json({ seller });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update seller profile' });
+    }
+});
+
+// Seller auth middleware
 const sellerAuth = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.seller = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' });
-  }
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.seller = decoded;
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
 };
 
 // GET /seller/profile - Get seller profile
 router.get('/profile', sellerAuth, async (req, res) => {
-  try {
-    const seller = await Model.findById(req.seller.id).select('-password -confirmPassword');
-    if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+    try {
+        const { data: seller, error } = await supabase.from('sellersdata').select('*').eq('id', req.seller.id).single();
+        if (error || !seller) return res.status(404).json({ message: 'Seller not found' });
+        delete seller.password;
+        delete seller.confirm_password;
+        seller.storeName = seller.store_name;
+        seller.role = "seller";
+        res.status(200).json(seller);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to load seller profile' });
     }
-    res.status(200).json(seller);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to load seller profile' });
-  }
 });
 
 // PUT /seller/profile - Update seller profile for logged-in seller
 router.put('/profile', sellerAuth, async (req, res) => {
-  try {
-    const allowedFields = ['name', 'phone', 'storeName', 'address'];
-    const updates = {};
-    allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) updates[field] = req.body[field];
-    });
-    const seller = await Model.findByIdAndUpdate(req.seller.id, updates, { new: true }).select('-password -confirmPassword');
-    if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+    try {
+        const allowedFields = ['name', 'phone', 'storeName', 'address'];
+        const updates = {};
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                if (field === 'storeName') updates.store_name = req.body[field];
+                else updates[field] = req.body[field];
+            }
+        });
+        const { data: seller, error } = await supabase.from('sellersdata').update(updates).eq('id', req.seller.id).select().single();
+        if (error || !seller) return res.status(404).json({ message: 'Seller not found' });
+        delete seller.password;
+        delete seller.confirm_password;
+        seller.storeName = seller.store_name;
+        seller.role = "seller";
+        res.status(200).json({ seller });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update seller profile' });
     }
-    res.status(200).json({ seller });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to update seller profile' });
-  }
 });
 
 // Seller dashboard endpoint
 router.get('/dashboard', sellerAuth, async (req, res) => {
-  try {
-    const sellerId = req.seller.id;
-    // Get all products for this seller
-    const products = await Product.find({ seller: sellerId });
-    const productIds = products.map(p => p._id);
-    // Get all orders with at least one item for this seller
-    const orders = await Order.find({ 'items.sellerId': sellerId });
-    // Calculate stats
-    let totalSales = 0;
-    let totalOrders = 0;
-    const customerEmails = new Set();
-    const recentOrders = [];
-    orders.forEach(order => {
-      const sellerItems = order.items.filter(item => item.sellerId.toString() === sellerId);
-      if (sellerItems.length > 0) {
-        totalOrders++;
-        sellerItems.forEach(item => {
-          totalSales += item.price * item.quantity;
+    try {
+        const sellerId = req.seller.id;
+        
+        // Get products
+        const { data: products } = await supabase.from('productsdata').select('*').eq('seller', sellerId);
+        
+        // Get all order items for this seller, and their orders
+        const { data: orderItems } = await supabase.from('order_items').select('*, orders(*)').eq('seller_id', sellerId);
+
+        let totalSales = 0;
+        let totalOrders = 0;
+        const customerEmails = new Set();
+        const recentOrdersMap = new Map();
+
+        (orderItems || []).forEach(item => {
+            totalSales += item.price * item.quantity;
+            if (item.orders) {
+                customerEmails.add(item.orders.email);
+                if (!recentOrdersMap.has(item.order_id)) {
+                    totalOrders++;
+                    recentOrdersMap.set(item.order_id, {
+                        ...item.orders,
+                        items: []
+                    });
+                }
+                recentOrdersMap.get(item.order_id).items.push(item);
+            }
         });
-        customerEmails.add(order.email);
-        recentOrders.push({
-          ...order.toObject(),
-          items: sellerItems
+
+        const recentOrders = Array.from(recentOrdersMap.values());
+        recentOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        res.status(200).json({
+            stats: {
+                totalSales,
+                totalOrders,
+                totalProducts: (products || []).length,
+                totalCustomers: customerEmails.size
+            },
+            recentOrders: recentOrders.slice(0, 5)
         });
-      }
-    });
-    // Sort recentOrders by createdAt desc and take top 5
-    recentOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    res.status(200).json({
-      stats: {
-        totalSales,
-        totalOrders,
-        totalProducts: products.length,
-        totalCustomers: customerEmails.size
-      },
-      recentOrders: recentOrders.slice(0, 5)
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to load dashboard data' });
-  }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to load dashboard data' });
+    }
 });
 
 module.exports = router;

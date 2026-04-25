@@ -10,8 +10,6 @@ import { Filter, X, Search, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { useShop } from '@/context/ShopContext';
 import SectionHeading from '../../components/SectionHeading';
 
-import { supabase } from '@/lib/supabase';
-
 const ProductsPage = () => {
   const { addToCart, addToWishlist, wishlist } = useShop();
   const [products, setProducts] = useState([]);
@@ -44,63 +42,8 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const limit = 12;
-      const start = (page - 1) * limit;
-      const end = start + limit - 1;
-
-      let query = supabase
-        .from('products')
-        .select('*', { count: 'exact' });
-
-      // Apply filters
-      if (searchQuery) {
-        query = query.ilike('name', `%${searchQuery}%`);
-      }
-
-      if (filters.brands.length > 0) {
-        query = query.in('brand', filters.brands);
-      }
-
-      if (filters.rating > 0) {
-        query = query.gte('rating', filters.rating);
-      }
-
-      if (filters.availability) {
-        query = query.eq('in_stock', true);
-      }
-
-      query = query.gte('price', filters.priceRange[0]).lte('price', filters.priceRange[1]);
-
-      // Apply sorting
-      switch (filters.sortBy) {
-        case "price-low":
-          query = query.order('price', { ascending: true });
-          break;
-        case "price-high":
-          query = query.order('price', { ascending: false });
-          break;
-        case "rating":
-          query = query.order('rating', { ascending: false });
-          break;
-        case "featured":
-          query = query.order('featured', { ascending: false }).order('rating', { ascending: false });
-          break;
-        default:
-          query = query.order('created_at', { ascending: false });
-          break;
-      }
-
-      const { data, count, error } = await query.range(start, end);
-
-      if (error) throw error;
-
-      if (page === 1) {
-        setProducts(data || []);
-      } else {
-        setProducts(prev => [...prev, ...(data || [])]);
-      }
-
-      setHasMore(data && data.length === limit);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/getall`);
+      setProducts(res.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -110,7 +53,48 @@ const ProductsPage = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [page, filters, searchQuery]);
+  }, []);
+
+  const getFilteredProducts = () => {
+    let filtered = [...products];
+
+    if (searchQuery) {
+      filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+
+    if (filters.brands.length > 0) {
+      filtered = filtered.filter(p => filters.brands.includes(p.brand));
+    }
+
+    if (filters.rating > 0) {
+      filtered = filtered.filter(p => p.rating >= filters.rating);
+    }
+
+    if (filters.availability) {
+      filtered = filtered.filter(p => p.inStock);
+    }
+
+    filtered = filtered.filter(p => p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]);
+
+    switch (filters.sortBy) {
+      case "price-low":
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case "rating":
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
+      case "featured":
+        filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || b.rating - a.rating);
+        break;
+      default:
+        break;
+    }
+
+    return filtered.slice(0, page * 12);
+  };
 
   const handleFilterChange = (type, value) => {
     setFilters(prev => ({ ...prev, [type]: value }));

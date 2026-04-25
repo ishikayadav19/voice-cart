@@ -1,8 +1,8 @@
 const express = require('express');
-const Model = require('../models/ProductModels'); // import the model
-const router= express.Router();
+const supabase = require('../connection');
+const router = express.Router();
 const jwt = require('jsonwebtoken');
-const Seller = require('../models/SellerModels');
+const ObjectId = require('bson-objectid');
 
 // Seller auth middleware
 const sellerAuth = async (req, res, next) => {
@@ -20,331 +20,231 @@ const sellerAuth = async (req, res, next) => {
   }
 };
 
-router.post('/add' , (req, res) => {
-    console.log('Adding product:', req.body);
-    
-    // Validate images array
+router.post('/add', async (req, res) => {
     if (!req.body.images || !Array.isArray(req.body.images) || req.body.images.length === 0) {
         return res.status(400).json({ message: "At least one image is required" });
     }
-
-    // Set main image as the first image if not specified
-    if (!req.body.mainImage) {
-        req.body.mainImage = req.body.images[0];
-    }
+    if (!req.body.mainImage) req.body.mainImage = req.body.images[0];
     
-    // Set default values for required fields if not provided
-    const productData = {
-        ...req.body,
-        rating: req.body.rating || 0,
-        inStock: req.body.inStock ?? true,
-        featured: req.body.featured ?? false,
-        stock: req.body.stock || 0
-    };
-    
-    new Model(productData).save()
-    .then((result) => {
-        console.log('Product added successfully:', result);
-        res.status(200).json(result);
-    }).catch((err) => {
+    try {
+        const id = new ObjectId().toString();
+        const productData = {
+            id,
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            discount_price: req.body.discountPrice || 0,
+            category: req.body.category,
+            images: req.body.images,
+            main_image: req.body.mainImage,
+            stock: req.body.stock || 0,
+            brand: req.body.brand || '',
+            rating: req.body.rating || 0,
+            in_stock: req.body.inStock ?? true,
+            featured: req.body.featured ?? false,
+            seller: req.body.seller || null
+        };
+        const { error } = await supabase.from('productsdata').insert([productData]);
+        if (error) throw error;
+        res.status(200).json({ _id: id, ...productData });
+    } catch (err) {
         console.error('Error adding product:', err);
-        if(err?.code === 11000) {
-            res.status(400).json({message: "Product already registered"});
-        } else {
-            res.status(500).json({
-                message: "Error adding product",
-                error: err.message
-            });
-        }
-    });
+        res.status(500).json({ message: "Error adding product", error: err.message });
+    }
 });
 
-//getbyid
-router.get('/getbyid/:id', (req, res) =>{
-  Model.findById(req.params.id)
-  .then((result) => {
-   res.status(200).json(result);
-   })
-   .catch((err) => {
-   console.log(err);
-   res.status(500).json(err);
-  });
+router.get('/getbyid/:id', async (req, res) => {
+  const { data, error } = await supabase.from('productsdata').select('*').eq('id', req.params.id).single();
+  if (error) return res.status(500).json(error);
+  if(data) {
+      data._id = data.id;
+      data.discountPrice = data.discount_price;
+      data.mainImage = data.main_image;
+      data.inStock = data.in_stock;
+  }
+  res.status(200).json(data);
 });
 
-
-
-//update
-router.put('/update/:id', (req, res) => {
-    const { id } = req.params;
-    const updateData = {
-        ...req.body,
-        rating: req.body.rating || 0,
-        inStock: req.body.inStock ?? true,
-        featured: req.body.featured ?? false,
-        stock: req.body.stock || 0
-    };
-
-    Model.findByIdAndUpdate(id, updateData, { new: true })
-    .then((result) => {
-        if (!result) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-        res.status(200).json(result);
-    })
-    .catch((err) => {
-        console.error('Error updating product:', err);
-        res.status(500).json({
-            message: 'Failed to update product',
-            error: err.message
-        });
-    });
+router.put('/update/:id', async (req, res) => {
+    try {
+        const updateData = {
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            discount_price: req.body.discountPrice,
+            category: req.body.category,
+            images: req.body.images,
+            main_image: req.body.mainImage,
+            stock: req.body.stock,
+            brand: req.body.brand,
+            rating: req.body.rating,
+            in_stock: req.body.inStock,
+            featured: req.body.featured
+        };
+        Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+        
+        const { data, error } = await supabase.from('productsdata').update(updateData).eq('id', req.params.id).select().single();
+        if (error || !data) return res.status(404).json({ message: 'Product not found' });
+        data._id = data.id;
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to update product', error: err.message });
+    }
 });
 
-
-
-// getall
-router.get('/getall', (req, res) =>{
-   Model.find()
-   .then((result) => {
-    res.status(200).json(result);
-    })
-    .catch((err) => {
-    console.log(err);
-    res.status(500).json(err);
-   });
-});
-router.delete('/delete/:id', (req, res) =>{
-  Model.findByIdAndDelete(req.params.id)
-  .then((result) => {
-    res.status(200).json(result);
-    })
-    .catch((err) => {
-    console.log(err);
-    res.status(500).json(err);
-   });
+router.get('/getall', async (req, res) => {
+   const { data, error } = await supabase.from('productsdata').select('*');
+   if (error) return res.status(500).json(error);
+   const formatted = (data||[]).map(d => ({ ...d, _id: d.id, discountPrice: d.discount_price, mainImage: d.main_image, inStock: d.in_stock }));
+   res.status(200).json(formatted);
 });
 
-
-
-// DELETE /product/delete/:id
-router.delete('/delete/:id', (req, res) => {
-  const { id } = req.params;
-
-  Model.findByIdAndDelete(id)
-    .then((deletedProduct) => {
-      if (!deletedProduct) {
-        return res.status(404).json({ message: 'Product not found' });
-      }
-      res.status(200).json({ message: 'Product deleted successfully', deletedProduct });
-    })
-    .catch((err) => {
-      console.error('Error deleting product:', err);
-      res.status(500).json({ message: 'Failed to delete product', error: err });
-    });
+router.delete('/delete/:id', async (req, res) => {
+  const { data, error } = await supabase.from('productsdata').delete().eq('id', req.params.id).select().single();
+  if (error) return res.status(500).json({ message: 'Failed to delete product', error });
+  if (data) data._id = data.id;
+  res.status(200).json({ message: 'Product deleted successfully', deletedProduct: data });
 });
 
-// Get products by category
-router.get('/category/:category', (req, res) => {
-  const { category } = req.params;
-  
-  Model.find({ category: { $regex: new RegExp(`^${category}$`, 'i') } })
-    .then((products) => {
-      if (products.length === 0) {
-        return res.status(404).json({ message: 'No products found in this category' });
-      }
-      res.status(200).json(products);
-    })
-    .catch((err) => {
-      console.error('Error fetching products by category:', err);
-      res.status(500).json({ message: 'Failed to fetch products', error: err });
-    });
+router.get('/category/:category', async (req, res) => {
+  const { data, error } = await supabase.from('productsdata').select('*').ilike('category', req.params.category);
+  if (error) return res.status(500).json({ message: 'Failed to fetch products', error });
+  if (!data || data.length === 0) return res.status(404).json({ message: 'No products found in this category' });
+  res.status(200).json(data.map(d => ({...d, _id: d.id, discountPrice: d.discount_price, mainImage: d.main_image, inStock: d.in_stock})));
 });
 
-// Search products
 router.get('/search', async (req, res) => {
   try {
     const { q } = req.query;
-    
-    if (!q) {
-      return res.status(400).json({ message: 'Search query is required' });
-    }
-
-    const searchRegex = new RegExp(q, 'i');
-    
-    const products = await Model.find({
-      $or: [
-        { name: searchRegex },
-        { description: searchRegex },
-        { category: searchRegex }
-      ]
-    });
-
-    console.log('Search query:', q);
-    console.log('Found products:', products);
-
-    res.json(products);
+    if (!q) return res.status(400).json({ message: 'Search query is required' });
+    const { data, error } = await supabase.from('productsdata').select('*').or(`name.ilike.%${q}%,description.ilike.%${q}%,category.ilike.%${q}%`);
+    if (error) throw error;
+    res.json((data||[]).map(d => ({...d, _id: d.id, discountPrice: d.discount_price, mainImage: d.main_image, inStock: d.in_stock})));
   } catch (error) {
-    console.error('Error searching products:', error);
     res.status(500).json({ message: 'Error searching products' });
   }
 });
 
-// Wishlist routes
-// Add to wishlist
 router.post('/wishlist/add', async (req, res) => {
   try {
     const { userId, productId } = req.body;
-    
-    if (!userId || !productId) {
-      return res.status(400).json({ message: 'User ID and Product ID are required' });
-    }
-
-    // First check if the product exists
-    const product = await Model.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    // Check if product is already in wishlist
-    const existingWishlist = await Model.findOne({
-      _id: productId,
-      'wishlist': userId
-    });
-
-    if (existingWishlist) {
-      return res.status(400).json({ message: 'Product already in wishlist' });
-    }
-
-    // Add to wishlist
-    const updatedProduct = await Model.findByIdAndUpdate(
-      productId,
-      { $addToSet: { wishlist: userId } },
-      { new: true }
-    );
-
-    res.status(200).json(updatedProduct);
+    if (!userId || !productId) return res.status(400).json({ message: 'User ID and Product ID are required' });
+    const { data: product } = await supabase.from('productsdata').select('wishlist').eq('id', productId).single();
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    let wishlist = product.wishlist || [];
+    if (wishlist.includes(userId)) return res.status(400).json({ message: 'Product already in wishlist' });
+    wishlist.push(userId);
+    const { data } = await supabase.from('productsdata').update({ wishlist }).eq('id', productId).select().single();
+    res.status(200).json(data);
   } catch (error) {
-    console.error('Error adding to wishlist:', error);
     res.status(500).json({ message: 'Error adding to wishlist' });
   }
 });
 
-// Remove from wishlist
 router.delete('/wishlist/remove', async (req, res) => {
   try {
     const { userId, productId } = req.body;
-    
-    if (!userId || !productId) {
-      return res.status(400).json({ message: 'User ID and Product ID are required' });
-    }
-
-    const updatedProduct = await Model.findByIdAndUpdate(
-      productId,
-      { $pull: { wishlist: userId } },
-      { new: true }
-    );
-
-    if (!updatedProduct) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    res.status(200).json(updatedProduct);
+    const { data: product } = await supabase.from('productsdata').select('wishlist').eq('id', productId).single();
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    let wishlist = (product.wishlist || []).filter(id => id !== userId);
+    const { data } = await supabase.from('productsdata').update({ wishlist }).eq('id', productId).select().single();
+    res.status(200).json(data);
   } catch (error) {
-    console.error('Error removing from wishlist:', error);
     res.status(500).json({ message: 'Error removing from wishlist' });
   }
 });
 
-// Get user's wishlist
 router.get('/wishlist/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID is required' });
-    }
-
-    const wishlistProducts = await Model.find({ wishlist: userId });
-    res.status(200).json(wishlistProducts);
+    const { data } = await supabase.from('productsdata').select('*').contains('wishlist', [userId]);
+    res.status(200).json((data||[]).map(d => ({...d, _id: d.id, discountPrice: d.discount_price, mainImage: d.main_image, inStock: d.in_stock})));
   } catch (error) {
-    console.error('Error fetching wishlist:', error);
     res.status(500).json({ message: 'Error fetching wishlist' });
   }
 });
 
-// Check if product is in wishlist
 router.get('/wishlist/check/:userId/:productId', async (req, res) => {
   try {
     const { userId, productId } = req.params;
-    
-    if (!userId || !productId) {
-      return res.status(400).json({ message: 'User ID and Product ID are required' });
-    }
-
-    const product = await Model.findOne({
-      _id: productId,
-      wishlist: userId
-    });
-
-    res.status(200).json({ isInWishlist: !!product });
+    const { data } = await supabase.from('productsdata').select('wishlist').eq('id', productId).single();
+    res.status(200).json({ isInWishlist: (data && data.wishlist && data.wishlist.includes(userId)) || false });
   } catch (error) {
-    console.error('Error checking wishlist:', error);
     res.status(500).json({ message: 'Error checking wishlist' });
   }
 });
 
-// Get all products for the logged-in seller
 router.get('/seller/myproducts', sellerAuth, async (req, res) => {
   try {
-    const products = await Model.find({ seller: req.seller.id });
-    res.status(200).json(products);
+    const { data, error } = await supabase.from('productsdata').select('*').eq('seller', req.seller.id);
+    if (error) throw error;
+    res.status(200).json((data||[]).map(d => ({...d, _id: d.id, discountPrice: d.discount_price, mainImage: d.main_image, inStock: d.in_stock})));
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch seller products' });
   }
 });
 
-// Add a product for the logged-in seller
 router.post('/seller/add', sellerAuth, async (req, res) => {
   try {
+    const id = new ObjectId().toString();
     const productData = {
-      ...req.body,
-      seller: req.seller.id
+        id,
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        discount_price: req.body.discountPrice || 0,
+        category: req.body.category,
+        images: req.body.images,
+        main_image: req.body.mainImage || (req.body.images ? req.body.images[0] : ''),
+        stock: req.body.stock || 0,
+        brand: req.body.brand || '',
+        rating: req.body.rating || 0,
+        in_stock: req.body.inStock ?? true,
+        featured: req.body.featured ?? false,
+        seller: req.seller.id
     };
-    const product = new Model(productData);
-    await product.save();
-    res.status(200).json(product);
+    const { data, error } = await supabase.from('productsdata').insert([productData]).select().single();
+    if (error) throw error;
+    data._id = data.id;
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: 'Failed to add product', error: error.message });
   }
 });
 
-// Update a product for the logged-in seller
 router.put('/seller/update/:id', sellerAuth, async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Model.findOneAndUpdate(
-      { _id: id, seller: req.seller.id },
-      req.body,
-      { new: true }
-    );
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found or not owned by seller' });
-    }
-    res.status(200).json(product);
+    const updateData = {
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        discount_price: req.body.discountPrice,
+        category: req.body.category,
+        images: req.body.images,
+        main_image: req.body.mainImage,
+        stock: req.body.stock,
+        brand: req.body.brand,
+        rating: req.body.rating,
+        in_stock: req.body.inStock,
+        featured: req.body.featured
+    };
+    Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
+    const { data, error } = await supabase.from('productsdata').update(updateData).match({ id: req.params.id, seller: req.seller.id }).select().single();
+    if (error || !data) return res.status(404).json({ message: 'Product not found or not owned by seller' });
+    data._id = data.id;
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: 'Failed to update product', error: error.message });
   }
 });
 
-// Delete a product for the logged-in seller
 router.delete('/seller/delete/:id', sellerAuth, async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Model.findOneAndDelete({ _id: id, seller: req.seller.id });
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found or not owned by seller' });
-    }
-    res.status(200).json({ message: 'Product deleted successfully', product });
+    const { data, error } = await supabase.from('productsdata').delete().match({ id: req.params.id, seller: req.seller.id }).select().single();
+    if (error || !data) return res.status(404).json({ message: 'Product not found or not owned by seller' });
+    data._id = data.id;
+    res.status(200).json({ message: 'Product deleted successfully', product: data });
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete product', error: error.message });
   }

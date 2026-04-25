@@ -14,7 +14,6 @@ import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabase';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -25,14 +24,11 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     if (!user) return;
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('seller_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/product/seller/myproducts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProducts(response.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -52,12 +48,10 @@ const ProductsPage = () => {
 
   const handleDelete = async (id) => {
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      const token = localStorage.getItem('token');
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/product/seller/delete/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       fetchProducts();
       toast.success('Product Deleted Successfully!');

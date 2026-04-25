@@ -20,7 +20,6 @@ import SectionHeading from "@/app/components/SectionHeading"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { useAuth } from "@/context/AuthContext"
-import { supabase } from "@/lib/supabase"
 
 const SellerDashboard = () => {
   const router = useRouter()
@@ -45,20 +44,25 @@ const SellerDashboard = () => {
 
     const fetchDashboardData = async () => {
       try {
-        const { data, error } = await supabase.rpc('get_seller_dashboard', {
-          seller_uuid: user.id
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5000/seller/dashboard', {
+          headers: { Authorization: `Bearer ${token}` }
         });
 
-        if (error) throw error;
-
-        if (data) {
-          setStats(data.stats || {
+        if (response.data) {
+          setStats(response.data.stats || {
             totalSales: 0,
             totalOrders: 0,
             totalProducts: 0,
             totalCustomers: 0,
           })
-          setRecentOrders(data.recentOrders || [])
+          const mappedOrders = (response.data.recentOrders || []).map(order => ({
+            ...order,
+            customerName: order.customer_name,
+            totalAmount: order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+            date: order.created_at
+          }));
+          setRecentOrders(mappedOrders)
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
@@ -255,7 +259,7 @@ const SellerDashboard = () => {
                               className="hover:bg-gray-50 transition-colors"
                             >
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                #{order.id.slice(0, 8)}
+                                #{order.id.slice(-6)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {order.customerName}

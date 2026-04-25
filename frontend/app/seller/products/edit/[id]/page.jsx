@@ -31,7 +31,7 @@ const EditProductPage = () => {
   }, [])
 
   const handleUpdate =  (values, { setSubmitting }) => {
-    const token = localStorage.getItem("sellerToken") || sessionStorage.getItem("sellerToken");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     axios.put(`${BASE_URL}/product/seller/update/${id}`, values, {
       headers: { Authorization: `Bearer ${token}` }
     })

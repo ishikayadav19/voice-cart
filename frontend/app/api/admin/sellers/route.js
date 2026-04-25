@@ -5,10 +5,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const page = searchParams.get('page') || 1;
     
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
-    }
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
     const response = await fetch(`${backendUrl}/api/admin/sellers?page=${page}`, {
       headers: {

@@ -1,34 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/UserModels');
-const Product = require('../models/ProductModels');
-const Seller = require('../models/SellerModels');
+const supabase = require('../connection');
 const { sendEmail } = require('../services/emailService');
 
 // Admin Dashboard Stats
 router.get('/dashboard', async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const totalSellers = await Seller.countDocuments({ isApproved: true });
-    const totalProducts = await Product.countDocuments();
-    const pendingSellers = await Seller.countDocuments({ isApproved: false });
+    const { count: totalUsers } = await supabase.from('usersdata').select('*', { count: 'exact', head: true });
+    const { count: totalSellers } = await supabase.from('sellersdata').select('*', { count: 'exact', head: true }).eq('is_approved', true);
+    const { count: totalProducts } = await supabase.from('productsdata').select('*', { count: 'exact', head: true });
+    const { count: pendingSellers } = await supabase.from('sellersdata').select('*', { count: 'exact', head: true }).eq('is_approved', false);
 
-    // Get recent data
-    const recentUsers = await User.find().sort({ createdAt: -1 }).limit(5);
-    const recentSellers = await Seller.find({ isApproved: true }).sort({ createdAt: -1 }).limit(5);
-    const recentProducts = await Product.find().populate('seller').sort({ createdAt: -1 }).limit(5);
+    const { data: recentUsers } = await supabase.from('usersdata').select('*').order('created_at', { ascending: false }).limit(5);
+    const { data: recentSellers } = await supabase.from('sellersdata').select('*').eq('is_approved', true).order('created_at', { ascending: false }).limit(5);
+    const { data: recentProducts } = await supabase.from('productsdata').select('*, sellersdata(*)').order('created_at', { ascending: false }).limit(5);
 
     res.json({
-      stats: {
-        totalUsers,
-        totalSellers,
-        totalProducts,
-        pendingSellers
-      },
+      stats: { totalUsers, totalSellers, totalProducts, pendingSellers },
       recent: {
-        users: recentUsers,
-        sellers: recentSellers,
-        products: recentProducts
+        users: (recentUsers || []).map(u => ({ ...u, _id: u.id, createdAt: u.created_at })),
+        sellers: (recentSellers || []).map(s => ({ ...s, _id: s.id, createdAt: s.created_at, storeName: s.store_name })),
+        products: (recentProducts || []).map(p => ({ ...p, _id: p.id, createdAt: p.created_at, mainImage: p.main_image, seller: p.sellersdata }))
       }
     });
   } catch (error) {
@@ -43,10 +35,12 @@ router.get('/users', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const users = await User.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
-    const total = await User.countDocuments();
+
+    const { count: total } = await supabase.from('usersdata').select('*', { count: 'exact', head: true });
+    const { data: users } = await supabase.from('usersdata').select('*').order('created_at', { ascending: false }).range(skip, skip + limit - 1);
+
     res.json({
-      users,
+      users: (users || []).map(u => ({ ...u, _id: u.id, createdAt: u.created_at })),
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalUsers: total
@@ -59,14 +53,10 @@ router.get('/users', async (req, res) => {
 // Delete a user
 router.delete('/users/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await User.findByIdAndDelete(id);
-    if (!result) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    const { data, error } = await supabase.from('usersdata').delete().eq('id', req.params.id).select().single();
+    if (error || !data) return res.status(404).json({ message: 'User not found' });
     res.status(200).json({ message: 'User deleted successfully' });
   } catch (error) {
-    console.error('Error deleting user:', error);
     res.status(500).json({ message: 'Error deleting user' });
   }
 });
@@ -74,15 +64,11 @@ router.delete('/users/:id', async (req, res) => {
 // Update user status
 router.put('/users/:id/status', async (req, res) => {
   try {
-    const { id } = req.params;
     const { status } = req.body;
-    const result = await User.findByIdAndUpdate(id, { status }, { new: true });
-    if (!result) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.status(200).json({ message: 'User status updated successfully', user: result });
+    const { data, error } = await supabase.from('usersdata').update({ status }).eq('id', req.params.id).select().single();
+    if (error || !data) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json({ message: 'User status updated successfully', user: { ...data, _id: data.id } });
   } catch (error) {
-    console.error('Error updating user status:', error);
     res.status(500).json({ message: 'Error updating user status' });
   }
 });
@@ -93,16 +79,17 @@ router.get('/products', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const products = await Product.find().populate('seller').sort({ createdAt: -1 }).skip(skip).limit(limit);
-    const total = await Product.countDocuments();
+
+    const { count: total } = await supabase.from('productsdata').select('*', { count: 'exact', head: true });
+    const { data: products } = await supabase.from('productsdata').select('*, sellersdata(*)').order('created_at', { ascending: false }).range(skip, skip + limit - 1);
+
     res.json({
-      products,
+      products: (products || []).map(p => ({ ...p, _id: p.id, seller: p.sellersdata, discountPrice: p.discount_price, mainImage: p.main_image, inStock: p.in_stock })),
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalProducts: total
     });
   } catch (error) {
-    console.error('Error fetching products:', error);
     res.status(500).json({ message: 'Error fetching products' });
   }
 });
@@ -110,14 +97,10 @@ router.get('/products', async (req, res) => {
 // Delete a product
 router.delete('/products/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await Product.findByIdAndDelete(id);
-    if (!result) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
+    const { data, error } = await supabase.from('productsdata').delete().eq('id', req.params.id).select().single();
+    if (error || !data) return res.status(404).json({ message: 'Product not found' });
     res.status(200).json({ message: 'Product deleted successfully' });
   } catch (error) {
-    console.error('Error deleting product:', error);
     res.status(500).json({ message: 'Error deleting product' });
   }
 });
@@ -128,13 +111,15 @@ router.get('/sellers', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const sellers = await Seller.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
-    const total = await Seller.countDocuments();
-    const approvedCount = await Seller.countDocuments({ isApproved: true });
-    const pendingCount = await Seller.countDocuments({ isApproved: false });
+
+    const { count: total } = await supabase.from('sellersdata').select('*', { count: 'exact', head: true });
+    const { count: approvedCount } = await supabase.from('sellersdata').select('*', { count: 'exact', head: true }).eq('is_approved', true);
+    const { count: pendingCount } = await supabase.from('sellersdata').select('*', { count: 'exact', head: true }).eq('is_approved', false);
     
+    const { data: sellers } = await supabase.from('sellersdata').select('*').order('created_at', { ascending: false }).range(skip, skip + limit - 1);
+
     res.json({
-      sellers,
+      sellers: (sellers || []).map(s => ({ ...s, _id: s.id, isApproved: s.is_approved, storeName: s.store_name, confirmPassword: s.confirm_password, approvedAt: s.approved_at, createdAt: s.created_at })),
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalSellers: total,
@@ -142,7 +127,6 @@ router.get('/sellers', async (req, res) => {
       pendingSellers: pendingCount
     });
   } catch (error) {
-    console.error('Error fetching sellers:', error);
     res.status(500).json({ message: 'Error fetching sellers' });
   }
 });
@@ -150,14 +134,10 @@ router.get('/sellers', async (req, res) => {
 // Delete a seller
 router.delete('/sellers/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await Seller.findByIdAndDelete(id);
-    if (!result) {
-      return res.status(404).json({ message: 'Seller not found' });
-    }
+    const { data, error } = await supabase.from('sellersdata').delete().eq('id', req.params.id).select().single();
+    if (error || !data) return res.status(404).json({ message: 'Seller not found' });
     res.status(200).json({ message: 'Seller deleted successfully' });
   } catch (error) {
-    console.error('Error deleting seller:', error);
     res.status(500).json({ message: 'Error deleting seller' });
   }
 });
@@ -168,19 +148,12 @@ router.put('/sellers/:id/approve', async (req, res) => {
     const { id } = req.params;
     const { isApproved } = req.body;
     
-    const seller = await Seller.findById(id);
-    if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
-    }
+    const updateData = { is_approved: isApproved };
+    if (isApproved) updateData.approved_at = new Date();
 
-    const updateData = { isApproved };
-    if (isApproved) {
-      updateData.approvedAt = new Date();
-    }
-
-    const result = await Seller.findByIdAndUpdate(id, updateData, { new: true });
+    const { data: seller, error } = await supabase.from('sellersdata').update(updateData).eq('id', id).select().single();
+    if (error || !seller) return res.status(404).json({ message: 'Seller not found' });
     
-    // Send email notification to seller
     if (isApproved) {
       const subject = 'Account Approved - Voice Cart';
       const html = `
@@ -190,7 +163,7 @@ router.put('/sellers/:id/approve', async (req, res) => {
           <p>Congratulations! Your seller account has been approved by our admin team.</p>
           <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <h3 style="color: #444;">Account Details:</h3>
-            <p><strong>Store Name:</strong> ${seller.storeName}</p>
+            <p><strong>Store Name:</strong> ${seller.store_name}</p>
             <p><strong>Email:</strong> ${seller.email}</p>
             <p><strong>Approved On:</strong> ${new Date().toLocaleDateString()}</p>
           </div>
@@ -198,16 +171,14 @@ router.put('/sellers/:id/approve', async (req, res) => {
           <p>Best regards,<br>Voice Cart Admin Team</p>
         </div>
       `;
-      
       await sendEmail(seller.email, subject, 'Your account has been approved!', html);
     }
 
     res.status(200).json({ 
       message: `Seller ${isApproved ? 'approved' : 'rejected'} successfully`, 
-      seller: result 
+      seller: { ...seller, _id: seller.id, isApproved: seller.is_approved, storeName: seller.store_name }
     });
   } catch (error) {
-    console.error('Error updating seller approval:', error);
     res.status(500).json({ message: 'Error updating seller approval' });
   }
 });
@@ -215,17 +186,13 @@ router.put('/sellers/:id/approve', async (req, res) => {
 // Update seller status
 router.put('/sellers/:id/status', async (req, res) => {
   try {
-    const { id } = req.params;
     const { status } = req.body;
-    const result = await Seller.findByIdAndUpdate(id, { status }, { new: true });
-    if (!result) {
-      return res.status(404).json({ message: 'Seller not found' });
-    }
-    res.status(200).json({ message: 'Seller status updated successfully', seller: result });
+    const { data, error } = await supabase.from('sellersdata').update({ status }).eq('id', req.params.id).select().single();
+    if (error || !data) return res.status(404).json({ message: 'Seller not found' });
+    res.status(200).json({ message: 'Seller status updated successfully', seller: { ...data, _id: data.id } });
   } catch (error) {
-    console.error('Error updating seller status:', error);
     res.status(500).json({ message: 'Error updating seller status' });
   }
 });
 
-module.exports = router; 
+module.exports = router;

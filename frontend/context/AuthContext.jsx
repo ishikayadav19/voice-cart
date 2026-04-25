@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import axios from "axios";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
@@ -12,79 +12,99 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         // Check active session on mount
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                setUser(session.user);
-                fetchProfile(session.user.id);
-            } else {
-                setLoading(false);
+        const checkSession = () => {
+            const token = localStorage.getItem("token");
+            const storedUser = localStorage.getItem("user");
+            
+            if (token && storedUser) {
+                try {
+                    const parsedUser = JSON.parse(storedUser);
+                    setUser(parsedUser);
+                    setProfile(parsedUser);
+                } catch (e) {
+                    console.error("Error parsing stored user:", e);
+                }
             }
+            setLoading(false);
         };
 
         checkSession();
-
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (session) {
-                setUser(session.user);
-                fetchProfile(session.user.id);
-            } else {
-                setUser(null);
-                setProfile(null);
-                setLoading(false);
-            }
-        });
-
-        return () => subscription.unsubscribe();
     }, []);
 
-    const fetchProfile = async (userId) => {
-        try {
-            const { data, error } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("id", userId)
-                .single();
-
-            if (error) throw error;
-            setProfile(data);
-        } catch (error) {
-            console.error("Error fetching profile:", error);
-        } finally {
-            setLoading(false);
+    const login = async (email, password, role) => {
+        if (role === 'seller') {
+            try {
+                const res = await axios.post("http://localhost:5000/seller/login", { email, password });
+                const data = res.data;
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.seller));
+                setUser(data.seller);
+                setProfile(data.seller);
+                return data;
+            } catch (sellerError) {
+                throw new Error("Invalid login credentials");
+            }
+        } else if (role === 'user') {
+            try {
+                const res = await axios.post("http://localhost:5000/user/login", { email, password });
+                const data = res.data;
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
+                setUser(data.user);
+                setProfile(data.user);
+                return data;
+            } catch (userError) {
+                throw new Error("Invalid login credentials");
+            }
+        } else {
+            // Fallback trial-and-error for legacy calls
+            try {
+                const res = await axios.post("http://localhost:5000/user/login", { email, password });
+                const data = res.data;
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
+                setUser(data.user);
+                setProfile(data.user);
+                return data;
+            } catch (userError) {
+                try {
+                    const res = await axios.post("http://localhost:5000/seller/login", { email, password });
+                    const data = res.data;
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("user", JSON.stringify(data.seller));
+                    setUser(data.seller);
+                    setProfile(data.seller);
+                    return data;
+                } catch (sellerError) {
+                    throw new Error("Invalid login credentials");
+                }
+            }
         }
-    };
-
-    const login = async (email, password) => {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-        if (error) throw error;
-        return data;
     };
 
     const signup = async (email, password, metadata) => {
-        const { data, error } = await supabase.auth.signUp({
+        const endpoint = metadata.role === "seller" ? "/seller/add" : "/user/add";
+        const payload = {
             email,
             password,
-            options: {
-                data: metadata, // This goes to raw_user_meta_data for the trigger
-            },
-        });
-        if (error) throw error;
-        return data;
+            ...metadata
+        };
+        
+        try {
+            const response = await axios.post(`http://localhost:5000${endpoint}`, payload);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || "Registration failed");
+        }
     };
 
     const signOut = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            toast.error("Error signing out");
-        } else {
-            toast.success("Signed out successfully");
-            window.location.href = "/";
-        }
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+        setProfile(null);
+        toast.success("Signed out successfully");
+        window.location.href = "/";
     };
 
     return (

@@ -13,7 +13,6 @@ import { ShopProvider } from '@/context/ShopContext'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from "@/lib/supabase";
 
 const UserProfilePage = () => {
   const router = useRouter();
@@ -40,14 +39,11 @@ const UserProfilePage = () => {
 
     const fetchOrders = async () => {
       try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*, items:order_items(*)')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setOrders(data || []);
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5000/order/myorders', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setOrders(response.data || []);
       } catch (error) {
         console.error("Error fetching orders:", error);
         toast.error("Failed to load orders");
@@ -98,22 +94,23 @@ const UserProfilePage = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          name: editData.name,
-          phone: editData.phone,
-          city: editData.city
-        })
-        .eq('id', user.id);
-
-      if (error) throw error;
+      const token = localStorage.getItem('token');
+      const response = await axios.put('http://localhost:5000/user/profile', {
+        name: editData.name,
+        phone: editData.phone,
+        city: editData.city
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       toast.success("Profile updated successfully");
       setEditMode(false);
-      // AuthContext will automatically pick up the profile change due to onAuthStateChange or we might need to manually refresh if needed, 
-      // but usually fetching it on mount/update is enough. 
-      // Given our AuthContext fetches profile on user change, we might want to expose a refreshProfile function or rely on the single profile fetch logic there.
+      
+      // Update local storage so the auth context picks up the new details
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const updatedUser = { ...storedUser, ...response.data.user };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      
       window.location.reload(); // Quick way to sync profile for now
     } catch (error) {
       toast.error("Failed to update profile");
@@ -129,18 +126,15 @@ const UserProfilePage = () => {
       return;
     }
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: 'cancelled' })
-        .eq('id', orderId)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
+      const token = localStorage.getItem('token');
+      await axios.put(`http://localhost:5000/order/cancel/${orderId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       toast.success('Order cancelled successfully');
       // Update the order status in the UI
       setOrders((prevOrders) => prevOrders.map(order =>
-        order.id === orderId ? { ...order, status: 'cancelled' } : order
+        order._id === orderId ? { ...order, status: 'cancelled' } : order
       ));
     } catch (error) {
       toast.error('Failed to cancel order');
@@ -176,12 +170,6 @@ const UserProfilePage = () => {
                 />
               </div>
               <div className="absolute top-8 right-8 flex gap-2">
-                {/* <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors"
-                >
-                  Logout
-                </button> */}
                 <button
                   onClick={handleEditProfile}
                   className="flex items-center gap-1 text-rose-600 hover:text-rose-700 focus:outline-none"
@@ -262,19 +250,19 @@ const UserProfilePage = () => {
                 {orders.length > 0 ? (
                   <div className="divide-y divide-gray-200 mt-4">
                     {orders.map((order) => (
-                      <div key={order.id || order.order_number} className="py-4">
+                      <div key={order._id || order.orderNumber} className="py-4">
                         <div className="flex flex-wrap justify-between items-center">
                           <div>
-                            <div className="font-semibold text-gray-800">Order #{order.order_number}</div>
-                            <div className="text-sm text-gray-500">Order Date: {new Date(order.created_at).toLocaleString()}</div>
-                            <div className="text-sm text-gray-500">Delivery Date: {order.delivery_date ? new Date(order.delivery_date).toLocaleDateString() : "TBD"}</div>
+                            <div className="font-semibold text-gray-800">Order #{order.orderNumber}</div>
+                            <div className="text-sm text-gray-500">Order Date: {new Date(order.createdAt).toLocaleString()}</div>
+                            <div className="text-sm text-gray-500">Delivery Date: {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "TBD"}</div>
                             <div className="text-sm text-gray-600">Status: <span className="font-medium">{getOrderAggregateStatus(order)}</span></div>
-                            <div className="text-sm text-gray-600">Payment: <span className="font-medium">{order.payment_method}</span></div>
-                            <div className="text-sm text-gray-600">Shipping: {order.shipping_address?.address}, {order.shipping_address?.city}, {order.shipping_address?.state} {order.shipping_address?.zip_code}</div>
+                            <div className="text-sm text-gray-600">Payment: <span className="font-medium">{order.paymentMethod}</span></div>
+                            <div className="text-sm text-gray-600">Shipping: {order.shippingAddress?.address}, {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}</div>
                             <div className="mt-2">
                               <span className="font-medium">Items:</span>
                               <ul className="ml-4 list-disc text-sm">
-                                {order.items.map((item, idx) => (
+                                {order.items?.map((item, idx) => (
                                   <li key={idx}>
                                     {item.name} x{item.quantity} @ ₹{item.price} —
                                     <span className="font-semibold">
@@ -288,7 +276,7 @@ const UserProfilePage = () => {
                               {/* Cancel Order Button */}
                               {(order.status !== 'delivered' && order.status !== 'cancelled') && (
                                 <button
-                                  onClick={() => handleCancelOrder(order.id)}
+                                  onClick={() => handleCancelOrder(order._id)}
                                   className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded shadow text-sm"
                                 >
                                   Cancel Order
@@ -296,7 +284,7 @@ const UserProfilePage = () => {
                               )}
                               {/* View Details Button */}
                               <button
-                                onClick={() => handleViewOrderDetails(order.id)}
+                                onClick={() => handleViewOrderDetails(order._id)}
                                 className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded shadow text-sm"
                               >
                                 View Details
@@ -307,8 +295,8 @@ const UserProfilePage = () => {
                             </div>
                           </div>
                           <div className="text-right mt-2 md:mt-0">
-                            <div className="text-lg font-bold text-rose-600">₹{order.total_amount}</div>
-                            <div className="text-xs text-gray-400">{order.items.length} item(s)</div>
+                            <div className="text-lg font-bold text-rose-600">₹{order.totalAmount}</div>
+                            <div className="text-xs text-gray-400">{order.items?.length || 0} item(s)</div>
                           </div>
                         </div>
                       </div>
@@ -354,7 +342,7 @@ const UserProfilePage = () => {
                           value={editData.email}
                           onChange={handleEditChange}
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-rose-500 focus:border-rose-500"
-                          required
+                          disabled
                         />
                       </div>
                       <div>

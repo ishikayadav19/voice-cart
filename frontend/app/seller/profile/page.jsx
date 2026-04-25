@@ -20,7 +20,6 @@ import toast from "react-hot-toast"
 import SectionHeading from "../../components/SectionHeading"
 
 import { useAuth } from "@/context/AuthContext"
-import { supabase } from "@/lib/supabase"
 
 const ProfilePage = () => {
   const router = useRouter()
@@ -81,20 +80,23 @@ const ProfilePage = () => {
     }
     setIsSaving(true)
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          name: editProfile.name,
-          phone: editProfile.phone,
-          store_name: editProfile.storeName,
-          address: editProfile.address
-        })
-        .eq('id', user.id);
-
-      if (error) throw error;
+      const token = localStorage.getItem('token');
+      const response = await axios.put('http://localhost:5000/seller/profile', {
+        name: editProfile.name,
+        phone: editProfile.phone,
+        storeName: editProfile.storeName,
+        address: editProfile.address
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       toast.success("Profile updated successfully")
       setEditMode(false)
+
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const updatedUser = { ...storedUser, ...response.data.seller };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
       window.location.reload();
     } catch (error) {
       console.error("Error updating profile:", error)

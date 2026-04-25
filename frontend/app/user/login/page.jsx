@@ -29,7 +29,7 @@ const UserLoginPage = () => {
     setIsLoading(true)
 
     try {
-      await login(email, password)
+      await login(email, password, "user")
 
       setSuccess(true)
       toast.success('Login successful!')
