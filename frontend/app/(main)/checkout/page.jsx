@@ -128,7 +128,7 @@ const CheckoutPage = () => {
         // For now, we'll just call the backend create route for COD too for simplicity,
         // but in a real app, COD flow might differ significantly.
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/create`, orderDetails);
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/order/create`, orderDetails);
             if (response.data.success) {
                  // For COD, email might be sent immediately or on order fulfillment
                  // Depending on your backend logic, email might already be triggered by /api/orders/create for COD
@@ -151,7 +151,7 @@ const CheckoutPage = () => {
     // --- Razorpay Payment Integration ---
     try {
       // 1. Call backend to create Razorpay order
-      const { data: { orderId, amount, currency } } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/create`, orderDetails);
+      const { data: { orderId, amount, currency } } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/order/create`, orderDetails);
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Your Razorpay Key ID (Frontend Key)
@@ -167,7 +167,7 @@ const CheckoutPage = () => {
 
           // 2. Call backend to verify payment and send email
           try {
-            const verificationResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/verify-payment`, {
+            const verificationResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/order/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,

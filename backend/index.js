@@ -60,7 +60,10 @@ app.get('/update', (req, res) => {
 
 
 // starting a server
-app.listen(port,()=> {
-    console.log('server started');
-} /*callback*/);
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`server started on port ${port}`);
+    });
+}
 
+module.exports = app;

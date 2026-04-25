@@ -42,7 +42,7 @@ const ProductViewPage = () => {
 
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/product/${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reviews/product/${id}`);
         setReviews(response.data);
       } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -55,7 +55,7 @@ const ProductViewPage = () => {
         if (token) {
           setIsLoggedIn(true);
           const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/user/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/reviews/user/${id}`,
             {
               headers: { Authorization: `Bearer ${token}` }
             }
@@ -106,7 +106,7 @@ const ProductViewPage = () => {
       if (userReview && isEditing) {
         // Update existing review
         response = await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/update/${userReview._id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/reviews/update/${userReview._id}`,
           {
             rating: newReview.rating,
             comment: newReview.comment
@@ -121,7 +121,7 @@ const ProductViewPage = () => {
       } else {
         // Submit new review
         response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/submit`,
+          `${process.env.NEXT_PUBLIC_API_URL}/reviews/submit`,
           {
             productId: id,
             rating: newReview.rating,
@@ -170,7 +170,7 @@ const ProductViewPage = () => {
       const token = localStorage.getItem('usertoken') || sessionStorage.getItem('usertoken');
       
       await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/delete/${userReview._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/reviews/delete/${userReview._id}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }

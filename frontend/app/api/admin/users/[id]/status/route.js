@@ -1,34 +1,13 @@
 import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
 export async function PUT(request, { params }) {
   try {
-    const { id } = params;
-    const body = await request.json();
-    const { status } = body;
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/admin/users/${id}/status`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ status }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json(
-        { error: errorData.message || 'Failed to update user status' },
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    const { status } = await request.json();
+    const { data, error } = await supabase.from('usersdata').update({ status }).eq('id', params.id).select().single();
+    if (error || !data) return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    return NextResponse.json({ message: 'User status updated successfully', user: { ...data, _id: data.id } });
   } catch (error) {
-    console.error('Error updating user status:', error);
-    return NextResponse.json(
-      { error: 'Failed to update user status' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update user status' }, { status: 500 });
   }
-} 
+}

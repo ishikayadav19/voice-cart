@@ -1,31 +1,12 @@
 import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/api/admin/products/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json(
-        { error: errorData.message || 'Failed to delete product' },
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    const { data, error } = await supabase.from('productsdata').delete().eq('id', params.id).select().single();
+    if (error || !data) return NextResponse.json({ message: 'Product not found' }, { status: 404 });
+    return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {
-    console.error('Error deleting product:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete product' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });
   }
-} 
+}

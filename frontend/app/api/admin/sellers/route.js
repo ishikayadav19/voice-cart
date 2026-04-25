@@ -1,32 +1,28 @@
-export const dynamic = 'force-dynamic';
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = searchParams.get('page') || 1;
+    const page = parseInt(searchParams.get('page')) || 1;
+    const limit = parseInt(searchParams.get('limit')) || 10;
+    const skip = (page - 1) * limit;
+
+    const { count: total } = await supabase.from('sellersdata').select('*', { count: 'exact', head: true });
+    const { count: approvedCount } = await supabase.from('sellersdata').select('*', { count: 'exact', head: true }).eq('is_approved', true);
+    const { count: pendingCount } = await supabase.from('sellersdata').select('*', { count: 'exact', head: true }).eq('is_approved', false);
     
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const { data: sellers } = await supabase.from('sellersdata').select('*').order('created_at', { ascending: false }).range(skip, skip + limit - 1);
 
-    const response = await fetch(`${backendUrl}/api/admin/sellers?page=${page}`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store',
+    return NextResponse.json({
+      sellers: (sellers || []).map(s => ({ ...s, _id: s.id, isApproved: s.is_approved, storeName: s.store_name, confirmPassword: s.confirm_password, approvedAt: s.approved_at, createdAt: s.created_at })),
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalSellers: total,
+      approvedSellers: approvedCount,
+      pendingSellers: pendingCount
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Backend response error: ${response.status} - ${errorText}`);
-      throw new Error(`Failed to fetch sellers: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return Response.json(data);
   } catch (error) {
-    console.error('Error in sellers API route:', error);
-    return Response.json(
-      { message: `Error fetching sellers: ${error.message}` },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch sellers' }, { status: 500 });
   }
-} 
+}
