@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
   
   try {
     if (pathString === 'getall') {
-      const { data, error } = await supabase.from('productsdata').select('*');
+      const { data, error } = await supabase.from('productsdata').select('id, name, price, discount_price, category, main_image, in_stock, rating');
       if (error) throw error;
       const formatted = (data||[]).map(d => ({ ...d, _id: d.id, discountPrice: d.discount_price, mainImage: d.main_image, inStock: d.in_stock }));
       return NextResponse.json(formatted);

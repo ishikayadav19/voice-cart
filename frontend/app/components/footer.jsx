@@ -18,92 +18,95 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white pt-12 pb-6">
-      <div className="container mx-auto px-4">
+    <footer className="relative bg-[#030014] text-white pt-16 pb-8 border-t border-white/5 overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-rose-600/10 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="container mx-auto px-6 relative z-10">
         {/* Features */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 border-b border-gray-800 pb-12">
-          <div className="flex flex-col items-center text-center">
-            <Truck className="h-10 w-10 text-rose-500 mb-3" />
-            <h3 className="font-semibold text-lg mb-1">Free Shipping</h3>
-            <p className="text-gray-400 text-sm">On orders over $50</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 border-b border-white/10 pb-16">
+          <div className="flex flex-col items-center text-center group">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500 border border-white/10 shadow-[0_0_20px_rgba(225,29,72,0.1)]">
+              <Truck className="h-6 w-6 text-rose-500" />
+            </div>
+            <h3 className="font-medium tracking-wide text-lg mb-1">Free Shipping</h3>
+            <p className="text-gray-400 font-light text-sm">On elite orders over $50</p>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <ShieldCheck className="h-10 w-10 text-rose-500 mb-3" />
-            <h3 className="font-semibold text-lg mb-1">Secure Payment</h3>
-            <p className="text-gray-400 text-sm">100% secure payment</p>
+          <div className="flex flex-col items-center text-center group">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500 border border-white/10 shadow-[0_0_20px_rgba(225,29,72,0.1)]">
+              <ShieldCheck className="h-6 w-6 text-rose-500" />
+            </div>
+            <h3 className="font-medium tracking-wide text-lg mb-1">Secure Payment</h3>
+            <p className="text-gray-400 font-light text-sm">Military-grade encryption</p>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <CreditCard className="h-10 w-10 text-rose-500 mb-3" />
-            <h3 className="font-semibold text-lg mb-1">Easy Returns</h3>
-            <p className="text-gray-400 text-sm">30 day return policy</p>
+          <div className="flex flex-col items-center text-center group">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500 border border-white/10 shadow-[0_0_20px_rgba(225,29,72,0.1)]">
+              <CreditCard className="h-6 w-6 text-rose-500" />
+            </div>
+            <h3 className="font-medium tracking-wide text-lg mb-1">Easy Returns</h3>
+            <p className="text-gray-400 font-light text-sm">30-day effortless returns</p>
           </div>
-          <div className="flex flex-col items-center text-center">
-            <Clock className="h-10 w-10 text-rose-500 mb-3" />
-            <h3 className="font-semibold text-lg mb-1">24/7 Support</h3>
-            <p className="text-gray-400 text-sm">Customer support</p>
+          <div className="flex flex-col items-center text-center group">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500 border border-white/10 shadow-[0_0_20px_rgba(225,29,72,0.1)]">
+              <Clock className="h-6 w-6 text-rose-500" />
+            </div>
+            <h3 className="font-medium tracking-wide text-lg mb-1">24/7 Concierge</h3>
+            <p className="text-gray-400 font-light text-sm">Premium AI support</p>
           </div>
         </div>
 
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* About */}
           <div>
-            <h3 className="text-xl font-bold mb-4">VoiceCart</h3>
-            <p className="text-gray-400 mb-4">
-              VoiceCart is a revolutionary e-commerce platform that combines traditional shopping with voice-enabled
-              technology for a seamless shopping experience.
+            <div className="flex items-center mb-6">
+              <span className="text-3xl font-serif font-light text-transparent bg-clip-text bg-gradient-to-r from-white via-rose-100 to-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                VoiceCart
+              </span>
+            </div>
+            <p className="text-gray-400 font-light leading-relaxed mb-6">
+              The pinnacle of luxury e-commerce. Experience seamless, voice-activated shopping powered by cutting-edge artificial intelligence.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-rose-500 transition-colors">
-                <Facebook size={20} />
+            <div className="flex space-x-5">
+              <a href="#" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all">
+                <Facebook size={18} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-rose-500 transition-colors">
-                <Twitter size={20} />
+              <a href="#" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all">
+                <Twitter size={18} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-rose-500 transition-colors">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-rose-500 transition-colors">
-                <Youtube size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-rose-500 transition-colors">
-                <Linkedin size={20} />
+              <a href="#" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all">
+                <Instagram size={18} />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-serif font-light tracking-wide mb-6">Quick Links</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/" className="text-gray-400 hover:text-rose-500 transition-colors">
+                <Link href="/" className="text-gray-400 font-light hover:text-rose-400 transition-colors flex items-center">
+                  <span className="w-1 h-1 rounded-full bg-rose-500 mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/products" className="text-gray-400 hover:text-rose-500 transition-colors">
+                <Link href="/products" className="text-gray-400 font-light hover:text-rose-400 transition-colors flex items-center">
+                  <span className="w-1 h-1 rounded-full bg-rose-500 mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   Shop
                 </Link>
               </li>
               <li>
-                <Link href="/category/electronics" className="text-gray-400 hover:text-rose-500 transition-colors">
+                <Link href="/category/electronics" className="text-gray-400 font-light hover:text-rose-400 transition-colors flex items-center">
+                  <span className="w-1 h-1 rounded-full bg-rose-500 mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   Electronics
                 </Link>
               </li>
               <li>
-                <Link href="/category/fashion" className="text-gray-400 hover:text-rose-500 transition-colors">
+                <Link href="/category/fashion" className="text-gray-400 font-light hover:text-rose-400 transition-colors flex items-center">
+                  <span className="w-1 h-1 rounded-full bg-rose-500 mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   Fashion
-                </Link>
-              </li>
-              <li>
-                <Link href="/deals" className="text-gray-400 hover:text-rose-500 transition-colors">
-                  Deals
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-gray-400 hover:text-rose-500 transition-colors">
-                  Blog
                 </Link>
               </li>
             </ul>
@@ -111,35 +114,29 @@ const Footer = () => {
 
           {/* Customer Service */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Customer Service</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-serif font-light tracking-wide mb-6">Customer Service</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/contact" className="text-gray-400 hover:text-rose-500 transition-colors">
-                  Contact Us
+                <Link href="/contact" className="text-gray-400 font-light hover:text-rose-400 transition-colors flex items-center">
+                  <span className="w-1 h-1 rounded-full bg-rose-500 mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
+                  Contact Concierge
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-gray-400 hover:text-rose-500 transition-colors">
+                <Link href="/faq" className="text-gray-400 font-light hover:text-rose-400 transition-colors flex items-center">
+                  <span className="w-1 h-1 rounded-full bg-rose-500 mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   FAQs
                 </Link>
               </li>
               <li>
-                <Link href="/shipping" className="text-gray-400 hover:text-rose-500 transition-colors">
+                <Link href="/shipping" className="text-gray-400 font-light hover:text-rose-400 transition-colors flex items-center">
+                  <span className="w-1 h-1 rounded-full bg-rose-500 mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   Shipping & Delivery
                 </Link>
               </li>
               <li>
-                <Link href="/returns" className="text-gray-400 hover:text-rose-500 transition-colors">
-                  Returns & Exchanges
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-gray-400 hover:text-rose-500 transition-colors">
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="text-gray-400 hover:text-rose-500 transition-colors">
+                <Link href="/privacy" className="text-gray-400 font-light hover:text-rose-400 transition-colors flex items-center">
+                  <span className="w-1 h-1 rounded-full bg-rose-500 mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   Privacy Policy
                 </Link>
               </li>
@@ -148,54 +145,30 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-serif font-light tracking-wide mb-6">Contact Info</h3>
+            <ul className="space-y-4">
               <li className="flex items-start">
-                <MapPin className="h-5 w-5 text-rose-500 mr-2 mt-0.5" />
-                <span className="text-gray-400">123 Commerce Street, Tech City, TC 12345, United States</span>
+                <MapPin className="h-5 w-5 text-rose-500 mr-3 mt-0.5" strokeWidth={1.5} />
+                <span className="text-gray-400 font-light">123 Commerce Street, Tech City, TC 12345, United States</span>
               </li>
               <li className="flex items-center">
-                <Phone className="h-5 w-5 text-rose-500 mr-2" />
-                <span className="text-gray-400">+1 (555) 123-4567</span>
+                <Phone className="h-5 w-5 text-rose-500 mr-3" strokeWidth={1.5} />
+                <span className="text-gray-400 font-light">+1 (555) 123-4567</span>
               </li>
               <li className="flex items-center">
-                <Mail className="h-5 w-5 text-rose-500 mr-2" />
-                <span className="text-gray-400">support@voicecart.com</span>
+                <Mail className="h-5 w-5 text-rose-500 mr-3" strokeWidth={1.5} />
+                <span className="text-gray-400 font-light">support@voicecart.com</span>
               </li>
             </ul>
-
-            {/* Newsletter */}
-            <div className="mt-6">
-              <h4 className="text-sm font-semibold mb-2">Subscribe to our newsletter</h4>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-3 py-2 bg-gray-800 text-white rounded-l-md focus:outline-none focus:ring-1 focus:ring-rose-500"
-                />
-                <button className="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-r-md transition-colors">
-                  Subscribe
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Payment Methods */}
-        <div className="border-t border-gray-800 pt-6 pb-4">
-          <div className="flex flex-wrap justify-center gap-4 mb-4">
-            <img src="/placeholder.svg?height=30&width=50" alt="Visa" className="h-8" />
-            <img src="/placeholder.svg?height=30&width=50" alt="Mastercard" className="h-8" />
-            <img src="/placeholder.svg?height=30&width=50" alt="American Express" className="h-8" />
-            <img src="/placeholder.svg?height=30&width=50" alt="PayPal" className="h-8" />
-            <img src="/placeholder.svg?height=30&width=50" alt="Apple Pay" className="h-8" />
-            <img src="/placeholder.svg?height=30&width=50" alt="Google Pay" className="h-8" />
-          </div>
-
+        <div className="border-t border-white/10 pt-8 pb-4 flex flex-col md:flex-row items-center justify-center">
           {/* Copyright */}
-          <div className="text-center text-gray-500 text-sm">
+          <div className="text-center text-gray-500 text-sm font-light">
             <p>&copy; {new Date().getFullYear()} VoiceCart. All rights reserved.</p>
-            <p className="mt-1">Designed and developed with ❤️ for a better shopping experience.</p>
+            <p className="mt-1">Designed for the elite shopping experience.</p>
           </div>
         </div>
       </div>

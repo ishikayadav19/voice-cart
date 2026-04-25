@@ -7,6 +7,8 @@ import { VoiceProvider } from "../context/voiceContext";
 import VoiceAssistant from './components/voice-assistant'
 import { AuthProvider } from "../context/AuthContext";
 
+import SplashWrapper from "./components/SplashWrapper";
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
@@ -22,11 +24,13 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <VoiceProvider>
             <ShopProvider>
-              {children}
-              <Notification />
-              <div className="fixed bottom-6 right-6 z-50">
-                <VoiceAssistant />
-              </div>
+              <SplashWrapper>
+                {children}
+                <Notification />
+                <div className="fixed bottom-6 right-6 z-50">
+                  <VoiceAssistant />
+                </div>
+              </SplashWrapper>
             </ShopProvider>
           </VoiceProvider>
         </AuthProvider>

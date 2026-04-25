@@ -35,18 +35,18 @@ const CountdownTimer = ({ endTime }) => {
   }, [endTime]);
 
   return (
-    <div className="flex space-x-2">
-      <div className="bg-gray-200 px-2 py-1 rounded text-center">
-        <span className="font-mono font-bold">{String(timeLeft.hours).padStart(2, '0')}</span>
-        <p className="text-xs">Hours</p>
+    <div className="flex space-x-3">
+      <div className="bg-black/40 border border-white/10 px-3 py-2 rounded-lg text-center shadow-inner">
+        <span className="font-mono font-bold text-white text-lg">{String(timeLeft.hours).padStart(2, '0')}</span>
+        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Hours</p>
       </div>
-      <div className="bg-gray-200 px-2 py-1 rounded text-center">
-        <span className="font-mono font-bold">{String(timeLeft.minutes).padStart(2, '0')}</span>
-        <p className="text-xs">Mins</p>
+      <div className="bg-black/40 border border-white/10 px-3 py-2 rounded-lg text-center shadow-inner">
+        <span className="font-mono font-bold text-white text-lg">{String(timeLeft.minutes).padStart(2, '0')}</span>
+        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Mins</p>
       </div>
-      <div className="bg-gray-200 px-2 py-1 rounded text-center">
-        <span className="font-mono font-bold">{String(timeLeft.seconds).padStart(2, '0')}</span>
-        <p className="text-xs">Secs</p>
+      <div className="bg-black/40 border border-white/10 px-3 py-2 rounded-lg text-center shadow-inner">
+        <span className="font-mono font-bold text-white text-lg">{String(timeLeft.seconds).padStart(2, '0')}</span>
+        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Secs</p>
       </div>
     </div>
   );
