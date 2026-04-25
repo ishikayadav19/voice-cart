@@ -81,7 +81,7 @@ const ProfilePage = () => {
     setIsSaving(true)
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:5000/seller/profile', {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/seller/profile`, {
         name: editProfile.name,
         phone: editProfile.phone,
         storeName: editProfile.storeName,

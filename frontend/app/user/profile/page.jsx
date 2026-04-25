@@ -40,7 +40,7 @@ const UserProfilePage = () => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/order/myorders', {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/order/myorders`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setOrders(response.data || []);
@@ -95,7 +95,7 @@ const UserProfilePage = () => {
     setSaving(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put('http://localhost:5000/user/profile', {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
         name: editData.name,
         phone: editData.phone,
         city: editData.city
@@ -127,7 +127,7 @@ const UserProfilePage = () => {
     }
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/order/cancel/${orderId}`, {}, {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/order/cancel/${orderId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

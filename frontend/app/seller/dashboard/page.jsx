@@ -45,7 +45,7 @@ const SellerDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/seller/dashboard', {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/seller/dashboard`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
