@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password, role) => {
         if (role === 'seller') {
             try {
-                const res = await axios.post("http://localhost:5000/seller/login", { email, password });
+                const res = await axios.post("/api/seller/login", { email, password });
                 const data = res.data;
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.seller));
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
             }
         } else if (role === 'user') {
             try {
-                const res = await axios.post("http://localhost:5000/user/login", { email, password });
+                const res = await axios.post("/api/user/login", { email, password });
                 const data = res.data;
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
         } else {
             // Fallback trial-and-error for legacy calls
             try {
-                const res = await axios.post("http://localhost:5000/user/login", { email, password });
+                const res = await axios.post("/api/user/login", { email, password });
                 const data = res.data;
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }) => {
                 return data;
             } catch (userError) {
                 try {
-                    const res = await axios.post("http://localhost:5000/seller/login", { email, password });
+                    const res = await axios.post("/api/seller/login", { email, password });
                     const data = res.data;
                     localStorage.setItem("token", data.token);
                     localStorage.setItem("user", JSON.stringify(data.seller));
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }) => {
         };
         
         try {
-            const response = await axios.post(`http://localhost:5000${endpoint}`, payload);
+            const response = await axios.post(`/api${endpoint}`, payload);
             return response.data;
         } catch (error) {
             throw new Error(error.response?.data?.message || "Registration failed");
