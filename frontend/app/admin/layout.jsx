@@ -49,21 +49,21 @@ const AdminLayout = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#FAF9F6]">
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full bg-white shadow-lg transition-all duration-300 z-30
           ${isSidebarOpen ? 'w-64' : 'w-20'}`}
       >
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-4 border-b border-[#E5E0D8]">
           {isSidebarOpen ? (
-            <h1 className="text-xl font-bold text-rose-600">Admin Panel</h1>
+            <h1 className="text-xl font-serif text-[#1A1A1A] tracking-wider font-bold">Admin Panel</h1>
           ) : (
-            <h1 className="text-xl font-bold text-rose-600">AP</h1>
+            <h1 className="text-xl font-serif text-[#1A1A1A] tracking-wider font-bold">AP</h1>
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100"
+            className="p-2 rounded-lg hover:bg-[#FAF9F6] text-[#1A1A1A]"
           >
             {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -80,8 +80,8 @@ const AdminLayout = ({ children }) => {
                     href={item.path}
                     className={`flex items-center p-3 rounded-lg transition-colors
                       ${isActive 
-                        ? 'bg-rose-50 text-rose-600' 
-                        : 'text-gray-600 hover:bg-gray-50'
+                        ? 'bg-[#D4AF37]/10 text-[#D4AF37]' 
+                        : 'text-[#5C5C5C] hover:bg-[#FAF9F6] hover:text-[#1A1A1A]'
                       }`}
                   >
                     <Icon size={20} />
@@ -95,9 +95,9 @@ const AdminLayout = ({ children }) => {
           </ul>
         </nav>
 
-        <div className="absolute bottom-0 w-full p-4 border-t">
+        <div className="absolute bottom-0 w-full p-4 border-t border-[#E5E0D8]">
           <button
-            className="flex items-center w-full p-3 text-gray-600 rounded-lg hover:bg-gray-50"
+            className="flex items-center w-full p-3 text-[#5C5C5C] rounded-lg hover:bg-[#FAF9F6] hover:text-[#1A1A1A]"
             onClick={handleLogout}
           >
             <LogOut size={20} />

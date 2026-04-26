@@ -99,7 +99,7 @@ const UsersPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#D4AF37]"></div>
       </div>
     )
   }
@@ -110,7 +110,7 @@ const UsersPage = () => {
         <div className="text-red-500 mb-4">{error}</div>
         <button
           onClick={fetchUsers}
-          className="px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700"
+          className="px-4 py-2 bg-[#1A1A1A] text-white rounded-md hover:bg-[#D4AF37] transition-colors tracking-wider"
         >
           Retry
         </button>
@@ -123,8 +123,9 @@ const UsersPage = () => {
       <SectionHeading
         title="User Management"
         subtitle="Manage your platform's users"
-        colors={["#E11D48", "#7C3AED", "#E11D48"]}
+        colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
         animationSpeed={3}
+        className="font-serif text-[#1A1A1A]"
       />
 
       {/* Stats Cards */}
@@ -132,15 +133,15 @@ const UsersPage = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Total Users</p>
-              <h3 className="text-2xl font-bold mt-1">{stats.totalUsers}</h3>
+              <p className="text-[#5C5C5C] text-sm">Total Users</p>
+              <h3 className="text-2xl font-serif font-bold text-[#1A1A1A] mt-1">{stats.totalUsers}</h3>
             </div>
-            <div className="p-3 rounded-full bg-blue-500 bg-opacity-10">
-              <Users className="text-blue-500" size={24} />
+            <div className="p-3 rounded-full bg-[#D4AF37] bg-opacity-10">
+              <Users className="text-[#D4AF37]" size={24} />
             </div>
           </div>
         </motion.div>
@@ -149,12 +150,12 @@ const UsersPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Active Users</p>
-              <h3 className="text-2xl font-bold mt-1">{stats.activeUsers}</h3>
+              <p className="text-[#5C5C5C] text-sm">Active Users</p>
+              <h3 className="text-2xl font-serif font-bold text-[#1A1A1A] mt-1">{stats.activeUsers}</h3>
             </div>
             <div className="p-3 rounded-full bg-green-500 bg-opacity-10">
               <UserCheck className="text-green-500" size={24} />
@@ -166,12 +167,12 @@ const UsersPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Suspended Users</p>
-              <h3 className="text-2xl font-bold mt-1">{stats.suspendedUsers}</h3>
+              <p className="text-[#5C5C5C] text-sm">Suspended Users</p>
+              <h3 className="text-2xl font-serif font-bold text-[#1A1A1A] mt-1">{stats.suspendedUsers}</h3>
             </div>
             <div className="p-3 rounded-full bg-red-500 bg-opacity-10">
               <UserX className="text-red-500" size={24} />
@@ -188,9 +189,9 @@ const UsersPage = () => {
             placeholder="Search users by name, email, or city..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="pl-10 pr-4 py-2 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
           />
-          <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-[#7A7571]" />
         </div>
       </div>
 
@@ -198,49 +199,49 @@ const UsersPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-lg shadow-md overflow-hidden"
+        className="bg-white rounded-lg shadow-md border border-[#E5E0D8] overflow-hidden"
       >
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-[#E5E0D8]">
+          <thead className="bg-[#FAF9F6]">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                 User
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                 Contact
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                 Location
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                 Joined
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-[#E5E0D8]">
             {filteredUsers && filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
                 <motion.tr
                   key={user._id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="hover:bg-gray-50"
+                  className="hover:bg-[#FAF9F6] transition-colors"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
                         <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          <Users className="h-6 w-6 text-gray-500" />
+                          <Users className="h-6 w-6 text-[#7A7571]" />
                         </div>
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-[#1A1A1A]">
                           {user.name || 'N/A'}
                         </div>
                       </div>
@@ -248,20 +249,20 @@ const UsersPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                      <div className="text-sm text-gray-900">{user.email}</div>
+                      <Mail className="h-4 w-4 text-[#7A7571] mr-2" />
+                      <div className="text-sm text-[#1A1A1A]">{user.email}</div>
                     </div>
                     {user.phone && (
-                      <div className="text-sm text-gray-500 mt-1">{user.phone}</div>
+                      <div className="text-sm text-[#5C5C5C] mt-1">{user.phone}</div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{user.city || 'Not specified'}</div>
+                    <div className="text-sm text-[#1A1A1A]">{user.city || 'Not specified'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                      <div className="text-sm text-gray-500">
+                      <Calendar className="h-4 w-4 text-[#7A7571] mr-2" />
+                      <div className="text-sm text-[#5C5C5C]">
                         {new Date(user.createdAt).toLocaleDateString()}
                       </div>
                     </div>
@@ -294,7 +295,7 @@ const UsersPage = () => {
                       </button>
                       <button
                         onClick={() => handleDelete(user._id)}
-                        className="text-red-600 hover:text-red-900 p-1"
+                        className="text-red-600 hover:text-red-800 p-1 transition-colors"
                         title="Delete User"
                       >
                         <Trash2 size={16} />
@@ -305,7 +306,7 @@ const UsersPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                <td colSpan="6" className="px-6 py-4 text-center text-[#5C5C5C]">
                   {searchQuery ? 'No users found matching your search.' : 'No users found.'}
                 </td>
               </tr>
@@ -320,17 +321,17 @@ const UsersPage = () => {
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-3 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            className="px-3 py-2 border border-[#E5E0D8] rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FAF9F6] transition-colors text-[#1A1A1A]"
           >
             Previous
           </button>
-          <span className="px-3 py-2">
+          <span className="px-3 py-2 text-[#5C5C5C]">
             Page {currentPage} of {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-3 py-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            className="px-3 py-2 border border-[#E5E0D8] rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FAF9F6] transition-colors text-[#1A1A1A]"
           >
             Next
           </button>

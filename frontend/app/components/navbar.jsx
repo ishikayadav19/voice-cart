@@ -138,17 +138,17 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-[999] transition-all duration-500 ${isScrolled ? "bg-[#030014]/80 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] py-3" : "bg-transparent py-5"}`}
+      className={`fixed top-0 left-0 right-0 z-[999] transition-all duration-500 ${isScrolled ? "bg-white/95 backdrop-blur-2xl border-b border-[#E5E0D8] shadow-sm py-3" : "bg-transparent py-5"}`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center">
-              <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-purple-600">
+              <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6]">
                 VoiceCart
               </span>
-              <Mic className="ml-1 h-6 w-6 text-rose-600" />
+              <Mic className="ml-1 h-6 w-6 text-[#D4AF37]" />
             </div>
           </Link>
 
@@ -158,7 +158,7 @@ const Navbar = () => {
               <Link
                 key={category.name}
                 href={category.path}
-                className="text-gray-300 font-light tracking-widest text-xs uppercase hover:text-rose-400 transition-colors"
+                className="font-bold tracking-[0.15em] text-sm uppercase transition-colors text-[#1A1A1A] hover:text-[#D4AF37]"
               >
                 {category.name}
               </Link>
@@ -169,25 +169,25 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {/* Search */}
             <div className="hidden lg:block relative">
-              <form onSubmit={handleSearch} className="flex items-center bg-white/5 border border-white/10 backdrop-blur-md rounded-full px-4 py-2 hover:bg-white/10 transition-colors">
+              <form onSubmit={handleSearch} className={`flex items-center border backdrop-blur-md rounded-full px-4 py-2 transition-colors ${isScrolled ? "bg-white border-[#E5E0D8] hover:bg-[#FAF9F6]" : "bg-white/40 border-white/50 shadow-sm hover:bg-white/60"}`}>
                 <input
                   ref={searchInputRef}
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="bg-transparent border-none outline-none w-64 text-sm text-white placeholder-gray-500"
+                  className="bg-transparent border-none outline-none w-64 text-sm text-[#1A1A1A] placeholder-[#7A7571]"
                 />
                 <button
                   type="submit"
-                  className="p-1 text-gray-500 hover:text-rose-600"
+                  className="p-1 text-[#1A1A1A] hover:text-[#D4AF37]"
                 >
                   <Search className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={startVoiceSearch}
-                  className={`p-1 ${isVoiceListening ? "text-rose-600 animate-pulse" : "text-gray-500 hover:text-rose-600"}`}
+                  className={`p-1 ${isVoiceListening ? "text-[#D4AF37] animate-pulse" : "text-[#1A1A1A] hover:text-[#D4AF37]"}`}
                 >
                   <Mic className="h-4 w-4" />
                 </button>
@@ -197,42 +197,42 @@ const Navbar = () => {
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="lg:hidden p-2 text-gray-300 hover:text-rose-400 transition-colors"
+              className="lg:hidden p-2 transition-colors text-[#1A1A1A] hover:text-[#D4AF37]"
             >
               <Search className="h-5 w-5" />
             </button>
 
             {/* Mobile Search Popup */}
             {isSearchOpen && (
-              <div className="lg:hidden fixed inset-0 bg-[#030014]/95 backdrop-blur-3xl z-50 p-4 border-b border-white/10">
+              <div className="lg:hidden fixed inset-0 bg-[#FDFBF7]/95 backdrop-blur-3xl z-50 p-4 border-b border-[#E5E0D8]">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-serif font-light text-white">Search</h2>
+                  <h2 className="text-lg font-serif font-light text-[#1A1A1A]">Search</h2>
                   <button
                     onClick={() => setIsSearchOpen(false)}
-                    className="p-2 text-gray-400 hover:text-rose-400"
+                    className="p-2 text-[#5C5C5C] hover:text-[#D4AF37]"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
-                <form onSubmit={handleSearch} className="flex items-center bg-white/5 border border-white/10 rounded-full px-4 py-3">
+                <form onSubmit={handleSearch} className="flex items-center bg-white border border-[#E5E0D8] rounded-full px-4 py-3 shadow-sm">
                   <input
                     ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search products..."
-                    className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-500"
+                    className="flex-1 bg-transparent border-none outline-none text-[#1A1A1A] placeholder-[#7A7571]"
                   />
                   <button
                     type="submit"
-                    className="p-2 text-gray-400 hover:text-rose-400"
+                    className="p-2 text-[#5C5C5C] hover:text-[#D4AF37]"
                   >
                     <Search className="h-5 w-5" />
                   </button>
                   <button
                     type="button"
                     onClick={startVoiceSearch}
-                    className={`p-2 ${isVoiceListening ? "text-rose-500 animate-pulse drop-shadow-[0_0_10px_rgba(225,29,72,0.8)]" : "text-gray-400 hover:text-rose-400"}`}
+                    className={`p-2 ${isVoiceListening ? "text-[#D4AF37] animate-pulse drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]" : "text-[#5C5C5C] hover:text-[#D4AF37]"}`}
                   >
                     <Mic className="h-5 w-5" />
                   </button>
@@ -242,17 +242,17 @@ const Navbar = () => {
 
             {/* Wishlist */}
             <Link href="/wishlist">
-              <div className="relative p-2 text-gray-300 hover:text-rose-400 transition-colors">
+              <div className="relative p-2 transition-colors text-[#1A1A1A] hover:text-[#D4AF37]">
                 <Heart className="h-5 w-5" />
               </div>
             </Link>
 
             {/* Cart */}
             <Link href="/cart">
-              <div className="relative p-2 text-gray-300 hover:text-rose-400 transition-colors">
+              <div className="relative p-2 transition-colors text-[#1A1A1A] hover:text-[#D4AF37]">
                 <ShoppingCart className="h-5 w-5" />
                 {totalCartItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-rose-600 to-purple-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center shadow-[0_0_10px_rgba(225,29,72,0.5)]">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6] text-white text-xs rounded-full h-4 w-4 flex items-center justify-center shadow-sm">
                     {totalCartItems}
                   </span>
                 )}
@@ -260,14 +260,14 @@ const Navbar = () => {
             </Link>
 
             {/* Account */}
-            <div className="hidden sm:block p-2 text-gray-300 hover:text-rose-400 transition-colors cursor-pointer" onClick={handleProfileClick}>
+            <div className="hidden sm:block p-2 transition-colors cursor-pointer text-[#1A1A1A] hover:text-[#D4AF37]" onClick={handleProfileClick}>
               <User className="h-5 w-5" />
             </div>
 
             {isLoggedIn && (
               <button
                 onClick={handleLogout}
-                className="ml-2 px-4 py-2 border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors"
+                className="ml-2 px-4 py-2 border border-[#D4AF37] text-[#D4AF37] rounded-md hover:bg-[#FAF9F6] transition-colors"
               >
                 Logout
               </button>
@@ -277,12 +277,12 @@ const Navbar = () => {
             {!isLoggedIn && (
               <div className="hidden md:flex items-center space-x-3 ml-2">
                 <Link href="/login">
-                  <span className="px-5 py-2.5 border border-white/20 bg-white/5 text-white font-light tracking-widest uppercase text-xs rounded-full hover:bg-white/10 transition-colors">
+                  <span className={`px-5 py-2.5 border font-bold tracking-[0.15em] uppercase text-xs rounded-full transition-colors ${isScrolled ? "bg-white border-[#E5E0D8] text-[#1A1A1A] hover:bg-[#FAF9F6]" : "border-white/50 bg-white/40 shadow-sm text-[#1A1A1A] hover:bg-white/60"}`}>
                     Login
                   </span>
                 </Link>
                 <Link href="/signup">
-                  <span className="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-purple-600 text-white font-light tracking-widest uppercase text-xs rounded-full hover:shadow-[0_0_20px_rgba(225,29,72,0.4)] transition-all">
+                  <span className="px-5 py-2.5 bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6] text-white font-bold tracking-[0.15em] uppercase text-xs rounded-full hover:shadow-md transition-all">
                     Sign Up
                   </span>
                 </Link>
@@ -291,7 +291,7 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden p-2 text-gray-300 hover:text-rose-400 transition-colors ml-2"
+              className="lg:hidden p-2 transition-colors ml-2 text-[#1A1A1A] hover:text-[#D4AF37]"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -301,37 +301,37 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 py-6 border-t border-white/10 bg-[#030014]/95 backdrop-blur-3xl absolute left-0 right-0 px-6 shadow-2xl">
+          <div className="lg:hidden mt-4 py-6 border-t border-[#E5E0D8] bg-[#FDFBF7]/95 backdrop-blur-3xl absolute left-0 right-0 px-6 shadow-md">
             <nav className="flex flex-col space-y-6">
               {categories.map((category) => (
                 <Link
                   key={category.name}
                   href={category.path}
-                  className="text-gray-300 hover:text-white font-light tracking-widest text-sm uppercase transition-colors"
+                  className="text-[#1A1A1A] hover:text-[#D4AF37] font-medium tracking-widest text-sm uppercase transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {category.name}
                 </Link>
               ))}
-              <div className="pt-6 border-t border-white/10 flex flex-col space-y-4">
+              <div className="pt-6 border-t border-[#E5E0D8] flex flex-col space-y-4">
                 {isLoggedIn ? (
                   <>
-                    <span className="block px-4 py-3 border border-white/20 bg-white/5 text-white rounded-full text-center hover:bg-white/10 transition-colors cursor-pointer tracking-widest text-xs uppercase" onClick={() => { handleProfileClick(); setIsMobileMenuOpen(false); }}>
+                    <span className="block px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] rounded-full text-center hover:bg-[#FAF9F6] transition-colors cursor-pointer tracking-widest text-xs uppercase" onClick={() => { handleProfileClick(); setIsMobileMenuOpen(false); }}>
                       Profile
                     </span>
-                    <span className="block px-4 py-3 border border-rose-500/50 bg-rose-500/10 text-rose-400 rounded-full text-center hover:bg-rose-500/20 transition-colors cursor-pointer tracking-widest text-xs uppercase" onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}>
+                    <span className="block px-4 py-3 border border-[#E5E0D8] bg-[#FAF9F6] text-[#1A1A1A] rounded-full text-center hover:bg-[#E5E0D8] transition-colors cursor-pointer tracking-widest text-xs uppercase" onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}>
                       Logout
                     </span>
                   </>
                 ) : (
                   <>
                     <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                      <span className="block px-4 py-3 border border-white/20 bg-white/5 text-white rounded-full text-center hover:bg-white/10 transition-colors tracking-widest text-xs uppercase">
+                      <span className="block px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] rounded-full text-center hover:bg-[#FAF9F6] transition-colors tracking-widest text-xs uppercase">
                         Login
                       </span>
                     </Link>
                     <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                      <span className="block px-4 py-3 bg-gradient-to-r from-rose-600 to-purple-600 text-white rounded-full text-center hover:shadow-[0_0_20px_rgba(225,29,72,0.4)] transition-colors tracking-widest text-xs uppercase">
+                      <span className="block px-4 py-3 bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6] text-white rounded-full text-center hover:shadow-sm transition-colors tracking-widest text-xs uppercase">
                         Sign Up
                       </span>
                     </Link>

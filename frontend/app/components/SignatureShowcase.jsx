@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { BlurText } from './AnimatedText';
+import { ShinyText } from './ShinyText';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
@@ -37,8 +37,8 @@ export default function SignatureShowcase() {
   };
 
   return (
-    <section className="py-32 relative overflow-hidden bg-black/40">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-900/10 via-transparent to-transparent"></div>
+    <section className="py-32 relative overflow-hidden bg-[#FDFBF7]">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#D4AF37]/10 via-transparent to-transparent"></div>
       
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16">
@@ -46,23 +46,23 @@ export default function SignatureShowcase() {
           {/* Text Content */}
           <div className="lg:w-1/2">
             <div className="flex items-center space-x-3 mb-6">
-              <Sparkles className="text-amber-500 w-5 h-5" />
-              <span className="uppercase tracking-[0.3em] text-xs text-amber-500 font-bold">Product of the Month</span>
+              <Sparkles className="text-[#D4AF37] w-5 h-5" />
+              <span className="uppercase tracking-[0.3em] text-xs text-[#D4AF37] font-bold">Product of the Month</span>
             </div>
-            <BlurText 
+            <ShinyText 
               text="The Signature Aura Headset" 
-              className="text-4xl md:text-6xl font-serif font-light mb-6 leading-tight" 
+              className="text-4xl md:text-6xl font-serif font-light mb-6 leading-tight text-[#1A1A1A] drop-shadow-sm" 
             />
-            <p className="text-gray-400 text-lg font-light leading-relaxed mb-10 max-w-lg">
+            <p className="text-[#5C5C5C] text-lg font-light leading-relaxed mb-10 max-w-lg">
               Crafted from aerospace-grade aluminum and wrapped in hand-stitched vegan leather. Experience acoustic perfection combined with our built-in Voice Cart AI integration.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-5">
-              <button className="px-8 py-4 bg-white text-black rounded-full font-medium tracking-wide uppercase text-sm hover:scale-105 transition-transform flex items-center justify-center space-x-2">
+              <button className="px-8 py-4 bg-[#1A1A1A] text-white rounded-full font-medium tracking-wide uppercase text-sm hover:scale-105 transition-transform flex items-center justify-center space-x-2">
                 <span>Shop Now - ₹24,999</span>
                 <ArrowRight size={16} />
               </button>
-              <button className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-full font-medium tracking-wide uppercase text-sm hover:bg-white/10 transition-colors">
+              <button className="px-8 py-4 bg-white border border-[#E5E0D8] text-[#1A1A1A] rounded-full font-medium tracking-wide uppercase text-sm hover:bg-[#FAF9F6] transition-colors shadow-sm">
                 View Details
               </button>
             </div>
@@ -82,36 +82,36 @@ export default function SignatureShowcase() {
               className="relative w-full aspect-square md:aspect-video lg:aspect-square max-w-lg mx-auto rounded-3xl cursor-pointer group"
             >
               {/* Outer Glowing Border */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-500/30 to-purple-500/30 blur-md transition-opacity duration-500 group-hover:opacity-100 opacity-50"></div>
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#D4AF37]/40 to-[#E6B9A6]/40 blur-md transition-opacity duration-500 group-hover:opacity-100 opacity-50"></div>
               
               {/* Card Body */}
               <div 
                 style={{ transform: "translateZ(50px)" }}
-                className="absolute inset-0 bg-[#0a0515]/80 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center"
+                className="absolute inset-0 bg-white/90 backdrop-blur-xl border border-[#E5E0D8] rounded-3xl overflow-hidden shadow-sm flex items-center justify-center"
               >
                 {/* Background glow inside card */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/20 blur-[80px] rounded-full"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#D4AF37]/20 blur-[80px] rounded-full"></div>
                 
                 {/* Floating Image element */}
                 <motion.div 
                   style={{ transform: "translateZ(100px)" }}
                   className="relative z-10 w-3/4 h-3/4 flex items-center justify-center"
                 >
-                  <div className="w-full h-full bg-gradient-to-tr from-gray-800 to-gray-600 rounded-full flex items-center justify-center opacity-20 absolute animate-pulse"></div>
+                  <div className="w-full h-full bg-gradient-to-tr from-[#FAF9F6] to-[#E5E0D8] rounded-full flex items-center justify-center opacity-30 absolute animate-pulse"></div>
                   <img 
                     src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop" 
                     alt="Signature Headset" 
-                    className="w-full h-full object-contain filter drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)] transform -rotate-12 group-hover:rotate-0 transition-transform duration-700"
+                    className="w-full h-full object-contain filter drop-shadow-[0_20px_30px_rgba(0,0,0,0.1)] transform -rotate-12 group-hover:rotate-0 transition-transform duration-700 mix-blend-multiply"
                   />
                 </motion.div>
                 
                 {/* Floating Badge */}
                 <div 
                   style={{ transform: "translateZ(150px)" }}
-                  className="absolute bottom-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl shadow-xl"
+                  className="absolute bottom-8 right-8 bg-white/80 backdrop-blur-md border border-[#E5E0D8] p-4 rounded-2xl shadow-sm"
                 >
-                  <p className="text-xs text-gray-300 uppercase tracking-widest mb-1">Stock Level</p>
-                  <p className="text-xl font-bold text-amber-500">Only 5 Left</p>
+                  <p className="text-xs text-[#7A7571] uppercase tracking-widest mb-1">Stock Level</p>
+                  <p className="text-xl font-bold text-[#D4AF37]">Only 5 Left</p>
                 </div>
               </div>
             </motion.div>

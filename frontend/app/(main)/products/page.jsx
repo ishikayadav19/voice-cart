@@ -142,20 +142,20 @@ const ProductsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAF9F6]">
       <Navbar />
 
       {/* Banner Section */}
-      <div className="relative  h-64 bg-gradient-to-r from-rose-500 to-purple-600 mb-8">
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      <div className="relative h-64 bg-gradient-to-r from-[#D4AF37]/20 to-[#E6B9A6]/20 mb-8 overflow-hidden">
+        <div className="absolute inset-0 bg-[#FAF9F6]/40 backdrop-blur-sm"></div>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center mt-8  text-white">
+          <div className="text-center mt-8 text-[#1A1A1A]">
             <SectionHeading
               title="All Products"
               subtitle="Discover our amazing collection of products"
-              colors={["#ffffff", "#f0f0f0", "#ffffff", "#f0f0f0"]}
+              colors={["#1A1A1A", "#D4AF37", "#1A1A1A"]}
               animationSpeed={4}
-              className="text-4xl font-bold mb-2"
+              className="text-4xl font-serif mb-2"
             />
           </div>
         </div>
@@ -174,15 +174,15 @@ const ProductsPage = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search products..."
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="w-full px-4 py-2 pl-10 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-[#1A1A1A]"
                   />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#7A7571]" size={20} />
                 </div>
               </form>
 
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-300 ${isFilterOpen ? 'bg-rose-600 text-white' : 'bg-white hover:bg-gray-50'
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm transition-all duration-300 border border-[#E5E0D8] ${isFilterOpen ? 'bg-[#D4AF37] text-white' : 'bg-white hover:bg-[#FDFBF7] text-[#1A1A1A]'
                   }`}
               >
                 <Filter size={20} />
@@ -192,11 +192,11 @@ const ProductsPage = () => {
 
             {/* Right side - Sort Options */}
             <div className="flex items-center gap-4">
-              <span className="text-gray-600">Sort by:</span>
+              <span className="text-[#5C5C5C]">Sort by:</span>
               <select
                 value={filters.sortBy}
                 onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                className="px-4 py-2 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500 border border-gray-200"
+                className="px-4 py-2 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37] border border-[#E5E0D8] text-[#1A1A1A]"
               >
                 <option value="featured">Featured</option>
                 <option value="price-low">Price: Low to High</option>
@@ -206,7 +206,7 @@ const ProductsPage = () => {
             </div>
           </div>
 
-          <p className="text-gray-600">
+          <p className="text-[#5C5C5C]">
             Showing {products.length} products
           </p>
         </div>
@@ -214,9 +214,9 @@ const ProductsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Filter Sidebar */}
           {isFilterOpen && (
-            <div className="md:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="md:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-[#E5E0D8]">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold text-gray-800">Filters</h2>
+                <h2 className="text-lg font-serif text-[#1A1A1A]">Filters</h2>
                 <button
                   onClick={() => {
                     setFilters({
@@ -227,7 +227,7 @@ const ProductsPage = () => {
                       sortBy: 'featured'
                     });
                   }}
-                  className="text-sm text-rose-500 hover:text-rose-600 font-medium"
+                  className="text-sm text-[#D4AF37] hover:text-[#C5A030] font-medium"
                 >
                   Clear All
                 </button>
@@ -235,7 +235,7 @@ const ProductsPage = () => {
 
               {/* Price Range */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Price Range</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Price Range</h3>
                 <input
                   type="range"
                   min="0"
@@ -245,7 +245,7 @@ const ProductsPage = () => {
                   onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
                   className="w-full"
                 />
-                <div className="flex justify-between text-sm text-gray-600 mt-2">
+                <div className="flex justify-between text-sm text-[#5C5C5C] mt-2">
                   <span>{formatPrice(filters.priceRange[0])}</span>
                   <span>{formatPrice(filters.priceRange[1])}</span>
                 </div>
@@ -253,7 +253,7 @@ const ProductsPage = () => {
 
               {/* Brands */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Brands</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Brands</h3>
                 <div className="space-y-2">
                   {getBrands().map((brand) => (
                     <label key={brand} className="flex items-center space-x-2 cursor-pointer">
@@ -261,9 +261,9 @@ const ProductsPage = () => {
                         type="checkbox"
                         checked={filters.brands.includes(brand)}
                         onChange={() => toggleBrandFilter(brand)}
-                        className="w-4 h-4 rounded text-rose-500 focus:ring-rose-500 border-gray-300"
+                        className="w-4 h-4 rounded text-[#D4AF37] focus:ring-[#D4AF37] border-[#E5E0D8]"
                       />
-                      <span className="text-gray-700">{brand}</span>
+                      <span className="text-[#5C5C5C]">{brand}</span>
                     </label>
                   ))}
                 </div>
@@ -271,11 +271,11 @@ const ProductsPage = () => {
 
               {/* Rating Filter */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Rating</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Rating</h3>
                 <select
                   value={filters.rating}
                   onChange={(e) => handleFilterChange('rating', Number(e.target.value))}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full p-2 border border-[#E5E0D8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-[#1A1A1A]"
                 >
                   <option value="0">All Ratings</option>
                   <option value="4">4+ Stars</option>
@@ -291,9 +291,9 @@ const ProductsPage = () => {
                     type="checkbox"
                     checked={filters.availability}
                     onChange={(e) => handleFilterChange('availability', e.target.checked)}
-                    className="w-4 h-4 rounded text-rose-500 focus:ring-rose-500 border-gray-300"
+                    className="w-4 h-4 rounded text-[#D4AF37] focus:ring-[#D4AF37] border-[#E5E0D8]"
                   />
-                  <span className="text-gray-700">In Stock Only</span>
+                  <span className="text-[#5C5C5C]">In Stock Only</span>
                 </label>
               </div>
             </div>
@@ -319,9 +319,9 @@ const ProductsPage = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-8">
-                <SlidersHorizontal className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-800 mb-2">No products found</h3>
-                <p className="text-gray-600 mb-4">Try adjusting your filters or search criteria.</p>
+                <SlidersHorizontal className="h-12 w-12 text-[#E5E0D8] mx-auto mb-4" />
+                <h3 className="text-lg font-serif text-[#1A1A1A] mb-2">No products found</h3>
+                <p className="text-[#5C5C5C] mb-4">Try adjusting your filters or search criteria.</p>
                 <button
                   onClick={() => {
                     setFilters({
@@ -332,7 +332,7 @@ const ProductsPage = () => {
                       sortBy: 'featured'
                     });
                   }}
-                  className="px-4 py-2 bg-rose-500 text-white rounded-md hover:bg-rose-600 transition-colors"
+                  className="px-4 py-2 bg-[#D4AF37] text-white rounded-md hover:bg-[#C5A030] transition-colors"
                 >
                   Clear Filters
                 </button>
@@ -344,7 +344,7 @@ const ProductsPage = () => {
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-8">
-            <Infinity size="30" speed="2.5" color="#E11D48" />
+            <Infinity size="30" speed="2.5" color="#D4AF37" />
           </div>
         )}
 
@@ -352,8 +352,8 @@ const ProductsPage = () => {
         {products.length === 0 && !loading && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">No products found</h3>
-            <p className="text-gray-600">Try adjusting your filters or search criteria.</p>
+            <h3 className="text-xl font-serif text-[#1A1A1A] mb-2">No products found</h3>
+            <p className="text-[#5C5C5C]">Try adjusting your filters or search criteria.</p>
           </div>
         )}
       </main>

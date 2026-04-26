@@ -108,17 +108,17 @@ const OrdersPage = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-[#FCD34D]/20 text-[#D97706]"
       case "processing":
-        return "bg-blue-100 text-blue-800"
+        return "bg-[#3B82F6]/10 text-[#3B82F6]"
       case "shipped":
-        return "bg-purple-100 text-purple-800"
+        return "bg-[#D4AF37]/20 text-[#D4AF37]"
       case "delivered":
-        return "bg-green-100 text-green-800"
+        return "bg-[#D4AF37]/20 text-[#D4AF37]"
       case "cancelled":
-        return "bg-red-100 text-red-800"
+        return "bg-[#E11D48]/10 text-[#E11D48]"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-[#FAF9F6] text-[#5C5C5C] border border-[#E5E0D8]"
     }
   }
 
@@ -167,7 +167,7 @@ const OrdersPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 p-8 mt-8 bg-gray-50">
+      <main className="flex-1 p-8 mt-8 bg-[#FAF9F6]">
         <div className="max-w-7xl mx-auto space-y-8 ">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -178,9 +178,9 @@ const OrdersPage = () => {
             <SectionHeading
               title="Order Management"
               subtitle="Track and manage your customer orders"
-              colors={["#E11D48", "#7C3AED", "#E11D48"]}
+              colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
               animationSpeed={3}
-              className="text-3xl font-bold text-center"
+              className="text-3xl font-serif text-[#1A1A1A] text-center"
               align="center"
             />
           </motion.div>
@@ -190,18 +190,18 @@ const OrdersPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-white rounded-xl shadow-sm p-6"
+            className="bg-white rounded-xl shadow-sm border border-[#E5E0D8] p-6"
           >
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative group">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#7A7571] group-hover:text-[#D4AF37] transition-colors" />
                   <input
                     type="text"
                     placeholder="Search orders by ID or customer name..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                    className="w-full pl-10 pr-4 py-3 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                   />
                 </div>
               </div>
@@ -209,7 +209,7 @@ const OrdersPage = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                  className="px-4 py-3 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                 >
                   <option value="all">All Status</option>
                   <option value="pending">Pending</option>
@@ -221,7 +221,7 @@ const OrdersPage = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                  className="px-4 py-3 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                 >
                   <option value="date">Date</option>
                   <option value="amount">Amount</option>
@@ -231,7 +231,7 @@ const OrdersPage = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                  className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="p-3 border border-[#E5E0D8] rounded-lg hover:bg-[#FAF9F6] transition-colors"
                 >
                   <ArrowUpDown className="h-5 w-5" />
                 </motion.button>
@@ -245,40 +245,40 @@ const OrdersPage = () => {
               animate={{ opacity: 1 }}
               className="flex justify-center items-center h-64"
             >
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37]"></div>
             </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white rounded-xl shadow-sm overflow-hidden"
+              className="bg-white rounded-xl shadow-sm border border-[#E5E0D8] overflow-hidden"
             >
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-[#E5E0D8]">
+                  <thead className="bg-[#FAF9F6]">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                         Order ID
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                         Customer
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                         Amount
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                         Date
                       </th>
-                      <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-right text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-[#E5E0D8]">
                     <AnimatePresence>
                       {filteredOrders.map((order, index) => (
                         <motion.tr
@@ -287,15 +287,15 @@ const OrdersPage = () => {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.05 }}
                           exit={{ opacity: 0, y: -20 }}
-                          className="hover:bg-gray-50 transition-colors"
+                          className="hover:bg-[#FAF9F6] transition-colors"
                         >
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#1A1A1A]">
                             #{order._id.slice(-6)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5C5C5C]">
                             {order.customerName}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5C5C5C]">
                             ₹{order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -305,7 +305,7 @@ const OrdersPage = () => {
                               {getOrderAggregateStatus(order)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5C5C5C]">
                             {new Date(order.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -313,7 +313,7 @@ const OrdersPage = () => {
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => router.push(`/seller/orders/${order._id}`)}
-                              className="text-rose-600 hover:text-rose-900 mr-4 transition-colors"
+                              className="text-[#D4AF37] hover:text-[#C5A030] mr-4 transition-colors"
                               title="View Order Details"
                             >
                               <Eye className="h-5 w-5" />
@@ -321,7 +321,7 @@ const OrdersPage = () => {
                             {/* Per-item actions */}
                             {order.items.map((item, idx) => (
                               <span key={item._id || idx} className="inline-flex items-center gap-2 ml-2">
-                                <span className="text-xs text-gray-500">{item.name} x{item.quantity}</span>
+                                <span className="text-xs text-[#5C5C5C]">{item.name} x{item.quantity}</span>
                                 <select
                                   value={item.status}
                                   onChange={e => handleStatusUpdate(order._id, item._id, e.target.value)}
@@ -332,7 +332,7 @@ const OrdersPage = () => {
                                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                                   ))}
                                 </select>
-                                <span className={`ml-1 text-xs ${item.status === 'shipped' ? 'text-green-600' : item.status === 'delivered' ? 'text-green-700' : item.status === 'cancelled' ? 'text-red-600' : 'text-gray-500'}`}>{item.status}</span>
+                                <span className={`ml-1 text-xs ${item.status === 'shipped' ? 'text-[#D4AF37]' : item.status === 'delivered' ? 'text-[#D4AF37]' : item.status === 'cancelled' ? 'text-[#E11D48]' : 'text-[#5C5C5C]'}`}>{item.status}</span>
                               </span>
                             ))}
                           </td>

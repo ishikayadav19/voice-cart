@@ -62,7 +62,7 @@ const ProductsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAF9F6]">
       <Navbar />
 
       <main className="pt-24 pb-12">
@@ -75,8 +75,9 @@ const ProductsPage = () => {
             <SectionHeading
               title="My Products"
               subtitle="Manage your product inventory"
-              colors={["#E11D48", "#7C3AED", "#E11D48"]}
+              colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
               animationSpeed={3}
+              className="font-serif text-[#1A1A1A]"
             />
           </motion.div>
 
@@ -91,13 +92,13 @@ const ProductsPage = () => {
               <input
                 type="text"
                 placeholder="Search products..."
-                className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                className="pl-10 pr-4 py-2 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
               />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-2.5 h-5 w-5 text-[#7A7571]" />
             </div>
             <Link
               href="/seller/addproduct"
-              className="flex items-center gap-2 bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700 transition-colors"
+              className="flex items-center gap-2 bg-[#1A1A1A] text-white px-4 py-2 rounded-lg hover:bg-[#D4AF37] transition-colors tracking-wider font-semibold"
             >
               <Plus size={20} />
               Add New Product
@@ -107,7 +108,7 @@ const ProductsPage = () => {
           {/* Products Grid */}
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <Infinity size="30" speed="2.5" color="#E11D48" />
+              <Infinity size="30" speed="2.5" color="#D4AF37" />
             </div>
           ) : (
             <motion.div
@@ -141,13 +142,13 @@ const ProductsPage = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="text-center py-12"
             >
-              <div className="bg-white rounded-xl p-8 shadow-lg">
-                <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">No Products Found</h3>
-                <p className="text-gray-600 mb-6">Start by adding your first product to your store.</p>
+              <div className="bg-white rounded-xl p-8 shadow-lg border border-[#E5E0D8]">
+                <Package className="h-16 w-16 text-[#7A7571] mx-auto mb-4" />
+                <h3 className="text-xl font-serif text-[#1A1A1A] mb-2">No Products Found</h3>
+                <p className="text-[#5C5C5C] mb-6">Start by adding your first product to your store.</p>
                 <Link
                   href="/seller/addproduct"
-                  className="inline-flex items-center gap-2 bg-rose-600 text-white px-6 py-3 rounded-lg hover:bg-rose-700 transition-colors"
+                  className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-6 py-3 rounded-lg hover:bg-[#D4AF37] transition-colors tracking-wider font-semibold"
                 >
                   <Plus size={20} />
                   Add New Product

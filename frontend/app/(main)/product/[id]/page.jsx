@@ -236,18 +236,18 @@ const ProductViewPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAF9F6]">
       <Navbar />
       
       {/* Breadcrumb */}
-      <div className="bg-white border-b mt-16">
+      <div className="bg-white border-b border-[#E5E0D8] mt-16">
         <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center text-sm text-gray-600">
-            <a href="/" className="hover:text-rose-600">Home</a>
+          <div className="flex items-center text-sm text-[#5C5C5C]">
+            <a href="/" className="hover:text-[#D4AF37]">Home</a>
             <ChevronRight size={16} className="mx-2" />
-            <a href={`/category/${product.category}`} className="hover:text-rose-600 capitalize">{product.category}</a>
+            <a href={`/category/${product.category}`} className="hover:text-[#D4AF37] capitalize">{product.category}</a>
             <ChevronRight size={16} className="mx-2" />
-            <span className="text-gray-800">{product.name}</span>
+            <span className="text-[#1A1A1A]">{product.name}</span>
           </div>
         </div>
       </div>
@@ -259,7 +259,7 @@ const ProductViewPage = () => {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl shadow-sm overflow-hidden"
+              className="bg-white rounded-xl shadow-sm border border-[#E5E0D8] overflow-hidden group"
             >
               <img 
                 src={selectedImage || product.mainImage || (product.images && product.images[0]) || "/placeholder.svg"} 
@@ -274,8 +274,8 @@ const ProductViewPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer transition-all duration-300 ${
-                    selectedImage === image ? 'ring-2 ring-rose-500' : 'hover:ring-2 hover:ring-gray-300'
+                  className={`bg-white rounded-lg shadow-sm border border-[#E5E0D8] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 ${
+                    selectedImage === image ? 'ring-2 ring-[#D4AF37]' : 'hover:ring-2 hover:ring-[#E5E0D8]'
                   }`}
                   onClick={() => setSelectedImage(image)}
                 >
@@ -290,8 +290,8 @@ const ProductViewPage = () => {
           </div>
 
           {/* Product Details */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">{product.name}</h1>
+          <div className="bg-white rounded-xl shadow-sm border border-[#E5E0D8] p-6">
+            <h1 className="text-3xl font-serif text-[#1A1A1A] mb-4">{product.name}</h1>
             
             {/* Rating and Reviews */}
             <div className="flex items-center mb-4">
@@ -303,9 +303,9 @@ const ProductViewPage = () => {
                     className={i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "text-gray-300"}
                   />
                 ))}
-                <span className="ml-2 text-gray-600">({product.reviews} reviews)</span>
+                <span className="ml-2 text-[#5C5C5C]">({product.reviews} reviews)</span>
               </div>
-              <button className="ml-4 text-rose-600 hover:text-rose-700 flex items-center">
+              <button className="ml-4 text-[#D4AF37] hover:text-[#C5A030] flex items-center">
                 <MessageSquare size={16} className="mr-1" />
                 Write a Review
               </button>
@@ -315,14 +315,14 @@ const ProductViewPage = () => {
             <div className="mb-6">
               {product.discountPrice ? (
                 <div className="flex items-center gap-4">
-                  <span className="text-3xl font-bold text-rose-600">₹{product.discountPrice.toFixed(2)}</span>
-                  <span className="text-xl line-through text-gray-500">₹{product.price.toFixed(2)}</span>
-                  <span className="bg-rose-100 text-rose-600 px-2 py-1 rounded text-sm font-medium">
+                  <span className="text-3xl font-serif text-[#1A1A1A]">₹{product.discountPrice.toFixed(2)}</span>
+                  <span className="text-xl line-through text-[#5C5C5C]">₹{product.price.toFixed(2)}</span>
+                  <span className="bg-[#D4AF37]/10 text-[#D4AF37] px-2 py-1 rounded text-sm font-medium border border-[#D4AF37]/20">
                     {Math.round(((product.price - product.discountPrice) / product.price) * 100)}% OFF
                   </span>
                 </div>
               ) : (
-                <span className="text-3xl font-bold text-gray-800">₹{product.price.toFixed(2)}</span>
+                <span className="text-3xl font-serif text-[#1A1A1A]">₹{product.price.toFixed(2)}</span>
               )}
             </div>
 
@@ -336,14 +336,13 @@ const ProductViewPage = () => {
               </div>
             </div>
 
-            {/* Quantity Selector */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+              <label className="block text-sm font-medium text-[#1A1A1A] mb-2">Quantity</label>
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => handleQuantityChange(quantity - 1)}
                   disabled={quantity <= 1}
-                  className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  className="w-8 h-8 flex items-center justify-center border border-[#E5E0D8] rounded-md hover:bg-[#FDFBF7] disabled:opacity-50 text-[#1A1A1A]"
                 >
                   -
                 </button>
@@ -353,12 +352,12 @@ const ProductViewPage = () => {
                   onChange={(e) => handleQuantityChange(parseInt(e.target.value))}
                   min="1"
                   max={product.stock}
-                  className="w-16 text-center border border-gray-300 rounded-md py-1"
+                  className="w-16 text-center border border-[#E5E0D8] rounded-md py-1 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
                 />
                 <button
                   onClick={() => handleQuantityChange(quantity + 1)}
                   disabled={quantity >= product.stock}
-                  className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  className="w-8 h-8 flex items-center justify-center border border-[#E5E0D8] rounded-md hover:bg-[#FDFBF7] disabled:opacity-50 text-[#1A1A1A]"
                 >
                   +
                 </button>
@@ -368,17 +367,17 @@ const ProductViewPage = () => {
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mb-6">
               <button
-                className={`flex-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                className={`flex-1 bg-[#1A1A1A] hover:bg-[#D4AF37] text-white font-semibold tracking-wider py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 ${
                   isInCart ? "opacity-60 cursor-not-allowed" : ""
                 }`}
                 onClick={() => addToCart({ ...product, id: product._id, quantity })}
                 disabled={isInCart || product.stock <= 0}
               >
                 <ShoppingCart size={20} />
-                {isInCart ? "In Cart" : "Add to Cart"}
+                {isInCart ? "In Cart" : "ADD TO CART"}
               </button>
               <button
-                className={`flex-1 bg-white border border-rose-600 text-rose-600 font-semibold py-3 px-6 rounded-lg transition-colors hover:bg-rose-50 flex items-center justify-center gap-2 ${
+                className={`flex-1 bg-white border border-[#D4AF37] text-[#D4AF37] font-semibold tracking-wider py-3 px-6 rounded-lg transition-colors hover:bg-[#D4AF37] hover:text-white flex items-center justify-center gap-2 ${
                   isInWishlist ? "opacity-60 cursor-not-allowed" : ""
                 }`}
                 onClick={() => addToWishlist({ ...product, id: product._id })}
@@ -387,19 +386,19 @@ const ProductViewPage = () => {
                 <Heart size={20} />
                 {isInWishlist ? "In Wishlist" : "Add to Wishlist"}
               </button>
-              <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+              <button className="p-3 border border-[#E5E0D8] rounded-lg hover:bg-[#FDFBF7] text-[#1A1A1A]">
                 <Share2 size={20} />
               </button>
             </div>
 
             {/* Product Info Tabs */}
-            <div className="border-t border-gray-200 pt-6">
+            <div className="border-t border-[#E5E0D8] pt-6">
               <div className="flex gap-4 mb-4">
                 <button
                   className={`px-4 py-2 font-medium ${
                     activeTab === 'description'
-                      ? 'text-rose-600 border-b-2 border-rose-600'
-                      : 'text-gray-600 hover:text-rose-600'
+                      ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]'
+                      : 'text-[#5C5C5C] hover:text-[#D4AF37]'
                   }`}
                   onClick={() => setActiveTab('description')}
                 >
@@ -408,8 +407,8 @@ const ProductViewPage = () => {
                 <button
                   className={`px-4 py-2 font-medium ${
                     activeTab === 'reviews'
-                      ? 'text-rose-600 border-b-2 border-rose-600'
-                      : 'text-gray-600 hover:text-rose-600'
+                      ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]'
+                      : 'text-[#5C5C5C] hover:text-[#D4AF37]'
                   }`}
                   onClick={() => setActiveTab('reviews')}
                 >
@@ -421,17 +420,17 @@ const ProductViewPage = () => {
               <div className="mt-4">
                 {activeTab === 'description' ? (
                   <div className="prose max-w-none">
-                    <p className="text-gray-700">{product.description || "No description available."}</p>
+                    <p className="text-[#5C5C5C]">{product.description || "No description available."}</p>
                   </div>
                 ) : (
                   <div className="space-y-6">
                     {/* Review Form */}
                     {isLoggedIn ? (
-                      <div className="bg-gray-50 rounded-lg p-6">
+                      <div className="bg-[#FAF9F6] border border-[#E5E0D8] rounded-lg p-6">
                         {userReview && !isEditing ? (
                           <div>
                             <div className="flex items-center justify-between mb-4">
-                              <h3 className="text-lg font-semibold text-gray-800">Your Review</h3>
+                              <h3 className="text-lg font-serif text-[#1A1A1A]">Your Review</h3>
                               <div className="flex gap-2">
                                 <button
                                   onClick={startEditing}
@@ -462,12 +461,12 @@ const ProductViewPage = () => {
                                   {new Date(userReview.createdAt).toLocaleDateString()}
                                 </span>
                               </div>
-                              <p className="text-gray-700">{userReview.comment}</p>
+                              <p className="text-[#5C5C5C]">{userReview.comment}</p>
                             </div>
                           </div>
                         ) : (
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                            <h3 className="text-lg font-serif text-[#1A1A1A] mb-4">
                               {isEditing ? 'Edit Your Review' : 'Write a Review'}
                             </h3>
                             {reviewError && (
@@ -497,10 +496,10 @@ const ProductViewPage = () => {
                                 </div>
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Review</label>
+                                <label className="block text-sm font-medium text-[#1A1A1A] mb-2">Review</label>
                                 <textarea
                                   rows={4}
-                                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
+                                  className="w-full px-4 py-3 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] text-sm text-[#1A1A1A]"
                                   placeholder="Share your thoughts about this product..."
                                   value={newReview.comment}
                                   onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
@@ -509,7 +508,7 @@ const ProductViewPage = () => {
                               <div className="flex gap-3">
                                 <button
                                   type="submit"
-                                  className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                                  className="bg-[#D4AF37] hover:bg-[#C5A030] text-white font-semibold py-2 px-4 rounded-lg transition-colors"
                                 >
                                   {isEditing ? 'Update Review' : 'Submit Review'}
                                 </button>
@@ -528,13 +527,13 @@ const ProductViewPage = () => {
                         )}
                       </div>
                     ) : (
-                      <div className="bg-gray-50 rounded-lg p-6 text-center">
-                        <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">Login to Write a Review</h3>
-                        <p className="text-gray-600 mb-4">Please login to share your thoughts about this product.</p>
+                      <div className="bg-[#FAF9F6] border border-[#E5E0D8] rounded-lg p-6 text-center">
+                        <MessageSquare size={48} className="mx-auto mb-4 text-[#E5E0D8]" />
+                        <h3 className="text-lg font-serif text-[#1A1A1A] mb-2">Login to Write a Review</h3>
+                        <p className="text-[#5C5C5C] mb-4">Please login to share your thoughts about this product.</p>
                         <a
-                          href="/user/login"
-                          className="inline-flex items-center bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                          href="/login"
+                          className="inline-flex items-center bg-[#D4AF37] hover:bg-[#C5A030] text-white font-semibold py-2 px-4 rounded-lg transition-colors"
                         >
                           Login to Review
                         </a>
@@ -543,10 +542,10 @@ const ProductViewPage = () => {
 
                     {/* Existing Reviews */}
                     <div className="space-y-6">
-                      <h3 className="text-lg font-semibold text-gray-800">Customer Reviews ({reviews.length})</h3>
+                      <h3 className="text-lg font-serif text-[#1A1A1A]">Customer Reviews ({reviews.length})</h3>
                       {reviews.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
-                          <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
+                        <div className="text-center py-8 text-[#5C5C5C]">
+                          <MessageSquare size={48} className="mx-auto mb-4 text-[#E5E0D8]" />
                           <p>No reviews yet. Be the first to review this product!</p>
                         </div>
                       ) : (

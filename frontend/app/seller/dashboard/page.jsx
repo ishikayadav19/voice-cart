@@ -82,25 +82,25 @@ const SellerDashboard = () => {
       title: "Total Sales",
       value: `₹${stats.totalSales.toFixed(2)}`,
       icon: IndianRupee,
-      color: "bg-green-500",
+      color: "text-[#D4AF37] bg-[#D4AF37]/10",
     },
     {
       title: "Total Orders",
       value: stats.totalOrders,
       icon: ShoppingCart,
-      color: "bg-blue-500",
+      color: "text-[#1A1A1A] bg-[#E5E0D8]",
     },
     {
       title: "Total Products",
       value: stats.totalProducts,
       icon: Package,
-      color: "bg-purple-500",
+      color: "text-[#5C5C5C] bg-[#FAF9F6] border border-[#E5E0D8]",
     },
     {
       title: "Total Customers",
       value: stats.totalCustomers,
       icon: Users,
-      color: "bg-orange-500",
+      color: "text-[#D4AF37] bg-[#D4AF37]/10",
     },
   ]
 
@@ -121,22 +121,22 @@ const SellerDashboard = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-[#FCD34D]/20 text-[#D97706]';
       case 'shipped':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-[#D4AF37]/20 text-[#D4AF37]';
       case 'delivered':
-        return 'bg-green-100 text-green-800';
+        return 'bg-[#D4AF37]/20 text-[#D4AF37]';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-[#E11D48]/10 text-[#E11D48]';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-[#FAF9F6] text-[#5C5C5C] border border-[#E5E0D8]';
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 p-8 mt-8 bg-gray-50">
+      <main className="flex-1 p-8 mt-8 bg-[#FAF9F6]">
         <div className="max-w-7xl mx-auto space-y-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -147,9 +147,9 @@ const SellerDashboard = () => {
             <SectionHeading
               title="Seller Dashboard"
               subtitle="Welcome back! Here's your store overview"
-              colors={["#E11D48", "#7C3AED", "#E11D48"]}
+              colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
               animationSpeed={3}
-              className="text-4xl font-extrabold text-center drop-shadow-lg"
+              className="text-4xl font-serif font-extrabold text-[#1A1A1A] text-center drop-shadow-lg"
               align="center"
             />
           </motion.div>
@@ -160,7 +160,7 @@ const SellerDashboard = () => {
               animate={{ opacity: 1 }}
               className="flex justify-center items-center h-64"
             >
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37]"></div>
             </motion.div>
           ) : (
             <>
@@ -178,18 +178,18 @@ const SellerDashboard = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
                     whileHover={{ scale: 1.02 }}
-                    className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-300"
+                    className="bg-white rounded-xl shadow-sm border border-[#E5E0D8] p-6 hover:shadow-md transition-all duration-300"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                        <p className="text-2xl font-semibold text-gray-800 mt-1">
+                        <p className="text-sm font-medium text-[#5C5C5C]">{stat.title}</p>
+                        <p className="text-2xl font-semibold text-[#1A1A1A] mt-1">
                           {stat.value}
                         </p>
                       </div>
                       <motion.div
                         whileHover={{ scale: 1.1 }}
-                        className={`p-3 rounded-full ${stat.color} bg-opacity-10 text-${stat.color}`}
+                        className={`p-3 rounded-full ${stat.color}`}
                       >
                         <stat.icon className="h-6 w-6" />
                       </motion.div>
@@ -203,15 +203,15 @@ const SellerDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-white rounded-xl shadow-sm p-6"
+                className="bg-white rounded-xl shadow-sm border border-[#E5E0D8] p-6"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-800">Recent Orders</h2>
+                  <h2 className="text-xl font-semibold text-[#1A1A1A]">Recent Orders</h2>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => router.push("/seller/orders")}
-                    className="text-rose-600 hover:text-rose-700 text-sm font-medium transition-colors"
+                    className="text-[#D4AF37] hover:text-[#C5A030] text-sm font-medium transition-colors"
                   >
                     View all orders
                   </motion.button>
@@ -223,31 +223,31 @@ const SellerDashboard = () => {
                     animate={{ opacity: 1 }}
                     className="text-center py-8"
                   >
-                    <p className="text-gray-500">No recent orders</p>
+                    <p className="text-[#5C5C5C]">No recent orders</p>
                   </motion.div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
+                    <table className="min-w-full divide-y divide-[#E5E0D8]">
                       <thead>
                         <tr>
-                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                             Order ID
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                             Customer
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                             Amount
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                             Status
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-medium text-[#5C5C5C] uppercase tracking-wider">
                             Date
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="bg-white divide-y divide-[#E5E0D8]">
                         <AnimatePresence>
                           {recentOrders.map((order, index) => (
                             <motion.tr
@@ -256,15 +256,15 @@ const SellerDashboard = () => {
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ duration: 0.3, delay: index * 0.05 }}
                               exit={{ opacity: 0, y: -20 }}
-                              className="hover:bg-gray-50 transition-colors"
+                              className="hover:bg-[#FAF9F6] transition-colors"
                             >
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#1A1A1A]">
                                 #{order.id.slice(-6)}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5C5C5C]">
                                 {order.customerName}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5C5C5C]">
                                 ₹{order.totalAmount.toFixed(2)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
@@ -274,7 +274,7 @@ const SellerDashboard = () => {
                                   {order.status}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-[#5C5C5C]">
                                 {new Date(order.date).toLocaleDateString()}
                               </td>
                             </motion.tr>
@@ -293,8 +293,8 @@ const SellerDashboard = () => {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="grid grid-cols-1 md:grid-cols-2 gap-6"
               >
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+                <div className="bg-white rounded-xl shadow-sm border border-[#E5E0D8] p-6">
+                  <h2 className="text-xl font-semibold text-[#1A1A1A] mb-4">Quick Actions</h2>
                   <div className="grid grid-cols-2 gap-4">
                     {[
                       { icon: Package, text: "Add Product", path: "/seller/addproduct" },
@@ -307,7 +307,7 @@ const SellerDashboard = () => {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => router.push(action.path)}
-                        className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:border-rose-500 hover:text-rose-500 transition-all duration-300"
+                        className="flex items-center justify-center p-4 border border-[#E5E0D8] rounded-lg hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all duration-300"
                       >
                         <action.icon className="h-5 w-5 mr-2" />
                         {action.text}
@@ -316,14 +316,14 @@ const SellerDashboard = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Store Health</h2>
+                <div className="bg-white rounded-xl shadow-sm border border-[#E5E0D8] p-6">
+                  <h2 className="text-xl font-semibold text-[#1A1A1A] mb-4">Store Health</h2>
                   <div className="space-y-4">
                     {[
-                      { label: "Product Stock", value: "Good", color: "text-green-600" },
-                      { label: "Order Fulfillment", value: "On Track", color: "text-green-600" },
-                      { label: "Customer Satisfaction", value: "Needs Attention", color: "text-yellow-600" },
-                      { label: "Store Rating", value: "4.5/5", color: "text-green-600" },
+                      { label: "Product Stock", value: "Good", color: "text-[#D4AF37]" },
+                      { label: "Order Fulfillment", value: "On Track", color: "text-[#D4AF37]" },
+                      { label: "Customer Satisfaction", value: "Needs Attention", color: "text-[#E11D48]" },
+                      { label: "Store Rating", value: "4.5/5", color: "text-[#D4AF37]" },
                     ].map((item, index) => (
                       <motion.div
                         key={index}
@@ -332,7 +332,7 @@ const SellerDashboard = () => {
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                         className="flex items-center justify-between"
                       >
-                        <span className="text-gray-600">{item.label}</span>
+                        <span className="text-[#5C5C5C]">{item.label}</span>
                         <span className={item.color}>{item.value}</span>
                       </motion.div>
                     ))}

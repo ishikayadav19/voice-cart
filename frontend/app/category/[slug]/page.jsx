@@ -161,20 +161,20 @@ const CategoryPage = () => {
   const filteredProducts = getFilteredProducts()
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAF9F6]">
       <Navbar />
       
       {/* Banner Section */}
-      <div className="relative h-64 bg-gradient-to-r from-rose-500 to-purple-600 mb-8">
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      <div className="relative h-64 bg-gradient-to-r from-[#D4AF37]/20 to-[#E6B9A6]/20 mb-8 overflow-hidden">
+        <div className="absolute inset-0 bg-[#FAF9F6]/40 backdrop-blur-sm"></div>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white">
             <SectionHeading
               title={getCategoryName()}
               subtitle={`Explore our ${getCategoryName().toLowerCase()} collection`}
-              colors={["#ffffff", "#f0f0f0", "#ffffff", "#f0f0f0"]}
+              colors={["#1A1A1A", "#D4AF37", "#1A1A1A"]}
               animationSpeed={4}
-              className="text-4xl font-bold mb-2"
+              className="text-4xl font-serif text-[#1A1A1A] mb-2"
             />
           </div>
         </div>
@@ -192,13 +192,13 @@ const CategoryPage = () => {
                   placeholder={`Search ${getCategoryName().toLowerCase()}...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+                  className="pl-10 pr-4 py-2 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] bg-white text-[#1A1A1A]"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#7A7571]" size={20} />
               </form>
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex items-center gap-2 px-4 py-2 border border-[#E5E0D8] rounded-lg hover:bg-[#FDFBF7] text-[#1A1A1A]"
               >
                 <Filter size={20} />
                 Filters
@@ -210,7 +210,7 @@ const CategoryPage = () => {
               <select
                 value={filters.sortBy}
                 onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+                className="px-4 py-2 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] bg-white text-[#1A1A1A]"
               >
                 <option value="newest">Newest First</option>
                 <option value="price-low">Price: Low to High</option>
@@ -220,7 +220,7 @@ const CategoryPage = () => {
             </div>
           </div>
           
-          <p className="text-gray-600">
+          <p className="text-[#5C5C5C]">
             Showing {filteredProducts.length} items
           </p>
         </div>
@@ -228,11 +228,11 @@ const CategoryPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Filter Sidebar */}
           {isFilterOpen && (
-            <div className="md:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="md:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-[#E5E0D8]">
               <div className="flex justify-between items-center mb-6">
                 <SectionHeading
                   title="Filters"
-                  colors={["#E11D48", "#7C3AED", "#E11D48"]}
+                  colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
                   animationSpeed={3}
                   className="text-lg font-semibold"
                   showUnderline={false}
@@ -248,7 +248,7 @@ const CategoryPage = () => {
                       sortBy: 'newest'
                     });
                   }}
-                  className="text-sm text-rose-500 hover:text-rose-600 font-medium"
+                  className="text-sm text-[#D4AF37] hover:text-[#C5A030] font-medium"
                 >
                   Clear All
                 </button>
@@ -256,7 +256,7 @@ const CategoryPage = () => {
 
               {/* Price Range */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Price Range</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Price Range</h3>
                 <input
                   type="range"
                   min="0"
@@ -266,7 +266,7 @@ const CategoryPage = () => {
                   onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
                   className="w-full"
                 />
-                <div className="flex justify-between text-sm text-gray-600 mt-2">
+                <div className="flex justify-between text-sm text-[#5C5C5C] mt-2">
                   <span>{formatPrice(filters.priceRange[0])}</span>
                   <span>{formatPrice(filters.priceRange[1])}</span>
                 </div>
@@ -274,7 +274,7 @@ const CategoryPage = () => {
 
               {/* Brands */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Brands</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Brands</h3>
                 <div className="space-y-2">
                   {getBrands().map((brand) => (
                     <label key={brand} className="flex items-center space-x-2 cursor-pointer">
@@ -282,9 +282,9 @@ const CategoryPage = () => {
                         type="checkbox"
                         checked={filters.brands.includes(brand)}
                         onChange={() => toggleBrandFilter(brand)}
-                        className="w-4 h-4 rounded text-rose-500 focus:ring-rose-500 border-gray-300"
+                        className="w-4 h-4 rounded text-[#D4AF37] focus:ring-[#D4AF37] border-[#E5E0D8]"
                       />
-                      <span className="text-gray-700">{brand}</span>
+                      <span className="text-[#5C5C5C]">{brand}</span>
                     </label>
                   ))}
                 </div>
@@ -292,11 +292,11 @@ const CategoryPage = () => {
 
               {/* Rating Filter */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Rating</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Rating</h3>
                 <select
                   value={filters.rating}
                   onChange={(e) => handleFilterChange('rating', Number(e.target.value))}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full p-2 border border-[#E5E0D8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] text-[#1A1A1A]"
                 >
                   <option value="0">All Ratings</option>
                   <option value="4">4+ Stars</option>
@@ -312,9 +312,9 @@ const CategoryPage = () => {
                     type="checkbox"
                     checked={filters.availability}
                     onChange={(e) => handleFilterChange('availability', e.target.checked)}
-                    className="w-4 h-4 rounded text-rose-500 focus:ring-rose-500 border-gray-300"
+                    className="w-4 h-4 rounded text-[#D4AF37] focus:ring-[#D4AF37] border-[#E5E0D8]"
                   />
-                  <span className="text-gray-700">In Stock Only</span>
+                  <span className="text-[#5C5C5C]">In Stock Only</span>
                 </label>
               </div>
             </div>
@@ -324,7 +324,7 @@ const CategoryPage = () => {
           <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ${isFilterOpen ? 'md:col-span-3' : 'md:col-span-4'}`}>
             {loading ? (
               <div className="col-span-full flex justify-center items-center h-64">
-                <Infinity size="30" speed="2.5" color="#E11D48" />
+                <Infinity size="30" speed="2.5" color="#D4AF37" />
               </div>
             ) : filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
@@ -342,11 +342,11 @@ const CategoryPage = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-8">
-                <SlidersHorizontal className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <SlidersHorizontal className="h-12 w-12 text-[#7A7571] mx-auto mb-4" />
                 <SectionHeading
                   title="No items found"
                   subtitle="Try adjusting your filters or search criteria"
-                  colors={["#E11D48", "#7C3AED", "#E11D48"]}
+                  colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
                   animationSpeed={3}
                   className="text-lg font-medium mb-2"
                   showUnderline={false}
@@ -361,7 +361,7 @@ const CategoryPage = () => {
                       sortBy: 'newest'
                     });
                   }}
-                  className="px-4 py-2 bg-rose-500 text-white rounded-md hover:bg-rose-600 transition-colors"
+                  className="px-4 py-2 bg-[#D4AF37] text-white rounded-md hover:bg-[#C5A030] transition-colors"
                 >
                   Clear Filters
                 </button>

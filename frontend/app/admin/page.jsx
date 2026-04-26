@@ -79,7 +79,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#D4AF37]"></div>
       </div>
     )
   }
@@ -89,7 +89,7 @@ const AdminDashboard = () => {
       <SectionHeading
         title="Admin Dashboard"
         subtitle="Overview of your e-commerce platform"
-        colors={["#E11D48", "#7C3AED", "#E11D48"]}
+        colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
         animationSpeed={3}
       />
 
@@ -103,15 +103,15 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-lg shadow-md p-6"
+              className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500 text-sm">{stat.title}</p>
-                  <h3 className="text-2xl font-bold mt-1">{stat.value}</h3>
+                  <p className="text-[#5C5C5C] text-sm">{stat.title}</p>
+                  <h3 className="text-2xl font-serif text-[#1A1A1A] mt-1">{stat.value}</h3>
                 </div>
-                <div className={`p-3 rounded-full ${stat.color} bg-opacity-10`}>
-                  <Icon className={`${stat.color} text-opacity-100`} size={24} />
+                <div className={`p-3 rounded-full bg-[#D4AF37] bg-opacity-10`}>
+                  <Icon className={`text-[#D4AF37]`} size={24} />
                 </div>
               </div>
             </motion.div>
@@ -125,24 +125,24 @@ const AdminDashboard = () => {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
         >
-          <h3 className="text-lg font-semibold mb-4">Recent Users</h3>
+          <h3 className="text-lg font-serif text-[#1A1A1A] mb-4">Recent Users</h3>
           <div className="space-y-4">
             {recent.users.length > 0 ? (
               recent.users.map((user) => (
                 <div key={user._id} className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <Users size={20} className="text-gray-500" />
+                  <div className="w-10 h-10 rounded-full bg-[#FAF9F6] border border-[#E5E0D8] flex items-center justify-center">
+                    <Users size={20} className="text-[#D4AF37]" />
                   </div>
                   <div>
-                    <p className="font-medium">{user.name}</p>
-                    <p className="text-sm text-gray-500">{user.email}</p>
+                    <p className="font-medium text-[#1A1A1A]">{user.name}</p>
+                    <p className="text-sm text-[#5C5C5C]">{user.email}</p>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-sm">No recent users</p>
+              <p className="text-[#5C5C5C] text-sm">No recent users</p>
             )}
           </div>
         </motion.div>
@@ -151,24 +151,24 @@ const AdminDashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
         >
-          <h3 className="text-lg font-semibold mb-4">Recent Approved Sellers</h3>
+          <h3 className="text-lg font-serif text-[#1A1A1A] mb-4">Recent Approved Sellers</h3>
           <div className="space-y-4">
             {recent.sellers.length > 0 ? (
               recent.sellers.map((seller) => (
                 <div key={seller._id} className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <Store size={20} className="text-gray-500" />
+                  <div className="w-10 h-10 rounded-full bg-[#FAF9F6] border border-[#E5E0D8] flex items-center justify-center">
+                    <Store size={20} className="text-[#D4AF37]" />
                   </div>
                   <div>
-                    <p className="font-medium">{seller.storeName}</p>
-                    <p className="text-sm text-gray-500">{seller.email}</p>
+                    <p className="font-medium text-[#1A1A1A]">{seller.storeName}</p>
+                    <p className="text-sm text-[#5C5C5C]">{seller.email}</p>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-sm">No recent sellers</p>
+              <p className="text-[#5C5C5C] text-sm">No recent sellers</p>
             )}
           </div>
         </motion.div>
@@ -177,9 +177,9 @@ const AdminDashboard = () => {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-lg shadow-md p-6"
+          className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
         >
-          <h3 className="text-lg font-semibold mb-4">Recent Products</h3>
+          <h3 className="text-lg font-serif text-[#1A1A1A] mb-4">Recent Products</h3>
           <div className="space-y-4">
             {recent.products.length > 0 ? (
               recent.products.map((product) => (
@@ -187,16 +187,16 @@ const AdminDashboard = () => {
                   <img
                     src={product.mainImage}
                     alt={product.name}
-                    className="w-10 h-10 rounded-md object-cover"
+                    className="w-10 h-10 rounded-md object-cover border border-[#E5E0D8]"
                   />
                   <div>
-                    <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-gray-500">₹{product.price}</p>
+                    <p className="font-medium text-[#1A1A1A]">{product.name}</p>
+                    <p className="text-sm text-[#5C5C5C]">₹{product.price}</p>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-sm">No recent products</p>
+              <p className="text-[#5C5C5C] text-sm">No recent products</p>
             )}
           </div>
         </motion.div>

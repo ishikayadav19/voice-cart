@@ -226,7 +226,7 @@ const AddProductPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 p-8 mt-8 bg-gray-50">
+      <main className="flex-1 p-8 mt-8 bg-[#FAF9F6]">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -237,9 +237,9 @@ const AddProductPage = () => {
             <SectionHeading
               title="Add New Product"
               subtitle="Fill in the details to add a new product to your store"
-              colors={["#E11D48", "#7C3AED", "#E11D48"]}
+              colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
               animationSpeed={3}
-              className="text-3xl font-bold"
+              className="text-3xl font-serif text-[#1A1A1A]"
               align="center"
             />
           </motion.div>
@@ -248,7 +248,7 @@ const AddProductPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-white rounded-xl shadow-lg overflow-hidden"
+            className="bg-white rounded-xl shadow-lg border border-[#E5E0D8] overflow-hidden"
           >
             <div className="p-8">
               <form onSubmit={productForm.handleSubmit} className="space-y-6">
@@ -259,12 +259,12 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 0.2 }}
                     className="space-y-1"
                   >
-                    <label htmlFor="name" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="name" className="text-sm font-medium text-[#1A1A1A]">
                       Product Name
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Package className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                        <Package className="h-5 w-5 text-[#7A7571] group-hover:text-[#D4AF37] transition-colors" />
                       </div>
                       <input
                         id="name"
@@ -273,7 +273,7 @@ const AddProductPage = () => {
                         value={productForm.values.name}
                         onChange={productForm.handleChange}
                         onBlur={productForm.handleBlur}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                         placeholder="Enter product name"
                       />
                     </div>
@@ -281,7 +281,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.name}
                       </motion.p>
@@ -294,12 +294,12 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 0.3 }}
                     className="space-y-1"
                   >
-                    <label htmlFor="brand" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="brand" className="text-sm font-medium text-[#1A1A1A]">
                       Brand
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Tag className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                        <Tag className="h-5 w-5 text-[#7A7571] group-hover:text-[#D4AF37] transition-colors" />
                       </div>
                       <input
                         id="brand"
@@ -308,7 +308,7 @@ const AddProductPage = () => {
                         value={productForm.values.brand}
                         onChange={productForm.handleChange}
                         onBlur={productForm.handleBlur}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                         placeholder="Enter brand name"
                       />
                     </div>
@@ -316,7 +316,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.brand}
                       </motion.p>
@@ -329,7 +329,7 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 0.4 }}
                     className="space-y-1"
                   >
-                    <label htmlFor="price" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="price" className="text-sm font-medium text-[#1A1A1A]">
                       Price
                     </label>
                     <div className="relative group">
@@ -343,7 +343,7 @@ const AddProductPage = () => {
                         value={productForm.values.price}
                         onChange={productForm.handleChange}
                         onBlur={productForm.handleBlur}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                         placeholder="0.00"
                         step="0.01"
                       />
@@ -352,7 +352,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.price}
                       </motion.p>
@@ -365,7 +365,7 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 0.5 }}
                     className="space-y-1"
                   >
-                    <label htmlFor="discountPrice" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="discountPrice" className="text-sm font-medium text-[#1A1A1A]">
                       Discount Price (Optional)
                     </label>
                     <div className="relative group">
@@ -379,7 +379,7 @@ const AddProductPage = () => {
                         value={productForm.values.discountPrice}
                         onChange={productForm.handleChange}
                         onBlur={productForm.handleBlur}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]"
                         placeholder="0.00"
                         step="0.01"
                       />
@@ -388,7 +388,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.discountPrice}
                       </motion.p>
@@ -401,12 +401,12 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 0.6 }}
                     className="space-y-1"
                   >
-                    <label htmlFor="category" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="category" className="text-sm font-medium text-[#1A1A1A]">
                       Category
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Tag className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                        <Tag className="h-5 w-5 text-[#7A7571] group-hover:text-[#D4AF37] transition-colors" />
                       </div>
                       <input
                         id="category"
@@ -415,7 +415,7 @@ const AddProductPage = () => {
                         value={productForm.values.category}
                         onChange={productForm.handleChange}
                         onBlur={productForm.handleBlur}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                         placeholder="Enter category"
                       />
                     </div>
@@ -423,7 +423,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.category}
                       </motion.p>
@@ -436,12 +436,12 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 0.7 }}
                     className="space-y-1"
                   >
-                    <label htmlFor="stock" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="stock" className="text-sm font-medium text-[#1A1A1A]">
                       Stock
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Package className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                        <Package className="h-5 w-5 text-[#7A7571] group-hover:text-[#D4AF37] transition-colors" />
                       </div>
                       <input
                         id="stock"
@@ -450,7 +450,7 @@ const AddProductPage = () => {
                         value={productForm.values.stock}
                         onChange={productForm.handleChange}
                         onBlur={productForm.handleBlur}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                         placeholder="Enter stock quantity"
                       />
                     </div>
@@ -458,7 +458,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.stock}
                       </motion.p>
@@ -471,12 +471,12 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 0.8 }}
                     className="space-y-1"
                   >
-                    <label htmlFor="rating" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="rating" className="text-sm font-medium text-[#1A1A1A]">
                       Rating
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Star className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                        <Star className="h-5 w-5 text-[#7A7571] group-hover:text-[#D4AF37] transition-colors" />
                       </div>
                       <input
                         id="rating"
@@ -485,7 +485,7 @@ const AddProductPage = () => {
                         value={productForm.values.rating}
                         onChange={productForm.handleChange}
                         onBlur={productForm.handleBlur}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                         placeholder="Enter rating (0-5)"
                         step="0.1"
                         min="0"
@@ -496,7 +496,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.rating}
                       </motion.p>
@@ -509,17 +509,17 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 0.9 }}
                     className="space-y-1"
                   >
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#1A1A1A]">
                       Main Product Image
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Image className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                        <Image className="h-5 w-5 text-[#7A7571] group-hover:text-[#D4AF37] transition-colors" />
                       </div>
                       <input
                         type="file"
                         onChange={handleMainImageUpload}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                         accept="image/*"
                       />
                     </div>
@@ -532,16 +532,16 @@ const AddProductPage = () => {
                         <img
                           src={mainImage}
                           alt="Main product image"
-                          className="w-full h-48 object-cover rounded-lg ring-2 ring-rose-500"
+                          className="w-full h-48 object-cover rounded-lg ring-2 ring-[#D4AF37]"
                         />
                         <button
                           type="button"
                           onClick={removeMainImage}
-                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          className="absolute top-2 right-2 p-1 bg-[#1A1A1A] text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-[#D4AF37]"
                         >
                           <X className="h-4 w-4" />
                         </button>
-                        <div className="absolute bottom-2 left-2 bg-rose-500 text-white text-xs px-2 py-1 rounded">
+                        <div className="absolute bottom-2 left-2 bg-[#D4AF37] text-white text-xs px-2 py-1 rounded">
                           Main Image
                         </div>
                       </motion.div>
@@ -550,7 +550,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.mainImage}
                       </motion.p>
@@ -563,18 +563,18 @@ const AddProductPage = () => {
                     transition={{ duration: 0.3, delay: 1 }}
                     className="space-y-1"
                   >
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#1A1A1A]">
                       Additional Images
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Image className="h-5 w-5 text-gray-400 group-hover:text-rose-500 transition-colors" />
+                        <Image className="h-5 w-5 text-[#7A7571] group-hover:text-[#D4AF37] transition-colors" />
                       </div>
                       <input
                         type="file"
                         multiple
                         onChange={handleAdditionalImagesUpload}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300"
+                        className="block w-full pl-10 pr-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all duration-300"
                         accept="image/*"
                       />
                     </div>
@@ -595,7 +595,7 @@ const AddProductPage = () => {
                             <button
                               type="button"
                               onClick={() => removeAdditionalImage(index)}
-                              className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                              className="absolute top-2 right-2 p-1 bg-[#E11D48] text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             >
                               <X className="h-4 w-4" />
                             </button>
@@ -607,7 +607,7 @@ const AddProductPage = () => {
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-red-600 mt-2"
+                        className="text-xs text-[#E11D48] mt-2"
                       >
                         {productForm.errors.images}
                       </motion.p>
@@ -616,7 +616,7 @@ const AddProductPage = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label htmlFor="description" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="description" className="text-sm font-medium text-[#1A1A1A]">
                     Description
                   </label>
                   <textarea
@@ -626,11 +626,11 @@ const AddProductPage = () => {
                     onChange={productForm.handleChange}
                     onBlur={productForm.handleBlur}
                     rows="4"
-                    className="block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-rose-500 focus:border-rose-500"
+                    className="block w-full px-3 py-3 border border-[#E5E0D8] rounded-md shadow-sm placeholder-[#7A7571] focus:outline-none focus:ring-[#D4AF37] focus:border-[#D4AF37]"
                     placeholder="Enter product description"
                   />
                   {productForm.touched.description && productForm.errors.description && (
-                    <p className="text-xs text-red-600 mt-2">{productForm.errors.description}</p>
+                    <p className="text-xs text-[#E11D48] mt-2">{productForm.errors.description}</p>
                   )}
                 </div>
 
@@ -645,7 +645,7 @@ const AddProductPage = () => {
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-lg hover:from-rose-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full md:w-auto px-6 py-3 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4AF37] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed font-semibold tracking-wider"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center justify-center">

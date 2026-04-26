@@ -36,17 +36,17 @@ const CountdownTimer = ({ endTime }) => {
 
   return (
     <div className="flex space-x-3">
-      <div className="bg-black/40 border border-white/10 px-3 py-2 rounded-lg text-center shadow-inner">
-        <span className="font-mono font-bold text-white text-lg">{String(timeLeft.hours).padStart(2, '0')}</span>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Hours</p>
+      <div className="bg-white border border-[#E5E0D8] px-3 py-2 rounded-lg text-center shadow-sm">
+        <span className="font-mono font-bold text-[#1A1A1A] text-lg">{String(timeLeft.hours).padStart(2, '0')}</span>
+        <p className="text-[10px] text-[#5C5C5C] uppercase tracking-widest mt-1">Hours</p>
       </div>
-      <div className="bg-black/40 border border-white/10 px-3 py-2 rounded-lg text-center shadow-inner">
-        <span className="font-mono font-bold text-white text-lg">{String(timeLeft.minutes).padStart(2, '0')}</span>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Mins</p>
+      <div className="bg-white border border-[#E5E0D8] px-3 py-2 rounded-lg text-center shadow-sm">
+        <span className="font-mono font-bold text-[#1A1A1A] text-lg">{String(timeLeft.minutes).padStart(2, '0')}</span>
+        <p className="text-[10px] text-[#5C5C5C] uppercase tracking-widest mt-1">Mins</p>
       </div>
-      <div className="bg-black/40 border border-white/10 px-3 py-2 rounded-lg text-center shadow-inner">
-        <span className="font-mono font-bold text-white text-lg">{String(timeLeft.seconds).padStart(2, '0')}</span>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Secs</p>
+      <div className="bg-white border border-[#E5E0D8] px-3 py-2 rounded-lg text-center shadow-sm">
+        <span className="font-mono font-bold text-[#1A1A1A] text-lg">{String(timeLeft.seconds).padStart(2, '0')}</span>
+        <p className="text-[10px] text-[#5C5C5C] uppercase tracking-widest mt-1">Secs</p>
       </div>
     </div>
   );

@@ -200,7 +200,7 @@ const SettingsPage = () => {
             type={setting.type}
             value={value}
             onChange={(e) => handleSettingChange(setting.key, e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="w-full px-3 py-2 border border-[#E5E0D8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all"
           />
         )
       case 'number':
@@ -209,7 +209,7 @@ const SettingsPage = () => {
             type="number"
             value={value}
             onChange={(e) => handleSettingChange(setting.key, parseInt(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="w-full px-3 py-2 border border-[#E5E0D8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all"
           />
         )
       case 'textarea':
@@ -218,7 +218,7 @@ const SettingsPage = () => {
             value={value}
             onChange={(e) => handleSettingChange(setting.key, e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="w-full px-3 py-2 border border-[#E5E0D8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all"
           />
         )
       case 'checkbox':
@@ -227,7 +227,7 @@ const SettingsPage = () => {
             type="checkbox"
             checked={value}
             onChange={(e) => handleSettingChange(setting.key, e.target.checked)}
-            className="h-4 w-4 text-rose-600 focus:ring-rose-500 border-gray-300 rounded"
+            className="h-4 w-4 text-[#D4AF37] focus:ring-[#D4AF37] border-[#E5E0D8] rounded"
           />
         )
       case 'color':
@@ -236,7 +236,7 @@ const SettingsPage = () => {
             type="color"
             value={value}
             onChange={(e) => handleSettingChange(setting.key, e.target.value)}
-            className="h-10 w-20 border border-gray-300 rounded-md cursor-pointer"
+            className="h-10 w-20 border border-[#E5E0D8] rounded-md cursor-pointer"
           />
         )
       case 'select':
@@ -244,7 +244,7 @@ const SettingsPage = () => {
           <select
             value={value}
             onChange={(e) => handleSettingChange(setting.key, e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="w-full px-3 py-2 border border-[#E5E0D8] rounded-md focus:outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all"
           >
             {setting.options.map(option => (
               <option key={option} value={option}>
@@ -263,8 +263,9 @@ const SettingsPage = () => {
       <SectionHeading
         title="Admin Settings"
         subtitle="Configure your platform settings"
-        colors={["#E11D48", "#7C3AED", "#E11D48"]}
+        colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
         animationSpeed={3}
+        className="font-serif text-[#1A1A1A]"
       />
 
       {/* Message */}
@@ -286,7 +287,7 @@ const SettingsPage = () => {
       <div className="flex justify-end space-x-4">
         <button
           onClick={handleReset}
-          className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+          className="flex items-center px-4 py-2 border border-[#E5E0D8] rounded-md hover:bg-[#FAF9F6] transition-colors"
         >
           <RefreshCw size={16} className="mr-2" />
           Reset to Default
@@ -294,7 +295,7 @@ const SettingsPage = () => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700 disabled:opacity-50"
+          className="flex items-center px-4 py-2 bg-[#1A1A1A] text-white rounded-md hover:bg-[#D4AF37] transition-colors disabled:opacity-50 tracking-wider"
         >
           <Save size={16} className="mr-2" />
           {saving ? 'Saving...' : 'Save Settings'}
@@ -311,17 +312,17 @@ const SettingsPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: sectionIndex * 0.1 }}
-              className="bg-white rounded-lg shadow-md p-6"
+              className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
             >
               <div className="flex items-center mb-6">
-                <Icon size={24} className="text-rose-600 mr-3" />
-                <h3 className="text-lg font-semibold">{section.title}</h3>
+                <Icon size={24} className="text-[#D4AF37] mr-3" />
+                <h3 className="text-lg font-serif text-[#1A1A1A] font-semibold">{section.title}</h3>
               </div>
               
               <div className="space-y-4">
                 {section.settings.map((setting) => (
                   <div key={setting.key} className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-[#1A1A1A]">
                       {setting.label}
                     </label>
                     {renderSettingInput(setting)}
@@ -337,21 +338,21 @@ const SettingsPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-lg shadow-md p-6"
+        className="bg-white rounded-lg shadow-md border border-[#E5E0D8] p-6"
       >
-        <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+        <h3 className="text-lg font-serif text-[#1A1A1A] font-semibold mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left">
-            <div className="font-medium">Clear Cache</div>
-            <div className="text-sm text-gray-500">Clear all cached data</div>
+          <button className="p-4 border border-[#E5E0D8] rounded-lg hover:bg-[#FAF9F6] transition-colors text-left">
+            <div className="font-medium text-[#1A1A1A]">Clear Cache</div>
+            <div className="text-sm text-[#5C5C5C]">Clear all cached data</div>
           </button>
-          <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left">
-            <div className="font-medium">Backup Database</div>
-            <div className="text-sm text-gray-500">Create manual backup</div>
+          <button className="p-4 border border-[#E5E0D8] rounded-lg hover:bg-[#FAF9F6] transition-colors text-left">
+            <div className="font-medium text-[#1A1A1A]">Backup Database</div>
+            <div className="text-sm text-[#5C5C5C]">Create manual backup</div>
           </button>
-          <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left">
-            <div className="font-medium">System Health</div>
-            <div className="text-sm text-gray-500">Check system status</div>
+          <button className="p-4 border border-[#E5E0D8] rounded-lg hover:bg-[#FAF9F6] transition-colors text-left">
+            <div className="font-medium text-[#1A1A1A]">System Health</div>
+            <div className="text-sm text-[#5C5C5C]">Check system status</div>
           </button>
         </div>
       </motion.div>

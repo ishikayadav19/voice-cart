@@ -38,21 +38,21 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF9F6]">
+      <div className="w-full max-w-md bg-white border border-[#E5E0D8] rounded-xl shadow-lg p-8">
         <SectionHeading
           title="Admin Login"
           subtitle="Enter your admin credentials"
-          colors={["#E11D48", "#7C3AED", "#E11D48"]}
+          colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
           animationSpeed={3}
-          className="text-3xl font-bold mb-2"
+          className="text-3xl font-serif text-[#1A1A1A] mb-2"
         />
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Username</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
+                <User className="h-5 w-5 text-[#7A7571]" />
               </span>
               <input
                 type="text"
@@ -60,17 +60,17 @@ const AdminLoginPage = () => {
                 value={form.username}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
+                className="w-full pl-10 pr-4 py-3 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] text-sm transition-all"
                 placeholder="Admin username"
                 autoComplete="username"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Password</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Lock className="h-5 w-5 text-[#7A7571]" />
               </span>
               <input
                 type="password"
@@ -78,7 +78,7 @@ const AdminLoginPage = () => {
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm"
+                className="w-full pl-10 pr-4 py-3 border border-[#E5E0D8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] text-sm transition-all"
                 placeholder="Admin password"
                 autoComplete="current-password"
               />
@@ -88,7 +88,7 @@ const AdminLoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-60"
+            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-[#1A1A1A] hover:bg-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4AF37] disabled:opacity-60 transition-all tracking-wider"
           >
             {loading ? "Logging in..." : "Login as Admin"}
           </button>
