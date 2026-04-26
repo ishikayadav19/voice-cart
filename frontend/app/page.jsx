@@ -7,6 +7,8 @@ import ProductCard from "./components/ProductCard"
 import Footer from "./components/footer";
 import OfferBanner from "./components/offer-banner"
 import VoiceAssistant from "./components/voice-assistant"
+import SignatureShowcase from "./components/SignatureShowcase"
+import CuratedCollections from "./components/CuratedCollections"
 import axios from "axios"
 import { Infinity } from "ldrs/react"
 import "ldrs/react/Infinity.css"
@@ -354,6 +356,8 @@ export default function Home() {
         </div>
       </section>
 
+      <SignatureShowcase />
+
       {/* Popular Products with Splash Cards */}
       <section className="py-24 bg-black/50">
         <div className="container mx-auto px-6">
@@ -449,6 +453,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <CuratedCollections />
 
       {/* Client Testimonials (Social Proof) */}
       <section className="py-32 relative overflow-hidden">
