@@ -70,49 +70,49 @@ const OrderDetailsPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
       <Navbar />
       <main className="flex-1 px-4 py-16 flex flex-col items-center">
-        <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg">
+        <div className="w-full max-w-2xl bg-white border border-[#E5E0D8] p-8 rounded-xl shadow-lg">
           <SectionHeading
             title="Order Details"
             subtitle={order ? `Order #${order.orderNumber}` : ""}
-            colors={["#E11D48", "#7C3AED", "#E11D48"]}
+            colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
             animationSpeed={3}
             className="text-2xl font-bold mb-2"
           />
           {loading ? (
-            <div className="text-center text-gray-600">Loading order details...</div>
+            <div className="text-center text-[#5C5C5C]">Loading order details...</div>
           ) : error ? (
-            <div className="text-center text-red-600">{error}</div>
+            <div className="text-center text-[#E11D48]">{error}</div>
           ) : order ? (
             <div className="space-y-6">
               <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                 <div>
-                  <div className="font-semibold text-gray-800">Order Date: {new Date(order.createdAt).toLocaleString()}</div>
-                  <div className="text-sm text-gray-500">Status: <span className="font-medium">{getOrderAggregateStatus(order)}</span></div>
-                  <div className="text-sm text-gray-500">Delivery Date: {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "TBD"}</div>
+                  <div className="font-semibold text-[#1A1A1A]">Order Date: {new Date(order.createdAt).toLocaleString()}</div>
+                  <div className="text-sm text-[#7A7571]">Status: <span className="font-medium">{getOrderAggregateStatus(order)}</span></div>
+                  <div className="text-sm text-[#7A7571]">Delivery Date: {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "TBD"}</div>
                 </div>
                 <div className="text-right mt-4 md:mt-0">
-                  <div className="text-lg font-bold text-rose-600">₹{order.totalAmount}</div>
-                  <div className="text-xs text-gray-400">{order.items.length} item(s)</div>
+                  <div className="text-lg font-bold text-[#D4AF37]">₹{order.totalAmount}</div>
+                  <div className="text-xs text-[#7A7571]">{order.items.length} item(s)</div>
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="font-medium text-gray-700 mb-2">Shipping Address</div>
-                <div className="text-sm text-gray-600">{order.shippingAddress?.address}, {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}</div>
+              <div className="bg-[#FAF9F6] border border-[#E5E0D8] rounded-lg p-4">
+                <div className="font-medium text-[#1A1A1A] mb-2">Shipping Address</div>
+                <div className="text-sm text-[#5C5C5C]">{order.shippingAddress?.address}, {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.zipCode}</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="font-medium text-gray-700 mb-2">Payment Method</div>
-                <div className="text-sm text-gray-600">{order.paymentMethod}</div>
+              <div className="bg-[#FAF9F6] border border-[#E5E0D8] rounded-lg p-4">
+                <div className="font-medium text-[#1A1A1A] mb-2">Payment Method</div>
+                <div className="text-sm text-[#5C5C5C]">{order.paymentMethod}</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="font-medium text-gray-700 mb-2">Order Items</div>
-                <ul className="ml-4 list-disc text-sm">
+              <div className="bg-[#FAF9F6] border border-[#E5E0D8] rounded-lg p-4">
+                <div className="font-medium text-[#1A1A1A] mb-2">Order Items</div>
+                <ul className="ml-4 list-disc text-sm text-[#5C5C5C]">
                   {order.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.name} x{item.quantity} @ ₹{item.price} — 
-                      <span className="font-semibold">
+                      {item.name} x{item.quantity} @ ₹{item.price} —
+                      <span className="font-semibold text-[#1A1A1A]">
                         {item.status ? item.status : order.status}
                       </span>
                     </li>
@@ -120,9 +120,9 @@ const OrderDetailsPage = () => {
                 </ul>
               </div>
               {/* Tracking Section */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="font-medium text-gray-700 mb-2">Order Tracking</div>
-                <div className="text-sm text-gray-600">
+              <div className="bg-[#FAF9F6] border border-[#E5E0D8] rounded-lg p-4">
+                <div className="font-medium text-[#1A1A1A] mb-2">Order Tracking</div>
+                <div className="text-sm text-[#5C5C5C]">
                   {getTrackingMessage(getOrderAggregateStatus(order))}
                 </div>
               </div>

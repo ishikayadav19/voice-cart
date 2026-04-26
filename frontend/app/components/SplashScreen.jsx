@@ -170,7 +170,7 @@ export default function SplashScreen({ onComplete }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.5, duration: 1 }}
-              className="text-gray-300 text-xl tracking-[0.5em] uppercase font-light text-center"
+              className="text-white/70 text-xl tracking-[0.5em] uppercase font-light text-center"
             >
               The AI Marketplace
             </motion.p>

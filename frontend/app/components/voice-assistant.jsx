@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Mic, X, Volume2 } from "lucide-react"
 import useVoiceContext from "@/context/voiceContext";
 
@@ -13,72 +13,179 @@ const VoiceAssistant = ({ isActive: isActiveProp, setIsActive: setIsActiveProp, 
   const [showTooltip, setShowTooltip] = useState(false)
   const [recognition, setRecognition] = useState(null)
   const { interpretVoiceCommand, resetTranscript } = useVoiceContext();
+  const lastDispatchedRef = useRef("");
+  const isActiveRef = useRef(isActive);
+  const recognitionRef = useRef(null);
+  const hasStartedRef = useRef(false);
 
-  // Initialize speech recognition
+  useEffect(() => { isActiveRef.current = isActive; }, [isActive]);
+
+  // Initialize speech recognition.
+  // We keep the recognition instance as a window-level singleton so React
+  // StrictMode (which double-mounts effects in dev) doesn't create two
+  // competing recognitions fighting for the same mic stream.
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (typeof window === "undefined") return;
 
-      if (SpeechRecognition) {
-        const recognitionInstance = new SpeechRecognition()
-        recognitionInstance.continuous = false
-        recognitionInstance.interimResults = true
-        recognitionInstance.lang = "en-US"
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+
+    if (!window.__VC_RECOGNITION__) {
+      const r = new SR();
+      r.continuous = true;
+      r.interimResults = true;
+      r.lang = "en-US";
+      window.__VC_RECOGNITION__ = r;
+    }
+    const recognitionInstance = window.__VC_RECOGNITION__;
+
+    {
+      // Block scope so the old per-mount const-style code below works unchanged.
 
         recognitionInstance.onstart = () => {
           setIsListening(true)
         }
 
         recognitionInstance.onresult = (event) => {
-          const current = event.resultIndex
-          const currentTranscript = event.results[current][0].transcript
-          setTranscript(currentTranscript)
-          console.log('Recognized Voice Command:', currentTranscript);
-          // Use context's command logic with transcript
+          let finalText = "";
+          let interimText = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const r = event.results[i];
+            if (r.isFinal) finalText += r[0].transcript;
+            else interimText += r[0].transcript;
+          }
+          setTranscript(finalText || interimText);
+          if (!finalText) return;
+          // Ignore mic input while TTS is speaking, to avoid echo loops where
+          // the assistant hears its own response. Use our own time-bounded flag
+          // (set by voiceResponse) — speechSynthesis.speaking can get stuck true
+          // in Chrome and would otherwise silently kill the mic.
+          if (typeof window !== "undefined" && window.__VC_SPEAKING_UNTIL__ &&
+              Date.now() < window.__VC_SPEAKING_UNTIL__) return;
+          const normalized = finalText.trim().toLowerCase();
+          if (!normalized || normalized === lastDispatchedRef.current) return;
+          lastDispatchedRef.current = normalized;
+          console.log('Recognized Voice Command (final):', finalText);
+          interpretVoiceCommand(finalText);
+          // Allow the same phrase to be spoken again after a short gap.
           setTimeout(() => {
-            interpretVoiceCommand(currentTranscript);
-            resetTranscript();
-          }, 100);
+            if (lastDispatchedRef.current === normalized) lastDispatchedRef.current = "";
+          }, 1500);
         }
 
+        let backoffTimer = null;
+        let lastErrorRef = null;
+
+        const tryRestart = () => {
+          if (!isActiveRef.current || !recognitionRef.current) return;
+          try {
+            recognitionRef.current.start();
+            console.log('[voice] restart ok');
+          } catch (e) {
+            if (e?.name !== 'InvalidStateError') {
+              console.warn('[voice] restart threw:', e?.name, e?.message);
+            }
+          }
+        };
+
         recognitionInstance.onend = () => {
-          setIsListening(false)
-          setTimeout(() => {
+          setIsListening(false);
+          lastDispatchedRef.current = "";
+
+          if (!isActiveRef.current) {
             setTranscript("");
-            setIsActive(false);
-          }, 3000);
+            return;
+          }
+
+          // Chrome's continuous mode periodically ends on its own (silence /
+          // network blips). We just restart fast — minimal gap so speech is
+          // not lost between cycles.
+          if (backoffTimer) clearTimeout(backoffTimer);
+          backoffTimer = setTimeout(tryRestart, 80);
         }
 
         recognitionInstance.onerror = (event) => {
-          console.error("Speech recognition error", event.error)
-          setIsListening(false)
+          lastErrorRef = event.error;
+          // Terminal errors → permission denied or no mic, give up
+          if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            console.error("[voice] mic permission denied:", event.error);
+            isActiveRef.current = false;
+            setIsActive(false);
+            return;
+          }
+          // "no-speech", "aborted", "audio-capture", "network" → recoverable.
+          // Don't log the noisy "aborted" — it's the normal end-of-phrase signal in continuous mode.
+          if (event.error !== 'aborted' && event.error !== 'no-speech') {
+            console.warn("[voice] recoverable error:", event.error);
+          }
+          setIsListening(false);
         }
 
-        setRecognition(recognitionInstance)
-      }
+      recognitionRef.current = recognitionInstance;
+      setRecognition(recognitionInstance);
     }
 
     return () => {
-      if (recognition) {
-        recognition.abort()
+      // Don't abort on cleanup. StrictMode would unmount-then-remount in dev
+      // and aborting here would just create a restart loop with the new mount.
+      // We DO detach handlers so stale closures from this mount stop firing.
+      if (recognitionInstance) {
+        recognitionInstance.onstart = null;
+        recognitionInstance.onresult = null;
+        recognitionInstance.onend = null;
+        recognitionInstance.onerror = null;
       }
     }
   }, [])
 
-  // Start listening when active
+  // Listen for explicit voice deactivation from dispatcher (FAREWELL / STOP_LISTENING)
+  // and toggle from the global Ctrl+Space shortcut.
   useEffect(() => {
-    if (isActive && recognition && !isListening) {
+    const handleDeactivate = () => {
+      isActiveRef.current = false;
+      setIsActive(false);
+    };
+    const handleToggle = () => {
+      const next = !isActiveRef.current;
+      isActiveRef.current = next;
+      setIsActive(next);
+    };
+    window.addEventListener('voice:deactivate', handleDeactivate);
+    window.addEventListener('voice:toggle', handleToggle);
+    return () => {
+      window.removeEventListener('voice:deactivate', handleDeactivate);
+      window.removeEventListener('voice:toggle', handleToggle);
+    };
+  }, [setIsActive]);
+
+  // Start/stop listening when isActive flips. Do NOT depend on isListening —
+  // the recognition lifecycle (start/onend/restart) is owned by onend+tryRestart.
+  // Including isListening here creates a race: every onend → setIsListening(false)
+  // would re-run this effect and call start() while tryRestart's setTimeout is
+  // also pending, producing InvalidStateError + aborted loops.
+  useEffect(() => {
+    if (!recognition) return;
+    if (isActive) {
+      lastDispatchedRef.current = "";
       try {
-        recognition.start()
-        setShowTooltip(true)
-      } catch (error) {
-        console.error("Failed to start recognition:", error)
+        recognition.start();
+        hasStartedRef.current = true;
+        setShowTooltip(true);
+        console.log('[voice] mic activated');
+      } catch (e) {
+        // InvalidStateError = already running; ignore. Anything else: log once.
+        if (e?.name !== 'InvalidStateError') console.error("[voice] start() failed:", e);
       }
-    } else if (!isActive && recognition && isListening) {
-      recognition.stop()
-      setShowTooltip(false)
+    } else {
+      // Only stop if we've ever started — calling stop() on a never-started
+      // recognition can leave it in a stuck state on some Chrome versions.
+      if (hasStartedRef.current) {
+        try { recognition.stop(); } catch (e) {}
+        console.log('[voice] mic deactivated');
+      }
+      setShowTooltip(false);
     }
-  }, [isActive, recognition, isListening])
+  }, [isActive, recognition]);
 
   // Speak response using speech synthesis
   const speakResponse = (text) => {

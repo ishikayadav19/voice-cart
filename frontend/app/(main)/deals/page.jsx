@@ -141,16 +141,16 @@ const DealsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAF9F6]">
       <Navbar />
-      
+
       {/* Banner Section */}
-      <div className="relative h-64 bg-gradient-to-r from-rose-500 to-purple-600 mb-8">
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      <div className="relative h-64 bg-gradient-to-r from-[#1A1A1A] to-[#D4AF37] mb-8 mt-16">
+        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white">
-            <h1 className="text-4xl font-bold mb-2">Flash Deals</h1>
-            <p className="text-lg opacity-90">Limited time offers with amazing discounts</p>
+            <h1 className="text-4xl md:text-5xl font-serif font-light mb-2 tracking-wide">Flash Deals</h1>
+            <p className="text-lg opacity-90 font-light tracking-wide">Limited time offers with amazing discounts</p>
           </div>
         </div>
       </div>
@@ -167,13 +167,13 @@ const DealsPage = () => {
                   placeholder="Search deals..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+                  className="pl-10 pr-4 py-2 border border-[#E5E0D8] rounded-lg placeholder-[#7A7571] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#7A7571]" size={20} />
               </form>
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex items-center gap-2 px-4 py-2 border border-[#E5E0D8] rounded-lg text-[#1A1A1A] hover:bg-[#FAF9F6] transition-colors"
               >
                 <Filter size={20} />
                 Filters
@@ -185,7 +185,7 @@ const DealsPage = () => {
               <select
                 value={filters.sortBy}
                 onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+                className="px-4 py-2 border border-[#E5E0D8] rounded-lg text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
               >
                 <option value="discount">Highest Discount</option>
                 <option value="price-low">Price: Low to High</option>
@@ -195,7 +195,7 @@ const DealsPage = () => {
             </div>
           </div>
 
-          <p className="text-gray-600">
+          <p className="text-[#5C5C5C]">
             Showing {getFilteredProducts().length} deals
           </p>
         </div>
@@ -203,9 +203,9 @@ const DealsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Filter Sidebar */}
           {isFilterOpen && (
-            <div className="md:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div className="md:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-[#E5E0D8]">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold text-gray-800">Filters</h2>
+                <h2 className="text-lg font-serif font-light text-[#1A1A1A]">Filters</h2>
                 <button
                   onClick={() => {
                     setFilters({
@@ -216,7 +216,7 @@ const DealsPage = () => {
                       sortBy: 'discount'
                     });
                   }}
-                  className="text-sm text-rose-500 hover:text-rose-600 font-medium"
+                  className="text-sm text-[#D4AF37] hover:text-[#1A1A1A] font-medium transition-colors"
                 >
                   Clear All
                 </button>
@@ -224,7 +224,7 @@ const DealsPage = () => {
 
               {/* Price Range */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Price Range</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Price Range</h3>
                 <input
                   type="range"
                   min="0"
@@ -234,7 +234,7 @@ const DealsPage = () => {
                   onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
                   className="w-full"
                 />
-                <div className="flex justify-between text-sm text-gray-600 mt-2">
+                <div className="flex justify-between text-sm text-[#5C5C5C] mt-2">
                   <span>{formatPrice(filters.priceRange[0])}</span>
                   <span>{formatPrice(filters.priceRange[1])}</span>
                 </div>
@@ -242,7 +242,7 @@ const DealsPage = () => {
 
               {/* Brands */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Brands</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Brands</h3>
                 <div className="space-y-2">
                   {getBrands().map((brand) => (
                     <label key={brand} className="flex items-center">
@@ -250,9 +250,9 @@ const DealsPage = () => {
                         type="checkbox"
                         checked={filters.brands.includes(brand)}
                         onChange={() => toggleBrandFilter(brand)}
-                        className="rounded text-rose-500 focus:ring-rose-500"
+                        className="rounded text-[#D4AF37] focus:ring-[#D4AF37] border-[#E5E0D8]"
                       />
-                      <span className="ml-2 text-sm text-gray-600">{brand}</span>
+                      <span className="ml-2 text-sm text-[#5C5C5C]">{brand}</span>
                     </label>
                   ))}
                 </div>
@@ -260,11 +260,11 @@ const DealsPage = () => {
 
               {/* Rating Filter */}
               <div className="mb-6">
-                <h3 className="font-medium mb-3 text-gray-700">Minimum Rating</h3>
+                <h3 className="font-medium mb-3 text-[#1A1A1A]">Minimum Rating</h3>
                 <select
                   value={filters.rating}
                   onChange={(e) => handleFilterChange('rating', Number(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+                  className="w-full px-3 py-2 border border-[#E5E0D8] rounded-md text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                 >
                   <option value="0">Any Rating</option>
                   <option value="4">4★ & Above</option>
@@ -281,9 +281,9 @@ const DealsPage = () => {
                     type="checkbox"
                     checked={filters.availability}
                     onChange={(e) => handleFilterChange('availability', e.target.checked)}
-                    className="rounded text-rose-500 focus:ring-rose-500"
+                    className="rounded text-[#D4AF37] focus:ring-[#D4AF37] border-[#E5E0D8]"
                   />
-                  <span className="ml-2 text-sm text-gray-600">In Stock Only</span>
+                  <span className="ml-2 text-sm text-[#5C5C5C]">In Stock Only</span>
                 </label>
               </div>
             </div>
@@ -293,47 +293,47 @@ const DealsPage = () => {
           <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ${isFilterOpen ? 'md:col-span-3' : 'md:col-span-4'}`}>
             {loading ? (
               <div className="col-span-full flex justify-center items-center h-64">
-                <Infinity size="30" speed="2.5" color="#E11D48" />
+                <Infinity size="30" speed="2.5" color="#D4AF37" />
               </div>
             ) : getFilteredProducts().length > 0 ? (
               getFilteredProducts().map((product) => (
                 <div
                   key={product._id}
-                  className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                  className="bg-white border border-[#E5E0D8] rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
                   <div className="relative">
                     <img src={product.image || "/placeholder.svg"} alt={product.name} className="w-full h-64 object-cover" />
-                    <div className="absolute top-2 right-2 bg-rose-600 text-white px-2 py-1 rounded-md font-bold">
+                    <div className="absolute top-2 right-2 bg-[#1A1A1A] text-white px-2 py-1 rounded-md font-bold tracking-wider text-xs">
                       {Math.round((1 - product.discountPrice / product.price) * 100)}% OFF
                     </div>
                   </div>
                   <div className="p-4">
-                    <h3 className="text-lg font-semibold mb-2 text-gray-800">{product.name}</h3>
+                    <h3 className="text-lg font-medium mb-2 text-[#1A1A1A]">{product.name}</h3>
                     <div className="flex items-center mb-3">
-                      <span className="text-xl font-bold text-rose-600">₹{product.discountPrice.toFixed(2)}</span>
-                      <span className="ml-2 text-sm line-through text-gray-500">₹{product.price.toFixed(2)}</span>
+                      <span className="text-xl font-bold text-[#D4AF37]">₹{product.discountPrice.toFixed(2)}</span>
+                      <span className="ml-2 text-sm line-through text-[#7A7571]">₹{product.price.toFixed(2)}</span>
                     </div>
 
                     {/* Countdown Timer */}
                     <div className="mb-4">
-                      <p className="text-sm text-gray-600 mb-1">Offer ends in:</p>
+                      <p className="text-sm text-[#5C5C5C] mb-1">Offer ends in:</p>
                       <CountdownTimer endTime={dealEndTime} />
                     </div>
 
                     <div className="flex space-x-2">
                       <button
                         onClick={() => addToCart(product)}
-                        className="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-md font-medium transition-colors"
+                        className="flex-1 bg-[#1A1A1A] hover:bg-[#D4AF37] text-white py-2 rounded-md font-medium transition-colors tracking-wider"
                       >
                         Buy Now
                       </button>
                       <button
                         onClick={() => addToWishlist(product)}
-                        className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+                        className="p-2 bg-[#FAF9F6] border border-[#E5E0D8] hover:bg-[#E5E0D8] rounded-md transition-colors"
                       >
                         <Heart
                           size={20}
-                          className={wishlist.some((item) => item._id === product._id) ? "fill-rose-600 text-rose-600" : ""}
+                          className={wishlist.some((item) => item._id === product._id) ? "fill-[#D4AF37] text-[#D4AF37]" : "text-[#7A7571]"}
                         />
                       </button>
                     </div>
@@ -342,9 +342,9 @@ const DealsPage = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-8">
-                <SlidersHorizontal className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-800 mb-2">No deals found</h3>
-                <p className="text-gray-600 mb-4">Try adjusting your filters or search criteria.</p>
+                <SlidersHorizontal className="h-12 w-12 text-[#7A7571] mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-[#1A1A1A] mb-2">No deals found</h3>
+                <p className="text-[#5C5C5C] mb-4">Try adjusting your filters or search criteria.</p>
                 <button
                   onClick={() => {
                     setFilters({
@@ -355,7 +355,7 @@ const DealsPage = () => {
                       sortBy: 'discount'
                     });
                   }}
-                  className="px-4 py-2 bg-rose-500 text-white rounded-md hover:bg-rose-600 transition-colors"
+                  className="px-4 py-2 bg-[#1A1A1A] text-white rounded-md hover:bg-[#D4AF37] transition-colors tracking-wider"
                 >
                   Clear Filters
                 </button>

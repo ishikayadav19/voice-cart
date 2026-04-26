@@ -9,7 +9,7 @@ import { AuthProvider } from "../context/AuthContext";
 
 import SplashWrapper from "./components/SplashWrapper";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"], display: "swap" })
 
 export const metadata = {
   title: "Voice Cart",
@@ -27,10 +27,10 @@ export default function RootLayout({ children }) {
               <SplashWrapper>
                 {children}
                 <Notification />
-                <div className="fixed bottom-6 right-6 z-50">
-                  <VoiceAssistant />
-                </div>
               </SplashWrapper>
+              <div className="fixed bottom-6 right-6 z-50">
+                <VoiceAssistant />
+              </div>
             </ShopProvider>
           </VoiceProvider>
         </AuthProvider>

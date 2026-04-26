@@ -24,7 +24,7 @@ export default function SplashWrapper({ children }) {
     document.body.style.overflow = "auto";
   };
 
-  if (!mounted) return null; // Prevent flash during server-side render
+  if (!mounted) return null;
 
   return (
     <>

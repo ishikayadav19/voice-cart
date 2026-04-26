@@ -197,7 +197,7 @@ const CheckoutPage = () => {
           address: orderDetails.shippingAddress.address
         },
         theme: { // Optional theme settings
-          color: "#E11D48" // Your brand color
+          color: "#D4AF37" // Your brand color
         }
       };
 
@@ -218,7 +218,7 @@ const CheckoutPage = () => {
         return (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+              <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Card Number</label>
               <div className="relative">
                 <input
                   type="text"
@@ -228,13 +228,13 @@ const CheckoutPage = () => {
                   required
                   maxLength="16"
                   placeholder="1234 5678 9012 3456"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent pl-10"
+                  className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300 pl-10"
                 />
-                <CreditCard className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                <CreditCard className="absolute left-3 top-2.5 h-5 w-5 text-[#7A7571]" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name on Card</label>
+              <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Name on Card</label>
               <input
                 type="text"
                 name="cardName"
@@ -242,12 +242,12 @@ const CheckoutPage = () => {
                 onChange={handleInputChange}
                 required
                 placeholder="John Doe"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Expiry Date</label>
                 <input
                   type="text"
                   name="expiryDate"
@@ -256,11 +256,11 @@ const CheckoutPage = () => {
                   required
                   placeholder="MM/YY"
                   maxLength="5"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                <label className="block text-sm font-medium text-[#1A1A1A] mb-1">CVV</label>
                 <input
                   type="text"
                   name="cvv"
@@ -269,7 +269,7 @@ const CheckoutPage = () => {
                   required
                   maxLength="3"
                   placeholder="123"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                 />
               </div>
             </div>
@@ -279,7 +279,7 @@ const CheckoutPage = () => {
         return (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">UPI ID</label>
+              <label className="block text-sm font-medium text-[#1A1A1A] mb-1">UPI ID</label>
               <div className="relative">
                 <input
                   type="text"
@@ -288,13 +288,13 @@ const CheckoutPage = () => {
                   onChange={handleInputChange}
                   required
                   placeholder="username@upi"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent pl-10"
+                  className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300 pl-10"
                 />
-                <QrCode className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                <QrCode className="absolute left-3 top-2.5 h-5 w-5 text-[#7A7571]" />
               </div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-md">
-              <p className="text-sm text-gray-600">
+            <div className="bg-[#FAF9F6] p-4 rounded-md">
+              <p className="text-sm text-[#5C5C5C]">
                 Pay using any UPI app like Google Pay, PhonePe, Paytm, etc.
               </p>
             </div>
@@ -304,18 +304,18 @@ const CheckoutPage = () => {
         return (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Instructions (Optional)</label>
+              <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Delivery Instructions (Optional)</label>
               <textarea
                 name="deliveryInstructions"
                 value={formData.deliveryInstructions}
                 onChange={handleInputChange}
                 placeholder="Add any special instructions for delivery"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                 rows="3"
               />
             </div>
-            <div className="bg-gray-50 p-4 rounded-md">
-              <p className="text-sm text-gray-600">
+            <div className="bg-[#FAF9F6] p-4 rounded-md">
+              <p className="text-sm text-[#5C5C5C]">
                 Pay with cash upon delivery. A small convenience fee of ₹30 will be added to your total.
               </p>
             </div>
@@ -328,11 +328,11 @@ const CheckoutPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#FAF9F6]">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#D4AF37]"></div>
           </div>
         </div>
         <Footer />
@@ -342,15 +342,15 @@ const CheckoutPage = () => {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#FAF9F6]">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Your cart is empty</h2>
-            <p className="text-gray-600 mb-6">Please add items to your cart before proceeding to checkout.</p>
+            <h2 className="text-2xl font-semibold text-[#1A1A1A] mb-4">Your cart is empty</h2>
+            <p className="text-[#5C5C5C] mb-6">Please add items to your cart before proceeding to checkout.</p>
             <button
               onClick={() => router.push('/products')}
-              className="inline-block bg-rose-600 text-white px-6 py-3 rounded-md hover:bg-rose-700 transition-colors"
+              className="inline-block bg-[#1A1A1A] text-white px-6 py-3 rounded-md hover:bg-[#D4AF37] transition-colors tracking-wider"
             >
               Continue Shopping
             </button>
@@ -365,12 +365,12 @@ const CheckoutPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-12 bg-gray-50">
+      <main className="flex-1 pt-24 pb-12 bg-[#FAF9F6]">
         <div className="container mx-auto px-4">
           <SectionHeading
             title="Checkout"
             subtitle="Complete your purchase"
-            colors={["#E11D48", "#7C3AED", "#E11D48"]}
+            colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
             animationSpeed={3}
           />
 
@@ -384,104 +384,104 @@ const CheckoutPage = () => {
             >
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Information */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Personal Information</h2>
+                <div className="bg-white border border-[#E5E0D8] rounded-lg shadow-md p-6">
+                  <h2 className="text-xl font-semibold text-[#1A1A1A] mb-4">Personal Information</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">First Name</label>
                       <input
                         type="text"
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Last Name</label>
                       <input
                         type="text"
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Email</label>
                       <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                         readOnly
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Phone</label>
                       <input
                         type="tel"
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Shipping Address */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Shipping Address</h2>
+                <div className="bg-white border border-[#E5E0D8] rounded-lg shadow-md p-6">
+                  <h2 className="text-xl font-semibold text-[#1A1A1A] mb-4">Shipping Address</h2>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                      <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Address</label>
                       <input
                         type="text"
                         name="address"
                         value={formData.address}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                       />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">City</label>
                         <input
                           type="text"
                           name="city"
                           value={formData.city}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">State</label>
                         <input
                           type="text"
                           name="state"
                           value={formData.state}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
+                        <label className="block text-sm font-medium text-[#1A1A1A] mb-1">ZIP Code</label>
                         <input
                           type="text"
                           name="zipCode"
                           value={formData.zipCode}
                           onChange={handleInputChange}
                           required
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-[#E5E0D8] rounded-md focus:ring-2 focus:ring-[#D4AF37] focus:border-[#D4AF37] transition-all duration-300"
                         />
                       </div>
                     </div>
@@ -489,20 +489,20 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Payment Method Selection */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment Method</h2>
+                <div className="bg-white border border-[#E5E0D8] rounded-lg shadow-md p-6">
+                  <h2 className="text-xl font-semibold text-[#1A1A1A] mb-4">Payment Method</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <button
                       type="button"
                       onClick={() => setPaymentMethod("card")}
                       className={`p-4 border rounded-lg flex flex-col items-center justify-center space-y-2 transition-all ${
                         paymentMethod === "card"
-                          ? "border-rose-600 bg-rose-50"
-                          : "border-gray-200 hover:border-rose-600"
+                          ? "border-[#D4AF37] bg-[#D4AF37]/10"
+                          : "border-[#E5E0D8] hover:border-[#D4AF37]"
                       }`}
                     >
-                      <CreditCard className={`h-6 w-6 ${paymentMethod === "card" ? "text-rose-600" : "text-gray-600"}`} />
-                      <span className={`text-sm font-medium ${paymentMethod === "card" ? "text-rose-600" : "text-gray-600"}`}>
+                      <CreditCard className={`h-6 w-6 ${paymentMethod === "card" ? "text-[#D4AF37]" : "text-[#5C5C5C]"}`} />
+                      <span className={`text-sm font-medium ${paymentMethod === "card" ? "text-[#D4AF37]" : "text-[#5C5C5C]"}`}>
                         Credit/Debit Card
                       </span>
                     </button>
@@ -511,12 +511,12 @@ const CheckoutPage = () => {
                       onClick={() => setPaymentMethod("upi")}
                       className={`p-4 border rounded-lg flex flex-col items-center justify-center space-y-2 transition-all ${
                         paymentMethod === "upi"
-                          ? "border-rose-600 bg-rose-50"
-                          : "border-gray-200 hover:border-rose-600"
+                          ? "border-[#D4AF37] bg-[#D4AF37]/10"
+                          : "border-[#E5E0D8] hover:border-[#D4AF37]"
                       }`}
                     >
-                      <QrCode className={`h-6 w-6 ${paymentMethod === "upi" ? "text-rose-600" : "text-gray-600"}`} />
-                      <span className={`text-sm font-medium ${paymentMethod === "upi" ? "text-rose-600" : "text-gray-600"}`}>
+                      <QrCode className={`h-6 w-6 ${paymentMethod === "upi" ? "text-[#D4AF37]" : "text-[#5C5C5C]"}`} />
+                      <span className={`text-sm font-medium ${paymentMethod === "upi" ? "text-[#D4AF37]" : "text-[#5C5C5C]"}`}>
                         UPI
                       </span>
                     </button>
@@ -525,12 +525,12 @@ const CheckoutPage = () => {
                       onClick={() => setPaymentMethod("cod")}
                       className={`p-4 border rounded-lg flex flex-col items-center justify-center space-y-2 transition-all ${
                         paymentMethod === "cod"
-                          ? "border-rose-600 bg-rose-50"
-                          : "border-gray-200 hover:border-rose-600"
+                          ? "border-[#D4AF37] bg-[#D4AF37]/10"
+                          : "border-[#E5E0D8] hover:border-[#D4AF37]"
                       }`}
                     >
-                      <IndianRupee className={`h-6 w-6 ${paymentMethod === "cod" ? "text-rose-600" : "text-gray-600"}`} />
-                      <span className={`text-sm font-medium ${paymentMethod === "cod" ? "text-rose-600" : "text-gray-600"}`}>
+                      <IndianRupee className={`h-6 w-6 ${paymentMethod === "cod" ? "text-[#D4AF37]" : "text-[#5C5C5C]"}`} />
+                      <span className={`text-sm font-medium ${paymentMethod === "cod" ? "text-[#D4AF37]" : "text-[#5C5C5C]"}`}>
                         Cash on Delivery
                       </span>
                     </button>
@@ -542,7 +542,7 @@ const CheckoutPage = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="border-t border-gray-200 pt-6"
+                      className="border-t border-[#E5E0D8] pt-6"
                     >
                       {renderPaymentMethodForm()}
                     </motion.div>
@@ -553,14 +553,14 @@ const CheckoutPage = () => {
                   <button
                     type="button"
                     onClick={() => router.back()}
-                    className="flex items-center text-gray-600 hover:text-rose-600 transition-colors"
+                    className="flex items-center text-[#5C5C5C] hover:text-[#1A1A1A] transition-colors"
                   >
                     <ArrowLeft className="h-5 w-5 mr-2" />
                     Back to Cart
                   </button>
                   <button
                     type="submit"
-                    className="bg-rose-600 text-white px-8 py-3 rounded-md hover:bg-rose-700 transition-colors flex items-center"
+                    className="bg-[#1A1A1A] text-white px-8 py-3 rounded-md hover:bg-[#D4AF37] transition-colors flex items-center tracking-wider"
                   >
                     <Lock className="h-5 w-5 mr-2" />
                     Complete Purchase
@@ -576,8 +576,8 @@ const CheckoutPage = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="lg:col-span-1"
             >
-              <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
+              <div className="bg-white border border-[#E5E0D8] rounded-lg shadow-md p-6 sticky top-24">
+                <h2 className="text-xl font-semibold text-[#1A1A1A] mb-4">Order Summary</h2>
                 
                 {/* Cart Items */}
                 <div className="space-y-4 mb-6">
@@ -589,9 +589,9 @@ const CheckoutPage = () => {
                         className="w-16 h-16 object-cover rounded-md"
                       />
                       <div className="flex-1">
-                        <h3 className="text-sm font-medium text-gray-800">{item.name}</h3>
-                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                        <p className="text-sm font-medium text-rose-600">
+                        <h3 className="text-sm font-medium text-[#1A1A1A]">{item.name}</h3>
+                        <p className="text-sm text-[#7A7571]">Qty: {item.quantity}</p>
+                        <p className="text-sm font-medium text-[#D4AF37]">
                           ₹{(item.discountPrice || item.price).toFixed(2)}
                         </p>
                       </div>
@@ -600,31 +600,31 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Order Totals */}
-                <div className="border-t border-gray-200 pt-4 space-y-2">
+                <div className="border-t border-[#E5E0D8] pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-[#5C5C5C]">Subtotal</span>
                     <span className="font-medium">₹{calculateSubtotal().toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax (8%)</span>
+                    <span className="text-[#5C5C5C]">Tax (8%)</span>
                     <span className="font-medium">₹{calculateTax().toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Shipping</span>
+                    <span className="text-[#5C5C5C]">Shipping</span>
                     <span className="font-medium">
                       {calculateShipping() === 0 ? "Free" : `₹${calculateShipping().toFixed(2)}`}
                     </span>
                   </div>
                   {paymentMethod === "cod" && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">COD Fee</span>
+                      <span className="text-[#5C5C5C]">COD Fee</span>
                       <span className="font-medium">₹30.00</span>
                     </div>
                   )}
-                  <div className="border-t border-gray-200 pt-2 mt-2">
+                  <div className="border-t border-[#E5E0D8] pt-2 mt-2">
                     <div className="flex justify-between font-semibold">
                       <span>Total</span>
-                      <span className="text-rose-600">
+                      <span className="text-[#D4AF37]">
                         ₹{(paymentMethod === "cod" ? calculateTotal() + 30 : calculateTotal()).toFixed(2)}
                       </span>
                     </div>
@@ -632,8 +632,8 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Security Badges */}
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
+                <div className="mt-6 pt-6 border-t border-[#E5E0D8]">
+                  <div className="flex items-center justify-center space-x-4 text-sm text-[#7A7571]">
                     <div className="flex items-center">
                       <Lock className="h-4 w-4 mr-1" />
                       <span>Secure Payment</span>

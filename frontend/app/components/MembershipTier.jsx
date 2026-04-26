@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ShinyText } from './ShinyText';
 import { Crown, Sparkles, Zap, ShieldCheck, ArrowRight } from 'lucide-react';
@@ -9,6 +9,20 @@ export default function MembershipTier() {
   const ref = useRef(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+
+  // Particle positions/durations are random — generate them only on the
+  // client after mount so SSR and client output match (no hydration warning).
+  const [particles, setParticles] = useState([]);
+  useEffect(() => {
+    setParticles(
+      Array.from({ length: 10 }, () => ({
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: Math.random() * 5 + 5,
+        delay: Math.random() * 5,
+      }))
+    );
+  }, []);
 
   const mouseXSpring = useSpring(x, { stiffness: 100, damping: 20 });
   const mouseYSpring = useSpring(y, { stiffness: 100, damping: 20 });
@@ -38,7 +52,7 @@ export default function MembershipTier() {
     <section className="py-32 relative overflow-hidden bg-white">
       {/* Golden Glow Background & Particles */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[600px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none"></div>
-      {[...Array(10)].map((_, i) => (
+      {particles.map((p, i) => (
         <motion.div
           key={i}
           animate={{
@@ -46,11 +60,11 @@ export default function MembershipTier() {
             opacity: [0, 0.5, 0],
             scale: [0, 1.5, 0]
           }}
-          transition={{ duration: Math.random() * 5 + 5, repeat: Infinity, delay: Math.random() * 5 }}
+          transition={{ duration: p.duration, repeat: Infinity, delay: p.delay }}
           className="absolute w-1 h-1 bg-[#D4AF37] rounded-full blur-[1px]"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`
+            left: `${p.left}%`,
+            top: `${p.top}%`
           }}
         />
       ))}

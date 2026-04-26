@@ -10,12 +10,12 @@ const ReviewSummary = ({ rating = 0, reviewCount = 0, showCount = true, size = '
           <Star
             key={i}
             size={starSize}
-            className={i < Math.floor(rating) ? "fill-amber-400 text-amber-400" : "text-gray-300"}
+            className={i < Math.floor(rating) ? "fill-amber-400 text-amber-400" : "text-[#E5E0D8]"}
           />
         ))}
       </div>
       {showCount && reviewCount > 0 && (
-        <span className="text-xs text-gray-500 ml-1">
+        <span className="text-xs text-[#7A7571] ml-1">
           ({reviewCount})
         </span>
       )}

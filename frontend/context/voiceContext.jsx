@@ -132,6 +132,402 @@ export const VoiceProvider = ({ children }) => {
   const [cartProducts, setCartProducts] = useState([])
   const updateCartProducts = (products) => setCartProducts(products)
 
+  const [intentHistory, setIntentHistory] = useState([]);
+  const intentHistoryRef = useRef([]);
+  const pushIntentHistory = (intent) => {
+    const next = [...intentHistoryRef.current, intent].slice(-3);
+    intentHistoryRef.current = next;
+    setIntentHistory(next);
+  };
+
+  const NAV_PAGE_MAP = {
+    home: '/',
+    cart: '/cart',
+    wishlist: '/wishlist',
+    orders: '/orders',
+    checkout: '/checkout',
+    deals: '/deals',
+    sale: '/sale',
+    'new-arrivals': '/new-arrivals',
+    'new arrivals': '/new-arrivals',
+    products: '/products',
+    search: '/search',
+    contact: '/contact',
+    'voice-shopping': '/voice-shopping',
+    'voice shopping': '/voice-shopping',
+    profile: '/user/profile',
+    login: '/login',
+    signup: '/signup',
+  };
+
+  const buildSearchParams = (params = {}) => {
+    const sp = new URLSearchParams();
+    if (params.category) sp.set('category', params.category);
+    if (params.color) sp.set('color', params.color);
+    if (params.size) sp.set('size', params.size);
+    if (params.brand) sp.set('brand', params.brand);
+    if (params.query) sp.set('q', params.query);
+    if (params.min_price !== undefined) sp.set('min_price', String(params.min_price));
+    if (params.max_price !== undefined) sp.set('max_price', String(params.max_price));
+    return sp.toString();
+  };
+
+  const localQuickMatch = (raw) => {
+    const t = raw.toLowerCase().trim();
+    if (!t) return null;
+
+    // Scrolling
+    if (/\b(scroll\s*down|neeche\s*ja|niche\s*ja|page\s*down)\b/.test(t))
+      return { intent: 'SCROLL', params: { direction: 'down' }, confidence: 1 };
+    if (/\b(scroll\s*up|upar\s*ja|page\s*up)\b/.test(t))
+      return { intent: 'SCROLL', params: { direction: 'up' }, confidence: 1 };
+    if (/\b(top|sabse\s*upar|upar\s*tak)\b/.test(t) && /\b(scroll|move|jao|chalo|le)\b/.test(t))
+      return { intent: 'SCROLL', params: { direction: 'top' }, confidence: 1 };
+    if (/\b(bottom|sabse\s*neeche|niche\s*tak)\b/.test(t) && /\b(scroll|move|jao|chalo|le)\b/.test(t))
+      return { intent: 'SCROLL', params: { direction: 'bottom' }, confidence: 1 };
+
+    // Mic control
+    if (/\b(stop\s*listening|band\s*karo|chup\s*ho)\b/.test(t))
+      return { intent: 'STOP_LISTENING', params: {}, confidence: 1 };
+    if (/\b(goodbye|good\s*bye|bye|alvida)\b/.test(t))
+      return { intent: 'FAREWELL', params: {}, confidence: 1 };
+
+    // Greetings
+    if (/^\s*(hello|hi|hey|namaste|namaskar)\b/.test(t))
+      return { intent: 'GREETING', params: {}, confidence: 1 };
+
+    // Help
+    if (/\b(help|instructions|kaise|how do)\b/.test(t) && t.length < 40)
+      return { intent: 'HELP', params: {}, confidence: 0.9 };
+
+    // Checkout
+    if (/\b(checkout|check\s*out|place\s*order|order\s*kar)\b/.test(t))
+      return { intent: 'CHECKOUT', params: {}, confidence: 1 };
+
+    // "add <X> to (my) wishlist" / "<X> ko wishlist me daal do" / "save <X> for later"
+    {
+      const wlAdd = t.match(
+        /^(?:add\s+|put\s+|save\s+)?(.+?)\s+(?:to(?:\s+my)?\s+wishlist|ko\s+wishlist(?:\s+me)?(?:\s+daal\s+do)?|for\s+later)$/
+      );
+      if (wlAdd) {
+        const name = wlAdd[1].replace(/^(the|a|an)\s+/, '').trim();
+        if (name.length >= 2) {
+          return { intent: 'ADD_WISHLIST', params: { query: name }, confidence: 0.9 };
+        }
+      }
+      const wlRemove = t.match(
+        /^remove\s+(.+?)\s+from(?:\s+my)?\s+wishlist$/
+      );
+      if (wlRemove) {
+        const name = wlRemove[1].replace(/^(the|a|an)\s+/, '').trim();
+        if (name.length >= 2) {
+          return { intent: 'REMOVE_WISHLIST', params: { query: name }, confidence: 0.9 };
+        }
+      }
+    }
+
+    // "add <X> to (my) cart" / "<X> ko cart me daal do"
+    {
+      const cAdd = t.match(
+        /^(?:add\s+|put\s+)?(.+?)\s+(?:to(?:\s+my)?\s+(?:cart|basket)|ko\s+cart(?:\s+me)?(?:\s+daal\s+do)?)$/
+      );
+      if (cAdd) {
+        const name = cAdd[1].replace(/^(the|a|an)\s+/, '').trim();
+        if (name.length >= 2) {
+          return { intent: 'ADD_CART', params: { query: name }, confidence: 0.9 };
+        }
+      }
+      const cRemove = t.match(
+        /^remove\s+(.+?)\s+from(?:\s+my)?\s+cart$/
+      );
+      if (cRemove) {
+        const name = cRemove[1].replace(/^(the|a|an)\s+/, '').trim();
+        if (name.length >= 2) {
+          return { intent: 'REMOVE_CART', params: { query: name }, confidence: 0.9 };
+        }
+      }
+    }
+
+    // "open <product name>" / "show me <product name>" — when the phrase
+    // doesn't match a known page, treat it as PRODUCT_OPEN. The server-side
+    // matcher will resolve the name to a product_id (or fall back to search).
+    const productOpenMatch = t.match(
+      /^(?:open|show(?:\s+me)?|khol(?:\s+do)?|dikhao|le\s+chalo|jao|take\s+me\s+to)\s+(.+)$/
+    );
+    if (productOpenMatch) {
+      const after = productOpenMatch[1].trim();
+      const looksLikePage = /\b(cart|wishlist|orders?|deals?|sale|home|profile|login|signup|contact|new\s*arrivals?|voice\s*shopping)\b/.test(after);
+      if (!looksLikePage && after.length >= 2) {
+        return { intent: 'PRODUCT_OPEN', params: { query: after }, confidence: 0.85 };
+      }
+    }
+
+    // Navigation — quick page matches
+    const pageRules = [
+      [/\b(cart|basket)\b/, 'cart'],
+      [/\bwishlist\b/, 'wishlist'],
+      [/\b(my\s+)?orders?\b/, 'orders'],
+      [/\b(deals?|offers?)\b/, 'deals'],
+      [/\bsale\b/, 'sale'],
+      [/\bnew\s*arrivals?\b/, 'new-arrivals'],
+      [/\bcontact\b/, 'contact'],
+      [/\bvoice\s*shopping\b/, 'voice-shopping'],
+      [/\bprofile\b/, 'profile'],
+      [/\b(login|sign\s*in)\b/, 'login'],
+      [/\bsignup|sign\s*up\b/, 'signup'],
+      [/\bhome\b/, 'home'],
+    ];
+    if (/\b(open|go\s*to|show|take\s*me\s*to|khol|le\s*chalo|jao)\b/.test(t)) {
+      for (const [re, page] of pageRules) {
+        if (re.test(t)) return { intent: 'NAVIGATE', params: { page }, confidence: 1 };
+      }
+    }
+
+    return null;
+  };
+
+  const dispatchIntent = async (intentObj) => {
+    if (!intentObj || !intentObj.intent) return;
+    const { intent, params = {} } = intentObj;
+    console.log('[voice] dispatch:', intent, params);
+
+    switch (intent) {
+      case 'PRODUCT_OPEN': {
+        const q = (params.query || '').trim();
+        if (!q) {
+          voiceResponse('Which product would you like to open?');
+          break;
+        }
+        triggerModal('Looking up product…', q);
+        try {
+          const res = await fetch(`/api/voice/product-search?q=${encodeURIComponent(q)}`);
+          const data = await res.json();
+          if (data?.match?.id) {
+            router.push(`/product/${data.match.id}`);
+            voiceResponse(`Opening ${data.match.name}`);
+            triggerModal('Opening product', data.match.name);
+          } else {
+            router.push(`/search?q=${encodeURIComponent(q)}`);
+            voiceResponse(`I couldn't find an exact match. Showing search results for ${q}.`);
+            triggerModal("Couldn't find that product", `Searching for ${q}`);
+          }
+        } catch (err) {
+          console.error('PRODUCT_OPEN lookup failed:', err);
+          router.push(`/search?q=${encodeURIComponent(q)}`);
+          voiceResponse(`Searching for ${q}`);
+        }
+        break;
+      }
+      case 'FILTER': {
+        const qs = buildSearchParams(params);
+        const base = params.category ? '/search' : '/search';
+        router.push(qs ? `${base}?${qs}` : base);
+        voiceResponse('Showing filtered results');
+        triggerModal('Filtering', qs || 'Showing results');
+        break;
+      }
+      case 'NAVIGATE': {
+        const slug = (params.page || '').toLowerCase().trim();
+        const path = NAV_PAGE_MAP[slug];
+        if (path) {
+          router.push(path);
+          voiceResponse(`Navigating to ${slug}`);
+          triggerModal('Navigating...', `Going to ${slug}`);
+        } else if (slug) {
+          voicePageNavigator(slug);
+        }
+        break;
+      }
+      case 'ADD_CART': {
+        const q = (params.query || '').trim();
+        const productId = params.product_id;
+        let product = null;
+        if (!productId && q) {
+          triggerModal('Adding to cart…', q);
+          try {
+            const res = await fetch(`/api/voice/product-search?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            if (data?.match?.id) product = data.match;
+          } catch (err) { console.error('ADD_CART lookup failed:', err); }
+        }
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('voice:add-to-cart', {
+            detail: { product_id: productId || product?.id, product, query: q, quantity: 1 },
+          }));
+        }
+        if (product) {
+          voiceResponse(`Added ${product.name} to your cart`);
+          triggerModal('Added to cart', product.name);
+        } else if (q) {
+          voiceResponse(`I couldn't find ${q}. Try a clearer name.`);
+          triggerModal("Couldn't find product", q);
+        } else {
+          voiceResponse('Adding to your cart');
+        }
+        break;
+      }
+      case 'REMOVE_CART': {
+        const q = (params.query || '').trim();
+        const productId = params.product_id;
+        let product = null;
+        if (!productId && q) {
+          try {
+            const res = await fetch(`/api/voice/product-search?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            if (data?.match?.id) product = data.match;
+          } catch (err) { console.error('REMOVE_CART lookup failed:', err); }
+        }
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('voice:remove-from-cart', {
+            detail: { product_id: productId || product?.id, query: q },
+          }));
+        }
+        voiceResponse(product ? `Removed ${product.name} from your cart` : 'Removing from your cart');
+        break;
+      }
+      case 'ADD_WISHLIST': {
+        const q = (params.query || '').trim();
+        const productId = params.product_id;
+        let product = null;
+        if (!productId && q) {
+          triggerModal('Adding to wishlist…', q);
+          try {
+            const res = await fetch(`/api/voice/product-search?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            if (data?.match?.id) product = data.match;
+          } catch (err) { console.error('ADD_WISHLIST lookup failed:', err); }
+        }
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('voice:add-to-wishlist', {
+            detail: { product_id: productId || product?.id, product, query: q },
+          }));
+        }
+        if (product) {
+          voiceResponse(`Added ${product.name} to your wishlist`);
+          triggerModal('Added to wishlist', product.name);
+        } else if (q) {
+          voiceResponse(`I couldn't find ${q}. Try a clearer name.`);
+          triggerModal("Couldn't find product", q);
+        } else {
+          voiceResponse('Adding to your wishlist');
+        }
+        break;
+      }
+      case 'REMOVE_WISHLIST': {
+        const q = (params.query || '').trim();
+        const productId = params.product_id;
+        let product = null;
+        if (!productId && q) {
+          try {
+            const res = await fetch(`/api/voice/product-search?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            if (data?.match?.id) product = data.match;
+          } catch (err) { console.error('REMOVE_WISHLIST lookup failed:', err); }
+        }
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('voice:remove-from-wishlist', {
+            detail: { product_id: productId || product?.id, query: q },
+          }));
+        }
+        voiceResponse(product ? `Removed ${product.name} from your wishlist` : 'Removing from your wishlist');
+        break;
+      }
+      case 'CHECKOUT': {
+        router.push('/checkout');
+        voiceResponse('Taking you to checkout');
+        triggerModal('Checkout', 'Proceeding to checkout');
+        break;
+      }
+      case 'REFINE': {
+        const qs = buildSearchParams(params);
+        if (qs) router.push(`/search?${qs}`);
+        voiceResponse('Refining your results');
+        break;
+      }
+      case 'COMPARE': {
+        voiceResponse('Compare view is not available yet');
+        break;
+      }
+      case 'RECOMMEND': {
+        router.push('/products');
+        voiceResponse('Here are some recommendations');
+        break;
+      }
+      case 'SEARCH': {
+        const q = (params.query || '').trim();
+        if (q) {
+          router.push(`/search?q=${encodeURIComponent(q)}`);
+          voiceResponse(`Searching for ${q}`);
+          triggerModal('Searching', q);
+        } else {
+          voiceResponse('What would you like to search for?');
+        }
+        break;
+      }
+      case 'SCROLL': {
+        const dir = (params.direction || 'down').toLowerCase();
+        if (typeof window === 'undefined') break;
+        if (dir === 'up') {
+          window.scrollBy(0, -window.innerHeight / 2);
+          triggerModal('Scrolling Up', '', true, <IconArrowUp size={50} />);
+        } else if (dir === 'top') {
+          window.scrollTo(0, 0);
+          triggerModal('Moving to Top', '', true, <IconArrowUpBar size={50} />);
+        } else if (dir === 'bottom') {
+          window.scrollTo(0, document.body.scrollHeight);
+          triggerModal('Moving to Bottom', '', true, <IconArrowDownBar size={50} />);
+        } else {
+          window.scrollBy(0, window.innerHeight / 2);
+          triggerModal('Scrolling Down', '', true, <IconArrowDown size={50} />);
+        }
+        break;
+      }
+      case 'LOGOUT': {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('voice:logout'));
+        }
+        voiceResponse('Logging you out');
+        triggerModal('Logging out', '');
+        break;
+      }
+      case 'HELP': {
+        setShowInstruction(true);
+        voiceResponse('Here are the things you can say');
+        break;
+      }
+      case 'GREETING': {
+        voiceResponse('Hello! How can I help you?');
+        triggerModal('Hello', 'How can I help?');
+        break;
+      }
+      case 'FAREWELL': {
+        voiceResponse('Goodbye! Have a nice day');
+        triggerModal('Goodbye', '', false, <IconMicrophoneOff size={50} />);
+        SpeechRecognition.stopListening();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('voice:deactivate'));
+        }
+        break;
+      }
+      case 'STOP_LISTENING': {
+        voiceResponse('Okay, I will stop listening');
+        triggerModal('Stopped listening', '', false, <IconMicrophoneOff size={50} />);
+        SpeechRecognition.stopListening();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('voice:deactivate'));
+        }
+        break;
+      }
+      case 'UNKNOWN':
+      default: {
+        const heard = (params.query || '').trim();
+        voiceResponse("Sorry, I didn't catch that. Please try again.", false);
+        triggerModal("Didn't catch that", heard ? `Heard: "${heard}"` : 'Please try again');
+        break;
+      }
+    }
+  };
+
   const triggerModal = (title, description, centered = true, icon = <FaMicrophone size={50} />) => {
     setModalOptions({
       icon,
@@ -376,98 +772,91 @@ export const VoiceProvider = ({ children }) => {
     }
   }, [finalTranscript, listening])
   
-  const voiceResponse = (text, stopListening = true) => {
-    if (speechRef.current) {
-      speechRef.current.text = text;
-      window.speechSynthesis.speak(speechRef.current);
+  const voiceResponse = (text, stopListening = false) => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      // Chrome has a known bug where reusing the same SpeechSynthesisUtterance
+      // (or queueing without cancel) leaves `speechSynthesis.speaking === true`
+      // forever, which then locks our mic echo guard. Always cancel first and
+      // create a fresh utterance per call.
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+      const u = new SpeechSynthesisUtterance(text);
+      if (voices && voices.length > 5) u.voice = voices[5];
+
+      // Set our own time-bounded "speaking until" timestamp. The voice-assistant
+      // echo guard reads this instead of speechSynthesis.speaking (which can
+      // get stuck true). Estimate ~80ms per character + 500ms padding, capped.
+      const estimatedMs = Math.min(8000, 500 + text.length * 80);
+      window.__VC_SPEAKING_UNTIL__ = Date.now() + estimatedMs;
+
+      const clearFlag = () => { window.__VC_SPEAKING_UNTIL__ = 0; };
+      const clearTimer = setTimeout(() => {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+        clearFlag();
+      }, estimatedMs + 1000);
+      u.onend = () => { clearTimeout(clearTimer); clearFlag(); };
+      u.onerror = () => { clearTimeout(clearTimer); clearFlag(); };
+      try { window.speechSynthesis.speak(u); }
+      catch (e) { clearTimeout(clearTimer); clearFlag(); }
     }
     if (stopListening) {
       SpeechRecognition.stopListening();
     }
   }
 
-  const interpretVoiceCommand = (inputTranscript) => {
-    const cmd = (inputTranscript || transcript).toLowerCase();
-    // Try to match with pageDetails
-    for (const page of pageDetails) {
-      if (cmd.includes(page.pageName)) {
-        voicePageNavigator(page.pageName);
-        SpeechRecognition.stopListening();
-        resetTranscript();
-        return;
+  const interpretVoiceCommand = async (inputTranscript) => {
+    const raw = (inputTranscript || transcript || '').trim();
+
+    if (!raw) {
+      resetTranscript();
+      return;
+    }
+
+    // Fast path: handle obvious commands locally without an API round-trip.
+    const quick = localQuickMatch(raw);
+    if (quick) {
+      pushIntentHistory(quick);
+      dispatchIntent(quick);
+      resetTranscript();
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/voice/intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript: raw,
+          history: intentHistoryRef.current,
+        }),
+      });
+
+      const data = await res.json();
+      if (data && data.intent) {
+        pushIntentHistory(data);
+        dispatchIntent(data);
       }
-    }
-    // Try to match with specific keywords
-    if (cmd.startsWith('search for ')) {
-      const query = cmd.replace('search for ', '').trim();
-      if (query) {
-        router.push(`/search?q=${encodeURIComponent(query)}`);
-        voiceResponse(`Searching for ${query}`);
-        SpeechRecognition.stopListening();
-        resetTranscript();
-        return;
-      }
-    }
-    if (cmd.startsWith('add ') && cmd.includes(' to cart')) {
-      const item = cmd.replace('add ', '').replace(' to cart', '').trim();
-      voiceResponse(`Adding ${item} to cart. Please use the product page to confirm.`);
-      SpeechRecognition.stopListening();
+    } catch (err) {
+      console.error('Voice intent fetch failed:', err);
+      const fallback = { intent: 'UNKNOWN', params: { query: raw }, confidence: 0 };
+      pushIntentHistory(fallback);
+      dispatchIntent(fallback);
+    } finally {
       resetTranscript();
-      return;
     }
-    if (cmd.includes('scroll up')) {
-      window.scrollBy(0, -window.innerHeight / 2);
-      triggerModal('Scrolling Up', '', true, <IconArrowUp size={50} />);
-      SpeechRecognition.stopListening();
-      resetTranscript();
-      return;
-    }
-    if (cmd.includes('scroll down')) {
-      window.scrollBy(0, window.innerHeight / 2);
-      triggerModal('Scrolling Down', '', true, <IconArrowDown size={50} />);
-      SpeechRecognition.stopListening();
-      resetTranscript();
-      return;
-    }
-    if (cmd.includes('move to top')) {
-      window.scrollTo(0, 0);
-      triggerModal('Moving to Top', '', true, <IconArrowUpBar size={50} />);
-      SpeechRecognition.stopListening();
-      resetTranscript();
-      return;
-    }
-    if (cmd.includes('move to bottom')) {
-      window.scrollTo(0, document.body.scrollHeight);
-      triggerModal('Moving to Bottom', '', true, <IconArrowDownBar size={50} />);
-      SpeechRecognition.stopListening();
-      resetTranscript();
-      return;
-    }
-    if (cmd.includes('hello')) {
-      voiceResponse('Hello! How can I help you?');
-      SpeechRecognition.stopListening();
-      resetTranscript();
-      return;
-    }
-    if (cmd.includes('goodbye')) {
-      voiceResponse('Goodbye! Have a nice day!');
-      SpeechRecognition.stopListening();
-      resetTranscript();
-      return;
-    }
-    // Fallback: no voice response, just stop listening and reset
-    SpeechRecognition.stopListening();
-    resetTranscript();
   }
 
 
   useEffect(() => {
-    document.addEventListener('keydown', (e) => {
-      // console.log(e.code);
+    const onKey = (e) => {
       if (e.code === 'Space' && e.ctrlKey) {
-        SpeechRecognition.startListening();
+        e.preventDefault();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('voice:toggle'));
+        }
       }
-    });
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
   }, [])
 
 
@@ -510,7 +899,9 @@ export const VoiceProvider = ({ children }) => {
       triggerModal,
       checkExistenceInTranscript,
       cartProducts,
-      updateCartProducts
+      updateCartProducts,
+      intentHistory,
+      dispatchIntent
     }}>
 
       {children}

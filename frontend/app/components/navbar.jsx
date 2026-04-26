@@ -45,9 +45,13 @@ const Navbar = () => {
     }
   }, [isSearchOpen])
 
-  // Handle voice search
+  // Handle voice search. The global VoiceAssistant also owns a recognition
+  // instance; Chrome only allows ONE active mic stream at a time, so we must
+  // release the global one before starting our own — otherwise both abort.
   const startVoiceSearch = () => {
     if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      window.dispatchEvent(new CustomEvent('voice:deactivate'));
+
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
       const recognition = new SpeechRecognition()
 
@@ -73,7 +77,11 @@ const Navbar = () => {
         setIsVoiceListening(false)
       }
 
-      recognition.start()
+      // Small delay so the global recognition has time to release the mic stream
+      setTimeout(() => {
+        try { recognition.start(); }
+        catch (e) { setIsVoiceListening(false); console.error('navbar mic start failed:', e); }
+      }, 200);
     } else {
       alert("Voice recognition is not supported in your browser.")
     }

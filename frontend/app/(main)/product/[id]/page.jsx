@@ -210,7 +210,7 @@ const ProductViewPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Infinity size="30" speed="2.5" color="#E11D48" />
+        <Infinity size="30" speed="2.5" color="#D4AF37" />
       </div>
     );
   }
@@ -219,8 +219,8 @@ const ProductViewPage = () => {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Product Not Found</h2>
-          <p className="text-gray-600">The product you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-2xl font-serif font-light text-[#1A1A1A] mb-2">Product Not Found</h2>
+          <p className="text-[#5C5C5C]">The product you're looking for doesn't exist or has been removed.</p>
         </div>
       </div>
     );
@@ -300,7 +300,7 @@ const ProductViewPage = () => {
                   <Star
                     key={i}
                     size={20}
-                    className={i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "text-gray-300"}
+                    className={i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "text-[#E5E0D8]"}
                   />
                 ))}
                 <span className="ml-2 text-[#5C5C5C]">({product.reviews} reviews)</span>
@@ -329,8 +329,8 @@ const ProductViewPage = () => {
             {/* Stock Status */}
             <div className="mb-6">
               <div className="flex items-center gap-2">
-                <span className={`w-3 h-3 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                <span className={product.stock > 0 ? "text-green-600" : "text-red-600"}>
+                <span className={`w-3 h-3 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-[#E11D48]'}`}></span>
+                <span className={product.stock > 0 ? "text-green-600" : "text-[#E11D48]"}>
                   {product.stock > 0 ? `${product.stock} units available` : "Out of stock"}
                 </span>
               </div>
@@ -434,14 +434,14 @@ const ProductViewPage = () => {
                               <div className="flex gap-2">
                                 <button
                                   onClick={startEditing}
-                                  className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm"
+                                  className="flex items-center gap-1 text-[#D4AF37] hover:text-[#1A1A1A] text-sm transition-colors"
                                 >
                                   <Edit size={14} />
                                   Edit
                                 </button>
                                 <button
                                   onClick={handleDeleteReview}
-                                  className="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm"
+                                  className="flex items-center gap-1 text-[#E11D48] hover:text-[#1A1A1A] text-sm transition-colors"
                                 >
                                   <Trash2 size={14} />
                                   Delete
@@ -454,10 +454,10 @@ const ProductViewPage = () => {
                                   <Star
                                     key={i}
                                     size={16}
-                                    className={i < userReview.rating ? "fill-amber-400 text-amber-400" : "text-gray-300"}
+                                    className={i < userReview.rating ? "fill-amber-400 text-amber-400" : "text-[#E5E0D8]"}
                                   />
                                 ))}
-                                <span className="ml-2 text-sm text-gray-500">
+                                <span className="ml-2 text-sm text-[#7A7571]">
                                   {new Date(userReview.createdAt).toLocaleDateString()}
                                 </span>
                               </div>
@@ -470,25 +470,25 @@ const ProductViewPage = () => {
                               {isEditing ? 'Edit Your Review' : 'Write a Review'}
                             </h3>
                             {reviewError && (
-                              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
+                              <div className="mb-4 p-3 bg-red-50 border border-red-100 text-red-700 rounded-lg text-sm">
                                 {reviewError}
                               </div>
                             )}
                             {reviewSuccess && (
-                              <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-600 rounded-lg">
+                              <div className="mb-4 p-3 bg-green-50 border border-green-100 text-green-700 rounded-lg text-sm">
                                 {reviewSuccess}
                               </div>
                             )}
                             <form onSubmit={handleSubmitReview} className="space-y-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                                <label className="block text-sm font-medium text-[#1A1A1A] mb-2">Rating</label>
                                 <div className="flex items-center">
                                   {[...Array(5)].map((_, i) => (
                                     <Star
                                       key={i}
                                       size={24}
                                       className={`cursor-pointer transition-colors ${
-                                        i < newReview.rating ? "fill-amber-400 text-amber-400" : "text-gray-300"
+                                        i < newReview.rating ? "fill-amber-400 text-amber-400" : "text-[#E5E0D8]"
                                       }`}
                                       onClick={() => setNewReview({ ...newReview, rating: i + 1 })}
                                     />
@@ -516,7 +516,7 @@ const ProductViewPage = () => {
                                   <button
                                     type="button"
                                     onClick={cancelEditing}
-                                    className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                                    className="bg-white border border-[#E5E0D8] text-[#1A1A1A] hover:bg-[#FAF9F6] font-semibold py-2 px-4 rounded-lg transition-colors"
                                   >
                                     Cancel
                                   </button>
@@ -550,7 +550,7 @@ const ProductViewPage = () => {
                         </div>
                       ) : (
                         reviews.map((review) => (
-                          <div key={review._id} className="border-b border-gray-200 pb-6 last:border-0">
+                          <div key={review._id} className="border-b border-[#E5E0D8] pb-6 last:border-0">
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center">
                                 <div className="flex items-center">
@@ -558,24 +558,24 @@ const ProductViewPage = () => {
                                     <Star
                                       key={i}
                                       size={16}
-                                      className={i < review.rating ? "fill-amber-400 text-amber-400" : "text-gray-300"}
+                                      className={i < review.rating ? "fill-amber-400 text-amber-400" : "text-[#E5E0D8]"}
                                     />
                                   ))}
                                 </div>
-                                <span className="ml-2 text-sm text-gray-500">
+                                <span className="ml-2 text-sm text-[#7A7571]">
                                   by {review.userId?.name || 'Anonymous'}
                                 </span>
                                 {userReview && userReview._id === review._id && (
-                                  <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">
+                                  <span className="ml-2 text-xs bg-[#D4AF37]/10 text-[#D4AF37] px-2 py-1 rounded border border-[#D4AF37]/20">
                                     Your review
                                   </span>
                                 )}
                               </div>
-                              <span className="text-sm text-gray-500">
+                              <span className="text-sm text-[#7A7571]">
                                 {new Date(review.createdAt).toLocaleDateString()}
                               </span>
                             </div>
-                            <p className="text-gray-700">{review.comment}</p>
+                            <p className="text-[#1A1A1A]">{review.comment}</p>
                           </div>
                         ))
                       )}

@@ -63,7 +63,7 @@ export default function CuratedDepartments() {
               <div className="absolute inset-0 p-6 flex flex-col justify-end">
                 <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                   <h3 className="text-2xl font-serif text-white mb-2">{dept.name}</h3>
-                  <p className="text-gray-300 font-light text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">{dept.desc}</p>
+                  <p className="text-white/80 font-light text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">{dept.desc}</p>
                 </div>
                 
                 <div className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300">

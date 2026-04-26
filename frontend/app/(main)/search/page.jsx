@@ -48,42 +48,42 @@ const SearchPage = () => {
   }, [query])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAF9F6]">
       <Navbar />
       
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">
+          <h1 className="text-3xl font-serif font-light text-[#1A1A1A] mb-8">
             Search Results for "{query}"
           </h1>
 
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rose-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#D4AF37]"></div>
             </div>
           ) : error ? (
             <div className="text-center py-12">
-              <p className="text-red-600 mb-4">{error}</p>
-              <p className="text-gray-600">Please check your connection and try again.</p>
+              <p className="text-[#E11D48] mb-4">{error}</p>
+              <p className="text-[#5C5C5C]">Please check your connection and try again.</p>
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-12">
-              <h2 className="text-2xl font-semibold text-gray-700 mb-4">No products found</h2>
-              <p className="text-gray-600 mb-6">
+              <h2 className="text-2xl font-serif font-light text-[#1A1A1A] mb-4">No products found</h2>
+              <p className="text-[#5C5C5C] mb-6">
                 We couldn't find any products matching "{query}". Try different keywords or browse our categories.
               </p>
               <div className="flex justify-center space-x-4">
-                <Link href="/products" className="text-rose-600 hover:text-rose-700 font-medium">
+                <Link href="/products" className="text-[#D4AF37] hover:text-[#1A1A1A] font-medium transition-colors">
                   Browse All Products
                 </Link>
-                <Link href="/" className="text-rose-600 hover:text-rose-700 font-medium">
+                <Link href="/" className="text-[#D4AF37] hover:text-[#1A1A1A] font-medium transition-colors">
                   Return Home
                 </Link>
               </div>
             </div>
           ) : (
             <>
-              <p className="text-gray-600 mb-6">Found {products.length} products</p>
+              <p className="text-[#5C5C5C] mb-6">Found {products.length} products</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {products.map((product) => (
                   <ProductCard

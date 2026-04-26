@@ -25,12 +25,12 @@ const WishlistPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-12 bg-gray-50">
+      <main className="flex-1 pt-24 pb-12 bg-[#FAF9F6]">
         <div className="container mx-auto px-4">
           <SectionHeading
             title="My Wishlist"
             subtitle="Save your favorite items for later"
-            colors={["#E11D48", "#7C3AED", "#E11D48"]}
+            colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
             animationSpeed={3}
           />
 
@@ -39,14 +39,14 @@ const WishlistPage = () => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Wishlist Items */}
                 <div className="lg:col-span-2">
-                  <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <div className="bg-white border border-[#E5E0D8] rounded-lg shadow-md overflow-hidden">
                     {wishlist.map((product) => (
                       <motion.div
                         key={product._id || product.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="flex items-center p-4 border-b border-gray-200 last:border-b-0"
+                        className="flex items-center p-4 border-b border-[#E5E0D8] last:border-b-0"
                       >
                         <Link href={`/product/${product._id || product.id}`} className="flex-shrink-0">
                           <img
@@ -57,16 +57,16 @@ const WishlistPage = () => {
                         </Link>
                         <div className="ml-4 flex-1">
                           <Link href={`/product/${product._id || product.id}`}>
-                            <h3 className="text-lg font-semibold text-gray-800 hover:text-rose-600">
+                            <h3 className="text-lg font-medium text-[#1A1A1A] hover:text-[#D4AF37] transition-colors">
                               {product.name}
                             </h3>
                           </Link>
                           <div className="flex items-center mt-2">
-                            <span className="text-lg font-bold text-rose-600">
+                            <span className="text-lg font-bold text-[#D4AF37]">
                               &#8377;{(product.discountPrice || product.price).toFixed(2)}
                             </span>
                             {product.discountPrice && (
-                              <span className="ml-2 text-sm line-through text-gray-500">
+                              <span className="ml-2 text-sm line-through text-[#7A7571]">
                                 &#8377;{product.price.toFixed(2)}
                               </span>
                             )}
@@ -77,7 +77,7 @@ const WishlistPage = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => addToCart(product)}
-                            className="px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700 transition-colors flex items-center gap-2"
+                            className="px-4 py-2 bg-[#1A1A1A] text-white rounded-md hover:bg-[#D4AF37] transition-colors flex items-center gap-2 tracking-wider"
                           >
                             <ShoppingCart size={18} />
                             Add to Cart
@@ -86,7 +86,7 @@ const WishlistPage = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleRemoveFromWishlist(product._id || product.id)}
-                            className="p-2 text-gray-500 hover:text-rose-600 transition-colors"
+                            className="p-2 text-[#7A7571] hover:text-[#E11D48] transition-colors"
                           >
                             <Trash2 size={20} />
                           </motion.button>
@@ -98,15 +98,15 @@ const WishlistPage = () => {
 
                 {/* Summary */}
                 <div className="lg:col-span-1">
-                  <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Wishlist Summary</h2>
+                  <div className="bg-white border border-[#E5E0D8] rounded-lg shadow-md p-6">
+                    <h2 className="text-xl font-serif font-light text-[#1A1A1A] mb-4">Wishlist Summary</h2>
                     <div className="space-y-4">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Total Items</span>
-                        <span className="font-semibold">{wishlist.length}</span>
+                        <span className="text-[#5C5C5C]">Total Items</span>
+                        <span className="font-semibold text-[#1A1A1A]">{wishlist.length}</span>
                       </div>
-                      <div className="border-t border-gray-200 pt-4">
-                        <p className="text-gray-600 text-sm">
+                      <div className="border-t border-[#E5E0D8] pt-4">
+                        <p className="text-[#5C5C5C] text-sm">
                           Add items to your cart to proceed with checkout. You can also remove items from your wishlist if you no longer want them.
                         </p>
                       </div>
@@ -120,12 +120,12 @@ const WishlistPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center py-12"
               >
-                <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold text-gray-700 mb-4">Your wishlist is empty</h2>
-                <p className="text-gray-600 mb-6">Start adding items you love to your wishlist.</p>
+                <Heart className="h-16 w-16 text-[#7A7571] mx-auto mb-4" />
+                <h2 className="text-2xl font-serif font-light text-[#1A1A1A] mb-4">Your wishlist is empty</h2>
+                <p className="text-[#5C5C5C] mb-6">Start adding items you love to your wishlist.</p>
                 <Link
                   href="/products"
-                  className="inline-block bg-rose-600 text-white px-6 py-3 rounded-md hover:bg-rose-700 transition-colors"
+                  className="inline-block bg-[#1A1A1A] text-white px-6 py-3 rounded-md hover:bg-[#D4AF37] transition-colors tracking-wider"
                 >
                   Start Shopping
                 </Link>

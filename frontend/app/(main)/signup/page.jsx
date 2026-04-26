@@ -12,7 +12,7 @@ const SignupPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+      <main className="flex-1 flex items-center justify-center px-4 py-16 bg-[#FAF9F6]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -23,7 +23,7 @@ const SignupPage = () => {
             <SectionHeading
               title="Join VoiceCart"
               subtitle="Choose how you want to Sign Up"
-              colors={["#E11D48", "#7C3AED", "#E11D48"]}
+              colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
               animationSpeed={3}
               className="text-4xl font-bold mb-4"
             />
@@ -35,23 +35,23 @@ const SignupPage = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
               whileHover={{ scale: 1.02 }}
-              className="bg-white rounded-xl shadow-lg overflow-hidden relative group"
+              className="bg-white border border-[#E5E0D8] rounded-xl shadow-lg overflow-hidden relative group"
             >
               {/* Background Pattern */}
               <div className="absolute inset-0 opacity-5">
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-purple-600 transform rotate-45 scale-150"></div>
+                <div className="absolute inset-0 bg-[#D4AF37] transform rotate-45 scale-150"></div>
               </div>
 
               <Link href="/user/signup" className="block p-8 relative">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#1A1A1A] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <User className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">User Sign Up</h3>
-                  <p className="text-gray-600 mb-6">
+                  <h3 className="text-2xl font-serif font-light text-[#1A1A1A] mb-2">User Sign Up</h3>
+                  <p className="text-[#5C5C5C] mb-6">
                     Create an account to shop and explore products
                   </p>
-                  <span className="inline-flex items-center text-rose-600 font-medium group-hover:text-rose-500 transition-colors">
+                  <span className="inline-flex items-center text-[#D4AF37] font-medium group-hover:text-[#1A1A1A] transition-colors">
                     Sign Up as User
                     <svg
                       className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform"
@@ -76,23 +76,23 @@ const SignupPage = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
               whileHover={{ scale: 1.02 }}
-              className="bg-white rounded-xl shadow-lg overflow-hidden relative group"
+              className="bg-white border border-[#E5E0D8] rounded-xl shadow-lg overflow-hidden relative group"
             >
               {/* Background Pattern */}
               <div className="absolute inset-0 opacity-5">
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-purple-600 transform rotate-45 scale-150"></div>
+                <div className="absolute inset-0 bg-[#D4AF37] transform rotate-45 scale-150"></div>
               </div>
 
               <Link href="/seller/signup" className="block p-8 relative">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#1A1A1A] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Store className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Seller Sign Up</h3>
-                  <p className="text-gray-600 mb-6">
+                  <h3 className="text-2xl font-serif font-light text-[#1A1A1A] mb-2">Seller Sign Up</h3>
+                  <p className="text-[#5C5C5C] mb-6">
                     Create a seller account to start selling your products
                   </p>
-                  <span className="inline-flex items-center text-rose-600 font-medium group-hover:text-rose-500 transition-colors">
+                  <span className="inline-flex items-center text-[#D4AF37] font-medium group-hover:text-[#1A1A1A] transition-colors">
                     Sign Up as Seller
                     <svg
                       className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform"
@@ -119,9 +119,9 @@ const SignupPage = () => {
             transition={{ delay: 0.4 }}
             className="mt-12 text-center"
           >
-            <p className="text-gray-600">
+            <p className="text-[#5C5C5C]">
               Already have an account?{" "}
-              <Link href="/login" className="font-medium text-rose-600 hover:text-rose-500 transition-colors">
+              <Link href="/login" className="font-medium text-[#D4AF37] hover:text-[#1A1A1A] transition-colors">
                 Sign in
               </Link>
             </p>

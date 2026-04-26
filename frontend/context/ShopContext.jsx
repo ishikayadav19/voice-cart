@@ -121,6 +121,53 @@ export const ShopProvider = ({ children }) => {
     removeFromWishlist(product.id)
   }
 
+  useEffect(() => {
+    const matchById = (item, id) =>
+      item && (item.id === id || item._id === id);
+
+    // Resolve a product object from the event payload. Prefers the full product
+    // shipped from the voice matcher; falls back to existing cart/wishlist
+    // entries; last resort is an id-only stub.
+    const resolveProduct = (detail) => {
+      if (detail?.product?.id || detail?.product?._id) return detail.product;
+      const id = detail?.product_id;
+      if (!id) return null;
+      return (
+        cart.find(item => matchById(item, id)) ||
+        wishlist.find(item => matchById(item, id)) ||
+        { _id: id, id }
+      );
+    };
+
+    const handleVoiceAddCart = (e) => {
+      const product = resolveProduct(e?.detail);
+      if (product) addToCart(product);
+    };
+    const handleVoiceRemoveCart = (e) => {
+      const id = e?.detail?.product_id;
+      if (id) removeFromCart(id);
+    };
+    const handleVoiceAddWishlist = (e) => {
+      const product = resolveProduct(e?.detail);
+      if (product) addToWishlist(product);
+    };
+    const handleVoiceRemoveWishlist = (e) => {
+      const id = e?.detail?.product_id;
+      if (id) removeFromWishlist(id);
+    };
+
+    window.addEventListener('voice:add-to-cart', handleVoiceAddCart);
+    window.addEventListener('voice:remove-from-cart', handleVoiceRemoveCart);
+    window.addEventListener('voice:add-to-wishlist', handleVoiceAddWishlist);
+    window.addEventListener('voice:remove-from-wishlist', handleVoiceRemoveWishlist);
+    return () => {
+      window.removeEventListener('voice:add-to-cart', handleVoiceAddCart);
+      window.removeEventListener('voice:remove-from-cart', handleVoiceRemoveCart);
+      window.removeEventListener('voice:add-to-wishlist', handleVoiceAddWishlist);
+      window.removeEventListener('voice:remove-from-wishlist', handleVoiceRemoveWishlist);
+    };
+  }, [cart, wishlist]);
+
   return (
     <ShopContext.Provider value={{
       wishlist,
