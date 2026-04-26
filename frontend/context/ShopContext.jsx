@@ -40,6 +40,24 @@ export const ShopProvider = ({ children }) => {
     setTimeout(() => setNotification(null), 3000)
   }
 
+  // Implicit personalisation log. Written to localStorage as "vc_interactions";
+  // a rolling window of the last 100 entries is kept so old behaviour decays.
+  const recordInteraction = (productId, type) => {
+    if (typeof window === 'undefined') return;
+    if (!productId) return;
+    if (type !== 'view' && type !== 'cart' && type !== 'wishlist') return;
+    try {
+      const raw = localStorage.getItem('vc_interactions');
+      const list = raw ? JSON.parse(raw) : [];
+      const next = Array.isArray(list) ? list : [];
+      next.push({ productId: String(productId), type, timestamp: Date.now() });
+      const trimmed = next.length > 100 ? next.slice(-100) : next;
+      localStorage.setItem('vc_interactions', JSON.stringify(trimmed));
+    } catch (err) {
+      console.error('recordInteraction failed:', err);
+    }
+  }
+
   const addToWishlist = (product) => {
     setWishlist(prev => {
       // Check if product already exists in wishlist using either _id or id
@@ -55,6 +73,7 @@ export const ShopProvider = ({ children }) => {
       showNotification('Added to wishlist')
       return [...prev, { ...product, id: product._id || product.id }]
     })
+    recordInteraction(product?._id || product?.id, 'wishlist');
   }
 
   const removeFromWishlist = (productId) => {
@@ -94,6 +113,7 @@ export const ShopProvider = ({ children }) => {
         quantity: 1
       }];
     });
+    recordInteraction(product?._id || product?.id, 'cart');
   }
 
   const removeFromCart = (productId) => {
@@ -168,6 +188,16 @@ export const ShopProvider = ({ children }) => {
     };
   }, [cart, wishlist]);
 
+  // PRODUCT_OPEN dispatched from voiceContext lands here as a "view" interaction.
+  useEffect(() => {
+    const handler = (e) => {
+      const { productId, type } = e?.detail || {};
+      recordInteraction(productId, type);
+    };
+    window.addEventListener('voice:record-interaction', handler);
+    return () => window.removeEventListener('voice:record-interaction', handler);
+  }, []);
+
   return (
     <ShopContext.Provider value={{
       wishlist,
@@ -181,7 +211,8 @@ export const ShopProvider = ({ children }) => {
       updateCartQuantity,
       moveToCart,
       setCart,
-      showNotification
+      showNotification,
+      recordInteraction
     }}>
       {children}
     </ShopContext.Provider>

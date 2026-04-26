@@ -17,6 +17,11 @@ const VoiceAssistant = ({ isActive: isActiveProp, setIsActive: setIsActiveProp, 
   const isActiveRef = useRef(isActive);
   const recognitionRef = useRef(null);
   const hasStartedRef = useRef(false);
+  // Sentiment heuristics: timestamp of when the current utterance started
+  // (set on first interim result, cleared on final) and the previous final
+  // transcript (for "same phrase twice in a row" detection).
+  const speechStartRef = useRef(0);
+  const prevFinalRef = useRef("");
 
   useEffect(() => { isActiveRef.current = isActive; }, [isActive]);
 
@@ -54,6 +59,10 @@ const VoiceAssistant = ({ isActive: isActiveProp, setIsActive: setIsActiveProp, 
             if (r.isFinal) finalText += r[0].transcript;
             else interimText += r[0].transcript;
           }
+          // Mark when this utterance began so we can compute speech rate.
+          if (!speechStartRef.current && (finalText || interimText)) {
+            speechStartRef.current = Date.now();
+          }
           setTranscript(finalText || interimText);
           if (!finalText) return;
           // Ignore mic input while TTS is speaking, to avoid echo loops where
@@ -63,10 +72,23 @@ const VoiceAssistant = ({ isActive: isActiveProp, setIsActive: setIsActiveProp, 
           if (typeof window !== "undefined" && window.__VC_SPEAKING_UNTIL__ &&
               Date.now() < window.__VC_SPEAKING_UNTIL__) return;
           const normalized = finalText.trim().toLowerCase();
-          if (!normalized || normalized === lastDispatchedRef.current) return;
+          if (!normalized) return;
+
+          // Sentiment classification from speech rate + repeat detection.
+          const startedAt = speechStartRef.current || Date.now();
+          speechStartRef.current = 0;
+          const durationSec = Math.max(0.001, (Date.now() - startedAt) / 1000);
+          const wordCount = normalized.split(/\s+/).filter(Boolean).length;
+          const wps = wordCount / durationSec;
+          let sentiment = "neutral";
+          if (prevFinalRef.current && prevFinalRef.current === normalized) sentiment = "frustrated";
+          else if (wps > 3.5) sentiment = "urgent";
+          prevFinalRef.current = normalized;
+
+          if (normalized === lastDispatchedRef.current) return;
           lastDispatchedRef.current = normalized;
-          console.log('Recognized Voice Command (final):', finalText);
-          interpretVoiceCommand(finalText);
+          console.log('Recognized Voice Command (final):', finalText, '| sentiment:', sentiment, `(${wps.toFixed(1)} wps)`);
+          interpretVoiceCommand(finalText, sentiment);
           // Allow the same phrase to be spoken again after a short gap.
           setTimeout(() => {
             if (lastDispatchedRef.current === normalized) lastDispatchedRef.current = "";

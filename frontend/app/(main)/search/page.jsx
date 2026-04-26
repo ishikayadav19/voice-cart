@@ -7,6 +7,7 @@ import Navbar from "../../components/navbar"
 import Footer from "../../components/footer"
 import ProductCard from "../../components/ProductCard"
 import { useShop } from '@/context/ShopContext'
+import useVoiceContext from '@/context/voiceContext'
 import Link from "next/link"
 
 const SearchPage = () => {
@@ -16,6 +17,7 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const { addToCart, addToWishlist, wishlist } = useShop()
+  const { personaliseResults } = useVoiceContext()
 
   useEffect(() => {
     const searchProducts = async () => {
@@ -85,7 +87,7 @@ const SearchPage = () => {
             <>
               <p className="text-[#5C5C5C] mb-6">Found {products.length} products</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((product) => (
+                {personaliseResults(products).map((product) => (
                   <ProductCard
                     key={product._id}
                     product={product}

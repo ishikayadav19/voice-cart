@@ -33,7 +33,10 @@ const ALLOWED_PARAM_KEYS = [
   'page',
   'product_id',
   'direction',
+  'response_hint',
 ];
+
+const ALLOWED_SENTIMENTS = new Set(['neutral', 'urgent', 'frustrated']);
 
 const SYSTEM_PROMPT = `You are a voice command interpreter for an e-commerce voice assistant called Voice Cart.
 
@@ -90,12 +93,18 @@ Examples (English / Hindi / Hinglish — all must work):
 - "stop listening"                                    -> STOP_LISTENING
 - "asdfgh blah blah"                                  -> UNKNOWN
 
-Allowed param keys: category, color, size, max_price, min_price, brand, query, page, product_id, direction.
+Allowed param keys: category, color, size, max_price, min_price, brand, query, page, product_id, direction, response_hint.
 - category, color, size, brand, query, page, product_id, direction are strings (lowercase where natural).
 - max_price and min_price are numbers in INR (no currency symbol).
 - page is a route slug from this list ONLY: home, cart, wishlist, orders, checkout, deals, sale, new-arrivals, products, search, contact, voice-shopping, profile, login, signup.
 - direction is one of: up, down, top, bottom.
 - Omit any key you cannot determine. Do NOT invent values.
+
+Sentiment context (when supplied as "Sentiment: <value>" before the user transcript):
+- "frustrated" — the user is repeating themselves; set params.response_hint = "verbose" so the system gives a longer, more reassuring confirmation.
+- "urgent"     — the user is speaking very fast; set params.response_hint = "brief" so the system replies in one or two words.
+- "neutral" or no sentiment — omit response_hint entirely.
+Do NOT set response_hint based on anything other than the supplied sentiment.
 
 confidence is a number between 0 and 1 reflecting how certain you are. If unsure, return UNKNOWN with low confidence rather than guessing NAVIGATE.
 
@@ -118,6 +127,9 @@ const sanitizeParams = (raw) => {
     if (key === 'max_price' || key === 'min_price') {
       const n = Number(raw[key]);
       if (Number.isFinite(n) && n >= 0) out[key] = n;
+    } else if (key === 'response_hint') {
+      const v = String(raw[key]).toLowerCase();
+      if (v === 'verbose' || v === 'brief') out[key] = v;
     } else {
       out[key] = String(raw[key]).slice(0, 200);
     }
@@ -149,14 +161,24 @@ const extractJSON = (text) => {
   }
 };
 
+const applySentimentHint = (resp, sentiment) => {
+  if (sentiment === 'frustrated') resp.params.response_hint = 'verbose';
+  else if (sentiment === 'urgent') resp.params.response_hint = 'brief';
+  else delete resp.params.response_hint;
+  return resp;
+};
+
 export async function POST(request) {
   let transcript = '';
   let history = [];
+  let sentiment = '';
 
   try {
     const body = await request.json();
     transcript = String(body?.transcript || '').trim();
     history = Array.isArray(body?.history) ? body.history.slice(-3) : [];
+    const s = String(body?.sentiment || '').toLowerCase();
+    if (ALLOWED_SENTIMENTS.has(s)) sentiment = s;
   } catch {
     return NextResponse.json(FALLBACK(''));
   }
@@ -168,16 +190,18 @@ export async function POST(request) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     console.error('GROQ_API_KEY is not configured');
-    return NextResponse.json(FALLBACK(transcript));
+    return NextResponse.json(applySentimentHint(FALLBACK(transcript), sentiment));
   }
 
   const historyContext = history.length
     ? history.map((h) => `${h.intent}${h.params ? ' ' + JSON.stringify(h.params) : ''}`).join(' | ')
     : '';
 
-  const userContent = historyContext
-    ? `Prior intents: ${historyContext}\nUser said: "${transcript}"`
-    : `User said: "${transcript}"`;
+  const sentimentLine = sentiment ? `Sentiment: ${sentiment}\n` : '';
+  const userContent =
+    sentimentLine +
+    (historyContext ? `Prior intents: ${historyContext}\n` : '') +
+    `User said: "${transcript}"`;
 
   try {
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -201,15 +225,15 @@ export async function POST(request) {
     if (!groqRes.ok) {
       const errText = await groqRes.text().catch(() => '');
       console.error('Groq API error:', groqRes.status, errText);
-      return NextResponse.json(FALLBACK(transcript));
+      return NextResponse.json(applySentimentHint(FALLBACK(transcript), sentiment));
     }
 
     const data = await groqRes.json();
     const content = data?.choices?.[0]?.message?.content;
     const parsed = extractJSON(content);
-    return NextResponse.json(validateIntent(parsed, transcript));
+    return NextResponse.json(applySentimentHint(validateIntent(parsed, transcript), sentiment));
   } catch (err) {
     console.error('Voice intent route error:', err?.message || err);
-    return NextResponse.json(FALLBACK(transcript));
+    return NextResponse.json(applySentimentHint(FALLBACK(transcript), sentiment));
   }
 }

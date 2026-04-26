@@ -286,6 +286,58 @@ export const VoiceProvider = ({ children }) => {
     return null;
   };
 
+  // Pick a voice response variant based on the sentiment-derived hint.
+  // Brief → urgent (≤2 words); verbose → frustrated (longer + reassuring).
+  const pickResponse = (params, brief, normal, verbose) => {
+    const hint = params?.response_hint;
+    if (hint === 'brief') return brief;
+    if (hint === 'verbose') return verbose;
+    return normal;
+  };
+
+  // Re-rank a product list by how often each id appears in vc_interactions.
+  // Stable: ties keep their original relative order. No-op when there's no
+  // interaction history yet (cold start) or input isn't an array.
+  const personaliseResults = (products) => {
+    if (!Array.isArray(products) || products.length === 0) return products;
+    if (typeof window === 'undefined') return products;
+    let interactions = [];
+    try {
+      const raw = localStorage.getItem('vc_interactions');
+      const parsed = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(parsed)) interactions = parsed;
+    } catch { return products; }
+    if (!interactions.length) return products;
+    const counts = new Map();
+    for (const i of interactions) {
+      if (!i?.productId) continue;
+      const key = String(i.productId);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    if (counts.size === 0) return products;
+    return products
+      .map((p, idx) => ({ p, idx, score: counts.get(String(p?._id || p?.id)) || 0 }))
+      .sort((a, b) => b.score - a.score || a.idx - b.idx)
+      .map((x) => x.p);
+  };
+
+  // Append a query to the rolling vc_last_searches list (cap 10, oldest dropped).
+  const recordLastSearch = (q) => {
+    if (typeof window === 'undefined') return;
+    const trimmed = String(q || '').trim();
+    if (!trimmed) return;
+    try {
+      const raw = localStorage.getItem('vc_last_searches');
+      const parsed = raw ? JSON.parse(raw) : [];
+      const list = Array.isArray(parsed) ? parsed : [];
+      list.push(trimmed);
+      const next = list.length > 10 ? list.slice(-10) : list;
+      localStorage.setItem('vc_last_searches', JSON.stringify(next));
+    } catch (err) {
+      console.error('recordLastSearch failed:', err);
+    }
+  };
+
   const dispatchIntent = async (intentObj) => {
     if (!intentObj || !intentObj.intent) return;
     const { intent, params = {} } = intentObj;
@@ -304,6 +356,11 @@ export const VoiceProvider = ({ children }) => {
           const data = await res.json();
           if (data?.match?.id) {
             router.push(`/product/${data.match.id}`);
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('voice:record-interaction', {
+                detail: { productId: data.match.id, type: 'view' },
+              }));
+            }
             voiceResponse(`Opening ${data.match.name}`);
             triggerModal('Opening product', data.match.name);
           } else {
@@ -322,7 +379,12 @@ export const VoiceProvider = ({ children }) => {
         const qs = buildSearchParams(params);
         const base = params.category ? '/search' : '/search';
         router.push(qs ? `${base}?${qs}` : base);
-        voiceResponse('Showing filtered results');
+        recordLastSearch(params.query || params.category || params.brand);
+        voiceResponse(pickResponse(params,
+          'Filtered',
+          'Showing filtered results',
+          "I understood you want to narrow the results. I'm applying those filters and loading the matching products now."
+        ));
         triggerModal('Filtering', qs || 'Showing results');
         break;
       }
@@ -331,7 +393,11 @@ export const VoiceProvider = ({ children }) => {
         const path = NAV_PAGE_MAP[slug];
         if (path) {
           router.push(path);
-          voiceResponse(`Navigating to ${slug}`);
+          voiceResponse(pickResponse(params,
+            slug,
+            `Navigating to ${slug}`,
+            `I understood you want to go to the ${slug} page. Taking you there now.`
+          ));
           triggerModal('Navigating...', `Going to ${slug}`);
         } else if (slug) {
           voicePageNavigator(slug);
@@ -356,13 +422,25 @@ export const VoiceProvider = ({ children }) => {
           }));
         }
         if (product) {
-          voiceResponse(`Added ${product.name} to your cart`);
+          voiceResponse(pickResponse(params,
+            'Added',
+            `Added ${product.name} to your cart`,
+            `I understood you want ${product.name} in your cart. Done — it's been added to your cart.`
+          ));
           triggerModal('Added to cart', product.name);
         } else if (q) {
-          voiceResponse(`I couldn't find ${q}. Try a clearer name.`);
+          voiceResponse(pickResponse(params,
+            'Not found',
+            `I couldn't find ${q}. Try a clearer name.`,
+            `I wasn't able to find a product matching "${q}". Could you try saying the full or clearer product name so I can locate it?`
+          ));
           triggerModal("Couldn't find product", q);
         } else {
-          voiceResponse('Adding to your cart');
+          voiceResponse(pickResponse(params,
+            'Adding',
+            'Adding to your cart',
+            "I understood. I'm adding the item to your cart now."
+          ));
         }
         break;
       }
@@ -457,10 +535,19 @@ export const VoiceProvider = ({ children }) => {
         const q = (params.query || '').trim();
         if (q) {
           router.push(`/search?q=${encodeURIComponent(q)}`);
-          voiceResponse(`Searching for ${q}`);
+          recordLastSearch(q);
+          voiceResponse(pickResponse(params,
+            'Searching',
+            `Searching for ${q}`,
+            `Got it. I'll search the catalog for ${q} and load the matching results for you now.`
+          ));
           triggerModal('Searching', q);
         } else {
-          voiceResponse('What would you like to search for?');
+          voiceResponse(pickResponse(params,
+            'Search what?',
+            'What would you like to search for?',
+            "I'd love to help you search — what product or category would you like me to look for?"
+          ));
         }
         break;
       }
@@ -479,6 +566,14 @@ export const VoiceProvider = ({ children }) => {
         } else {
           window.scrollBy(0, window.innerHeight / 2);
           triggerModal('Scrolling Down', '', true, <IconArrowDown size={50} />);
+        }
+        // Only speak when sentiment forced a hint — keep neutral scrolls silent.
+        if (params?.response_hint) {
+          voiceResponse(pickResponse(params,
+            dir,
+            `Scrolling ${dir}`,
+            `Got it. Scrolling ${dir} for you now.`
+          ));
         }
         break;
       }
@@ -803,7 +898,16 @@ export const VoiceProvider = ({ children }) => {
     }
   }
 
-  const interpretVoiceCommand = async (inputTranscript) => {
+  // Sentiment ("neutral" | "urgent" | "frustrated") is computed in the mic
+  // component from speech rate and repeat detection. Map it onto a verbosity
+  // hint that downstream voiceResponse calls will branch on.
+  const hintForSentiment = (sentiment) => {
+    if (sentiment === 'frustrated') return 'verbose';
+    if (sentiment === 'urgent') return 'brief';
+    return undefined;
+  };
+
+  const interpretVoiceCommand = async (inputTranscript, sentiment = 'neutral') => {
     const raw = (inputTranscript || transcript || '').trim();
 
     if (!raw) {
@@ -811,11 +915,16 @@ export const VoiceProvider = ({ children }) => {
       return;
     }
 
+    const hint = hintForSentiment(sentiment);
+
     // Fast path: handle obvious commands locally without an API round-trip.
     const quick = localQuickMatch(raw);
     if (quick) {
-      pushIntentHistory(quick);
-      dispatchIntent(quick);
+      const params = { ...(quick.params || {}) };
+      if (hint) params.response_hint = hint;
+      const enriched = { ...quick, params };
+      pushIntentHistory(enriched);
+      dispatchIntent(enriched);
       resetTranscript();
       return;
     }
@@ -827,6 +936,7 @@ export const VoiceProvider = ({ children }) => {
         body: JSON.stringify({
           transcript: raw,
           history: intentHistoryRef.current,
+          sentiment,
         }),
       });
 
@@ -837,7 +947,9 @@ export const VoiceProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Voice intent fetch failed:', err);
-      const fallback = { intent: 'UNKNOWN', params: { query: raw }, confidence: 0 };
+      const params = { query: raw };
+      if (hint) params.response_hint = hint;
+      const fallback = { intent: 'UNKNOWN', params, confidence: 0 };
       pushIntentHistory(fallback);
       dispatchIntent(fallback);
     } finally {
@@ -901,7 +1013,8 @@ export const VoiceProvider = ({ children }) => {
       cartProducts,
       updateCartProducts,
       intentHistory,
-      dispatchIntent
+      dispatchIntent,
+      personaliseResults
     }}>
 
       {children}
