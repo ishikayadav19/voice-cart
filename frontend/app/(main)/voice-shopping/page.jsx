@@ -73,21 +73,21 @@ const VoiceShoppingPage = () => {
       {/* Hero Section */}
       <div className="relative h-[500px] bg-gradient-to-r from-[#1A1A1A] to-[#D4AF37] mt-16">
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white max-w-3xl px-4">
+        <div className="absolute bottom-12 left-0 right-0 text-center">
+          <div className="text-white max-w-3xl px-4 mx-auto">
             <GradientText
               colors={["#ffffff", "#f0f0f0", "#ffffff", "#f0f0f0"]}
               animationSpeed={4}
-              className="text-4xl md:text-6xl font-serif font-light mb-6 tracking-wide"
+              className="text-2xl font-serif mb-6"
             >
               Voice Shopping Experience
             </GradientText>
-            <p className="text-xl md:text-2xl mb-8 opacity-90 font-light tracking-wide">
+            <p className="text-base mb-8 opacity-90 font-light">
               Shop hands-free with our advanced voice assistant. Just speak to search, browse, and buy.
             </p>
             <button
-              onClick={() => setIsVoiceActive(true)}
-              className="px-8 py-4 bg-white text-[#1A1A1A] rounded-full font-semibold text-lg hover:bg-[#D4AF37] hover:text-white transition-all duration-300 transform hover:scale-105 tracking-wider"
+              onClick={() => window.dispatchEvent(new CustomEvent('voice:activate'))}
+              className="px-8 py-4 bg-white text-[#1A1A1A] rounded-full font-semibold text-base hover:bg-[#D4AF37] hover:text-white transition-all duration-300 transform hover:scale-105"
             >
               Try Voice Shopping
             </button>
@@ -101,7 +101,7 @@ const VoiceShoppingPage = () => {
           <GradientText
             colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
             animationSpeed={3}
-            className="text-3xl md:text-4xl font-serif font-light text-center mb-12"
+            className="text-2xl font-serif font-light text-center mb-12"
           >
             How It Works
           </GradientText>
@@ -110,7 +110,7 @@ const VoiceShoppingPage = () => {
               <div key={index} className="bg-white border border-[#E5E0D8] p-6 rounded-lg shadow-lg">
                 <div className="mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-serif font-light mb-2 text-[#1A1A1A]">{feature.title}</h3>
-                <p className="text-[#5C5C5C]">{feature.description}</p>
+                <p className="text-base text-[#5C5C5C]">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -121,7 +121,7 @@ const VoiceShoppingPage = () => {
           <GradientText
             colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
             animationSpeed={3}
-            className="text-3xl md:text-4xl font-serif font-light text-center mb-12"
+            className="text-2xl font-serif font-light text-center mb-12"
           >
             Benefits
           </GradientText>
@@ -141,7 +141,7 @@ const VoiceShoppingPage = () => {
           <GradientText
             colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
             animationSpeed={3}
-            className="text-3xl md:text-4xl font-serif font-light text-center mb-12"
+            className="text-2xl font-serif font-light text-center mb-12"
           >
             Try These Commands
           </GradientText>
@@ -149,11 +149,20 @@ const VoiceShoppingPage = () => {
             <div className="bg-white border border-[#E5E0D8] rounded-lg shadow-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {commands.map((command, index) => (
-                  <div key={index} className="flex items-center gap-2 text-[#1A1A1A]">
+                  <div key={index} className="flex items-center gap-2 text-base text-[#1A1A1A]">
                     <ArrowRight className="w-5 h-5 text-[#D4AF37]" />
                     <span>{command}</span>
                   </div>
                 ))}
+              </div>
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('voice:activate'))}
+                  className="flex items-center gap-2 px-6 py-3 bg-[#D4AF37] text-white rounded-full font-semibold text-base hover:bg-[#1A1A1A] transition-all duration-300"
+                >
+                  <Mic className="w-5 h-5" />
+                  Activate Voice Assistant
+                </button>
               </div>
             </div>
           </div>
@@ -164,13 +173,13 @@ const VoiceShoppingPage = () => {
           <GradientText
             colors={["#D4AF37", "#1A1A1A", "#D4AF37"]}
             animationSpeed={3}
-            className="text-3xl md:text-4xl font-serif font-light mb-8"
+            className="text-2xl font-serif font-light mb-8"
           >
             Ready to Try?
           </GradientText>
           <button
-            onClick={() => setIsVoiceActive(true)}
-            className="px-8 py-4 bg-[#1A1A1A] text-white rounded-full font-semibold text-lg hover:bg-[#D4AF37] transition-all duration-300 transform hover:scale-105 tracking-wider"
+            onClick={() => window.dispatchEvent(new CustomEvent('voice:activate'))}
+            className="px-8 py-4 bg-[#1A1A1A] text-white rounded-full font-semibold text-base hover:bg-[#D4AF37] transition-all duration-300 transform hover:scale-105"
           >
             Start Voice Shopping
           </button>

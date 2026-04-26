@@ -152,11 +152,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center">
-              <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6]">
+            <div className="flex items-center w-full sm:w-auto flex-shrink-0">
+              <span className="text-3xl font-bold whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6]">
                 VoiceCart
               </span>
-              <Mic className="ml-1 h-6 w-6 text-[#D4AF37]" />
+              <Mic className="ml-1 h-6 w-6 flex-shrink-0 text-[#D4AF37]" />
             </div>
           </Link>
 
@@ -166,6 +166,7 @@ const Navbar = () => {
               <Link
                 key={category.name}
                 href={category.path}
+                onClick={(e) => { e.preventDefault(); router.push(category.path); }}
                 className="font-bold tracking-[0.15em] text-sm uppercase transition-colors text-[#1A1A1A] hover:text-[#D4AF37]"
               >
                 {category.name}
@@ -309,14 +310,14 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 py-6 border-t border-[#E5E0D8] bg-[#FDFBF7]/95 backdrop-blur-3xl absolute left-0 right-0 px-6 shadow-md">
+          <div className="lg:hidden mt-4 py-6 border-t border-[#E5E0D8] bg-[#FDFBF7]/95 backdrop-blur-3xl absolute left-0 right-0 px-6 shadow-md overflow-y-auto max-h-screen">
             <nav className="flex flex-col space-y-6">
               {categories.map((category) => (
                 <Link
                   key={category.name}
                   href={category.path}
                   className="text-[#1A1A1A] hover:text-[#D4AF37] font-medium tracking-widest text-sm uppercase transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={(e) => { e.preventDefault(); router.push(category.path); setIsMobileMenuOpen(false); }}
                 >
                   {category.name}
                 </Link>

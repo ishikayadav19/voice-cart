@@ -12,8 +12,9 @@ import SplashWrapper from "./components/SplashWrapper";
 const inter = Inter({ subsets: ["latin"], display: "swap" })
 
 export const metadata = {
-  title: "Voice Cart",
-  description: "Your voice-controlled shopping assistant",
+  title: "VoiceCart — AI Shopping",
+  description: "AI-powered voice shopping assistant with intelligent intent recognition, multilingual (Hinglish) support, and personalised product recommendations.",
+  icons: { icon: "/icon.png" },
 }
 
 export default function RootLayout({ children }) {

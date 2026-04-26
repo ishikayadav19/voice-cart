@@ -163,6 +163,10 @@ const VoiceAssistant = ({ isActive: isActiveProp, setIsActive: setIsActiveProp, 
   // Listen for explicit voice deactivation from dispatcher (FAREWELL / STOP_LISTENING)
   // and toggle from the global Ctrl+Space shortcut.
   useEffect(() => {
+    const handleActivate = () => {
+      isActiveRef.current = true;
+      setIsActive(true);
+    };
     const handleDeactivate = () => {
       isActiveRef.current = false;
       setIsActive(false);
@@ -172,9 +176,11 @@ const VoiceAssistant = ({ isActive: isActiveProp, setIsActive: setIsActiveProp, 
       isActiveRef.current = next;
       setIsActive(next);
     };
+    window.addEventListener('voice:activate', handleActivate);
     window.addEventListener('voice:deactivate', handleDeactivate);
     window.addEventListener('voice:toggle', handleToggle);
     return () => {
+      window.removeEventListener('voice:activate', handleActivate);
       window.removeEventListener('voice:deactivate', handleDeactivate);
       window.removeEventListener('voice:toggle', handleToggle);
     };
