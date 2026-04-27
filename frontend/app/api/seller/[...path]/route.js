@@ -37,21 +37,35 @@ export async function GET(request, { params }) {
     }
     
     if (path === 'dashboard') {
-      const seller = authenticateSeller(request);
+      // Auth issues should be 401, not bundled into the generic 500 catch.
+      let seller;
+      try {
+        seller = authenticateSeller(request);
+      } catch (err) {
+        return NextResponse.json({ message: err.message || 'Unauthorized' }, { status: 401 });
+      }
       const sellerId = seller.id;
-      
-      const { data: products } = await supabase.from('productsdata').select('*').eq('seller', sellerId);
-      const { data: orderItems } = await supabase.from('order_items').select('*, orders(*)').eq('seller_id', sellerId);
+
+      // Don't let a missing/empty table 500 the whole dashboard. Log the
+      // Supabase error and treat the data as empty — a brand-new seller with
+      // no orders should still see an (empty) dashboard, not an error.
+      const productsRes = await supabase.from('productsdata').select('*').eq('seller', sellerId);
+      if (productsRes.error) console.error('[seller/dashboard] products query error:', productsRes.error);
+      const products = productsRes.data || [];
+
+      const orderItemsRes = await supabase.from('order_items').select('*, orders(*)').eq('seller_id', sellerId);
+      if (orderItemsRes.error) console.error('[seller/dashboard] order_items query error:', orderItemsRes.error);
+      const orderItems = orderItemsRes.data || [];
 
       let totalSales = 0;
       let totalOrders = 0;
       const customerEmails = new Set();
       const recentOrdersMap = new Map();
 
-      (orderItems || []).forEach(item => {
-        totalSales += item.price * item.quantity;
+      orderItems.forEach(item => {
+        totalSales += (item.price || 0) * (item.quantity || 0);
         if (item.orders) {
-          customerEmails.add(item.orders.email);
+          if (item.orders.email) customerEmails.add(item.orders.email);
           if (!recentOrdersMap.has(item.order_id)) {
             totalOrders++;
             recentOrdersMap.set(item.order_id, {
@@ -70,7 +84,7 @@ export async function GET(request, { params }) {
         stats: {
           totalSales,
           totalOrders,
-          totalProducts: (products || []).length,
+          totalProducts: products.length,
           totalCustomers: customerEmails.size
         },
         recentOrders: recentOrders.slice(0, 5)
