@@ -65,8 +65,19 @@ const SellerDashboard = () => {
           setRecentOrders(mappedOrders)
         }
       } catch (error) {
-        console.error("Error fetching dashboard data:", error)
-        toast.error("Failed to load dashboard data")
+        const status = error?.response?.status;
+        const body = error?.response?.data;
+        console.error("Error fetching dashboard data:", { status, body, message: error?.message });
+        if (status === 401) {
+          // Stored token is stale or signed with an old JWT_SECRET. Clear
+          // and bounce to login so the next session gets a fresh token.
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          toast.error('Your session expired — please log in again.');
+          router.push('/seller/login');
+          return;
+        }
+        toast.error(body?.message || `Failed to load dashboard data${status ? ` (${status})` : ''}`)
       } finally {
         setIsLoading(false)
       }

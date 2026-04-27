@@ -152,11 +152,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center w-full sm:w-auto flex-shrink-0">
-              <span className="text-3xl font-bold whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6]">
+            <div className="flex items-center flex-shrink-0">
+              <span className="text-2xl sm:text-3xl font-bold whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6]">
                 VoiceCart
               </span>
-              <Mic className="ml-1 h-6 w-6 flex-shrink-0 text-[#D4AF37]" />
+              <Mic className="ml-1 h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 text-[#D4AF37]" />
             </div>
           </Link>
 

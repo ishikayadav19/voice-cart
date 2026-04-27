@@ -133,11 +133,15 @@ export async function POST(request, { params }) {
     if (path === 'login') {
       const { email, password } = body;
       const { data: seller, error } = await supabase.from('sellersdata').select('*').eq('email', email).single();
-      
-      if (error || !seller || seller.password !== password) {
-        return NextResponse.json({ message: "Invalid email or password" }, { status: 401 });
-      }
 
+      if (error || !seller) {
+        console.warn('[seller/login] no seller found for email:', email, error?.message);
+        return NextResponse.json({ message: "No seller account with that email" }, { status: 401 });
+      }
+      if (seller.password !== password) {
+        console.warn('[seller/login] wrong password for email:', email);
+        return NextResponse.json({ message: "Wrong password" }, { status: 401 });
+      }
       if (!seller.is_approved) {
         return NextResponse.json({ message: "Your account is pending approval. Please wait for admin approval before logging in." }, { status: 403 });
       }
