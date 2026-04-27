@@ -286,12 +286,12 @@ const Navbar = () => {
             {!isLoggedIn && (
               <div className="hidden md:flex items-center space-x-3 ml-2">
                 <Link href="/login">
-                  <span className={`px-5 py-2.5 border font-bold tracking-[0.15em] uppercase text-xs rounded-full transition-colors ${isScrolled ? "bg-white border-[#E5E0D8] text-[#1A1A1A] hover:bg-[#FAF9F6]" : "border-white/50 bg-white/40 shadow-sm text-[#1A1A1A] hover:bg-white/60"}`}>
+                  <span className={`inline-block whitespace-nowrap px-5 py-2.5 border font-bold tracking-[0.15em] uppercase text-xs rounded-full transition-colors ${isScrolled ? "bg-white border-[#E5E0D8] text-[#1A1A1A] hover:bg-[#FAF9F6]" : "border-white/50 bg-white/40 shadow-sm text-[#1A1A1A] hover:bg-white/60"}`}>
                     Login
                   </span>
                 </Link>
                 <Link href="/signup">
-                  <span className="px-5 py-2.5 bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6] text-white font-bold tracking-[0.15em] uppercase text-xs rounded-full hover:shadow-md transition-all">
+                  <span className="inline-block whitespace-nowrap px-5 py-2.5 bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6] text-white font-bold tracking-[0.15em] uppercase text-xs rounded-full hover:shadow-md transition-all">
                     Sign Up
                   </span>
                 </Link>
