@@ -1,24 +1,11 @@
 "use client";
 
-import { useState } from 'react';
 import Navbar from '@/app/components/navbar';
 import Footer from '@/app/components/footer';
-import VoiceAssistant from '@/app/components/voice-assistant';
 import GradientText from '@/app/components/GradientText';
 import { Mic, ShoppingCart, Search, ArrowRight, Star, Shield, Clock } from 'lucide-react';
 
 const VoiceShoppingPage = () => {
-  const [isVoiceActive, setIsVoiceActive] = useState(false);
-
-  const handleVoiceCommand = (command) => {
-    if (command.includes("search")) {
-      const searchTerm = command.replace("search", "").trim();
-      // Handle search
-    } else if (command.includes("go to") || command.includes("navigate to")) {
-      const destination = command.replace("go to", "").replace("navigate to", "").trim();
-      // Handle navigation
-    }
-  };
 
   const features = [
     {
@@ -185,11 +172,6 @@ const VoiceShoppingPage = () => {
           </button>
         </section>
       </main>
-
-      {/* Voice Assistant */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <VoiceAssistant isActive={isVoiceActive} setIsActive={setIsVoiceActive} onCommand={handleVoiceCommand} />
-      </div>
 
       <Footer />
     </div>

@@ -6,7 +6,6 @@ import Navbar from "./components/navbar"
 import ProductCard from "./components/ProductCard"
 import Footer from "./components/footer";
 import OfferBanner from "./components/offer-banner"
-import VoiceAssistant from "./components/voice-assistant"
 import SignatureShowcase from "./components/SignatureShowcase"
 import CuratedCollections from "./components/CuratedCollections"
 import MembershipTier from "./components/MembershipTier"
@@ -59,7 +58,6 @@ const bannerSlides = [
 export default function Home() {
   const { addToCart, addToWishlist, cart, wishlist } = useShop();
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isVoiceActive, setIsVoiceActive] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState([])
@@ -79,21 +77,6 @@ export default function Home() {
 
   const nextSlide = () => setCurrentSlide((prev) => (prev === bannerSlides.length - 1 ? 0 : prev + 1))
   const prevSlide = () => setCurrentSlide((prev) => (prev === 0 ? bannerSlides.length - 1 : prev - 1))
-
-  const handleVoiceCommand = (command) => {
-    if (command.includes("search")) {
-      const searchTerm = command.replace("search", "").trim()
-      setSearchQuery(searchTerm)
-    } else if (command.includes("go to") || command.includes("navigate to")) {
-      const destination = command.replace("go to", "").replace("navigate to", "").trim()
-      const categoryMap = {
-        electronics: "/category/electronics", fashion: "/category/fashion", home: "/category/home",
-        beauty: "/category/beauty", sports: "/category/sports", books: "/category/books",
-        cart: "/cart", wishlist: "/wishlist", login: "/login", signup: "/signup", contact: "/contact",
-      }
-      if (categoryMap[destination]) window.location.href = categoryMap[destination]
-    }
-  }
 
   const fetchProducts = async () => {
     try {
@@ -130,11 +113,6 @@ export default function Home() {
 
       <div className="relative z-[9999] w-full">
         <Navbar cartItems={cart} wishlistItems={wishlist} totalCartItems={cart.length} />
-      </div>
-
-      {/* Voice Assistant Floating Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <VoiceAssistant isActive={isVoiceActive} setIsActive={setIsVoiceActive} onCommand={handleVoiceCommand} />
       </div>
 
       {/* Hero 3D Banner Slider */}
@@ -302,7 +280,7 @@ export default function Home() {
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: "0px 0px 30px rgba(212,175,55,0.3)" }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsVoiceActive(true)}
+                  onClick={() => window.dispatchEvent(new CustomEvent('voice:activate'))}
                   className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#E6B9A6] text-white font-medium tracking-[0.2em] text-sm uppercase rounded-full flex items-center space-x-3 transition-all"
                 >
                   <Mic size={20} />
