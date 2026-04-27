@@ -94,9 +94,16 @@ export async function POST(request, { params }) {
       const id = [...Array(24)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
       // Whitelist real columns. `role` is client-side only; `storeName`
       // arrives camelCase from the form but the DB column is `store_name`.
-      const row = { id };
+      // confirm_password is a NOT NULL column on sellersdata; the form
+      // already validated password === confirmPassword, so mirror password
+      // into it. is_approved defaults to false so the admin still has to
+      // approve before login.
+      const row = { id, is_approved: false };
       if (body.email !== undefined) row.email = body.email;
-      if (body.password !== undefined) row.password = body.password;
+      if (body.password !== undefined) {
+        row.password = body.password;
+        row.confirm_password = body.password;
+      }
       if (body.name !== undefined) row.name = body.name;
       if (body.phone !== undefined) row.phone = body.phone;
       if (body.address !== undefined) row.address = body.address;
