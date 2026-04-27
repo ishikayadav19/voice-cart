@@ -123,19 +123,19 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-[#5C5C5C] font-light hover:text-[#D4AF37] transition-colors flex items-center">
+                <Link href="#" className="text-[#5C5C5C] font-light hover:text-[#D4AF37] transition-colors flex items-center">
                   <span className="w-1 h-1 rounded-full bg-[#D4AF37] mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   FAQs
                 </Link>
               </li>
               <li>
-                <Link href="/shipping" className="text-[#5C5C5C] font-light hover:text-[#D4AF37] transition-colors flex items-center">
+                <Link href="#" className="text-[#5C5C5C] font-light hover:text-[#D4AF37] transition-colors flex items-center">
                   <span className="w-1 h-1 rounded-full bg-[#D4AF37] mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   Shipping & Delivery
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-[#5C5C5C] font-light hover:text-[#D4AF37] transition-colors flex items-center">
+                <Link href="#" className="text-[#5C5C5C] font-light hover:text-[#D4AF37] transition-colors flex items-center">
                   <span className="w-1 h-1 rounded-full bg-[#D4AF37] mr-2 opacity-0 hover:opacity-100 transition-opacity"></span>
                   Privacy Policy
                 </Link>

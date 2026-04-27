@@ -20,6 +20,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        {/* Force-upgrade any stray http:// resource references (e.g. legacy
+            product image URLs stored that way in the DB). Without this the
+            browser still upgrades them but emits a Mixed Content warning. */}
+        <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+      </head>
       <body className={inter.className}>
         <Toaster />
         <AuthProvider>

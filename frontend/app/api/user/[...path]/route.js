@@ -64,12 +64,21 @@ export async function POST(request, { params }) {
     if (path === 'add') {
       // Create random 24 char hex string like bson-objectid
       const id = [...Array(24)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-      const { error } = await supabase.from('usersdata').insert([{ id, ...body }]);
+      // Whitelist real columns. The client sends `role` for routing, but
+      // the usersdata table doesn't have that column — including it in the
+      // insert causes a 500 from Supabase.
+      const row = { id };
+      if (body.email !== undefined) row.email = body.email;
+      if (body.password !== undefined) row.password = body.password;
+      if (body.name !== undefined) row.name = body.name;
+      if (body.phone !== undefined) row.phone = body.phone;
+      if (body.city !== undefined) row.city = body.city;
+      const { error } = await supabase.from('usersdata').insert([row]);
       if (error) {
         if (error.code === '23505') return NextResponse.json({ message: "Email already registered" }, { status: 400 });
         throw error;
       }
-      return NextResponse.json({ id, ...body });
+      return NextResponse.json(row);
     }
     
     if (path === 'login') {
